@@ -289,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.canvas.height = 128;
             this.ctx = this.canvas.getContext('2d');
             
+            this.paletteIndex = Math.floor(Math.random() * 5);
             this.cols = 6; 
             this.rows = 4;
             this.windowSizeW = 12;
@@ -316,19 +317,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         draw() {
             const ctx = this.ctx;
-            ctx.fillStyle = '#999999';
-            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            for (let r = 0; r < this.rows; r++) {
-                for (let c = 0; c < this.cols; c++) {
-                    const isLightOn = this.windowStates[r][c];
-                    ctx.fillStyle = isLightOn ? '#ffffaa' : '#333333';
-                    const windowX = 10 + (c * 20);
-                    const windowY = 10 + (r * 32);
-                    ctx.fillRect(windowX, windowY, this.windowSizeW, this.windowSizeH);
+            const w = this.canvas.width, h = this.canvas.height;
+            const palettes = [
+                {base:'#8b9699', dark:'#5a656b', trim:'#c0c8c6', glass:'#263a49'},
+                {base:'#a69a88', dark:'#6c6258', trim:'#d5c7ae', glass:'#293b49'},
+                {base:'#687b85', dark:'#3d505b', trim:'#a7b8bb', glass:'#253b4a'},
+                {base:'#9a8175', dark:'#604d48', trim:'#c7aa97', glass:'#273b48'},
+                {base:'#777d80', dark:'#4c555a', trim:'#b7b9b3', glass:'#263945'}
+            ];
+            const palette = palettes[this.paletteIndex || 0];
+            // Fine concrete grain and a gentle top-to-bottom facade gradient.
+            ctx.fillStyle = palette.base; ctx.fillRect(0,0,w,h);
+            const gradient=ctx.createLinearGradient(0,0,w,h);
+            gradient.addColorStop(0,'rgba(255,255,255,.13)');
+            gradient.addColorStop(.48,'rgba(255,255,255,0)');
+            gradient.addColorStop(1,'rgba(0,0,0,.24)');
+            ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);
+            for(let i=0;i<180;i++){
+                const x=(i*37+this.paletteIndex*13)%w, y=(i*53+this.paletteIndex*7)%h;
+                ctx.fillStyle=i%2?'rgba(255,255,255,.045)':'rgba(0,0,0,.055)';
+                ctx.fillRect(x,y,1+(i%3),1);
+            }
+            // Structural columns and floor slabs make the facade read as a real building.
+            ctx.fillStyle=palette.dark;
+            ctx.fillRect(0,0,5,h);ctx.fillRect(w-5,0,5,h);
+            for(let r=0;r<this.rows;r++){
+                const floorY=6+r*31;
+                ctx.fillStyle=palette.trim;ctx.fillRect(5,floorY,w-10,3);
+                for(let c=0;c<this.cols;c++){
+                    const x=8+c*20, y=11+r*31;
+                    const lit=this.windowStates[r][c];
+                    ctx.fillStyle='rgba(0,0,0,.36)';ctx.fillRect(x-2,y-2,16,23);
+                    ctx.fillStyle=palette.dark;ctx.fillRect(x-1,y-1,14,21);
+                    ctx.fillStyle=lit?'#f8dca0':palette.glass;ctx.fillRect(x+1,y+1,10,16);
+                    if(!lit){ctx.fillStyle='rgba(110,190,220,.22)';ctx.fillRect(x+2,y+2,2,14);}
+                    else {ctx.fillStyle='rgba(255,255,220,.58)';ctx.fillRect(x+2,y+2,2,13);}
+                    ctx.fillStyle=palette.trim;ctx.fillRect(x-2,y+18,16,2);
+                    ctx.fillStyle='rgba(255,255,255,.20)';ctx.fillRect(x-1,y-1,14,1);
                 }
             }
-            
+            // Ground-floor shopfronts, entrance doors and a subtle sign band.
+            ctx.fillStyle='#333b40';ctx.fillRect(0,h-25,w,25);
+            ctx.fillStyle=palette.trim;ctx.fillRect(0,h-27,w,3);
+            for(let x=8;x<w-8;x+=25){
+                ctx.fillStyle='#203541';ctx.fillRect(x,h-23,17,15);
+                ctx.fillStyle='#6a9ba8';ctx.fillRect(x+2,h-21,13,10);
+                ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(x+3,h-20,2,8);
+            }
+            ctx.fillStyle='#c59d53';ctx.fillRect(8,h-7,w-16,3);
             this.texture.needsUpdate = true;
             this.textureInstances.forEach(t => t.needsUpdate = true);
         }
