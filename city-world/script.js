@@ -1922,7 +1922,9 @@ document.addEventListener('DOMContentLoaded', () => {
       {id:'dealer',name:'AUTO DEALER',x:.78,z:.18,color:0xffb703},
       {id:'property',name:'REAL ESTATE',x:.18,z:.78,color:0xb7a0ff},
       {id:'gym',name:'GYM',x:.78,z:.78,color:0x35ff9b},
-      {id:'delivery',name:'LOGISTICS',x:.50,z:.50,color:0xff765e}
+      {id:'delivery',name:'LOGISTICS',x:.50,z:.50,color:0xff765e},
+      {id:'cafe',name:'CAFE',x:.50,z:.18,color:0xff8a65},
+      {id:'restaurant',name:'DINER',x:.50,z:.82,color:0xffca5a}
     ];
     let serviceBuildings=[];
     function updateCareer(task) {
@@ -1965,6 +1967,12 @@ document.addEventListener('DOMContentLoaded', () => {
           updateCareer('DEALER // VEHICLE TIER '+career.vehicle+' BOUGHT -€'+price);
           break;
         }
+        case 'cafe':
+          if(career.money<8){updateCareer('CAFE // NEED €8 FOR FOOD');break;}
+          career.money-=8;career.hunger=Math.max(0,career.hunger-30);updateCareer('CAFE // MEAL €8 // HUNGER -30');break;
+        case 'restaurant':
+          if(career.money<18){updateCareer('DINER // NEED €18');break;}
+          career.money-=18;career.hunger=Math.max(0,career.hunger-65);career.fitness=Math.min(100,career.fitness+5);updateCareer('DINER // MEAL €18 // HUNGER -65');break;
         case 'property':
           if(!career.property){
             if(career.money<180){updateCareer('PROPERTY // NEED €180');break;}
@@ -2038,6 +2046,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 g.receiveShadow = true;
                 scene.add(g);
 
+                // Road furniture for the connected city map: marked zebra crossings and sidewalk pedestrians.
+                const roadPropMat = new THREE.MeshStandardMaterial({color:'#e8e7dd', roughness:.9});
+                const curbMat = new THREE.MeshStandardMaterial({color:'#c8c9c5', roughness:1});
+                const stripeGeo = new THREE.BoxGeometry(1.15,.045,3.8);
+                const curbGeo = new THREE.BoxGeometry(1.1,.22,18);
+                const pedestrianBodyGeo = new THREE.CapsuleGeometry(.34,.72,2,5);
+                const pedestrianHeadGeo = new THREE.SphereGeometry(.25,6,5);
+                const pedestrianLegGeo = new THREE.CylinderGeometry(.105,.12,.48,5);
+                const pedestrianClothes=['#d24e48','#3b85a7','#d5a83d','#4e8061','#795c9e'].map(color=>new THREE.MeshStandardMaterial({color,roughness:.9}));
+                const pedestrianSkin=['#c98e65','#e1b18a','#80563f'].map(color=>new THREE.MeshStandardMaterial({color,roughness:.9}));
+                // Place crossings on selected street junctions; positions use the same world transform as road tiles.
+                for(let z=3;z<h-3;z+=8){
+                    for(let x=3;x<w-3;x+=6){
+                        if(mapGrid[z][x]==='#') continue;
+                        const wx=x*BLOCK_SIZE-w*BLOCK_SIZE/2, wz=z*BLOCK_SIZE-h*BLOCK_SIZE/2;
+                        for(let stripe=0;stripe<7;stripe++){
+                            const mark=new THREE.Mesh(stripeGeo,roadPropMat);
+                            mark.position.set(wx-6+stripe*2,.025,wz);scene.add(mark);markes:
+                            ; 
+                        }
+                        for(const side of [-1,1]){
+                            const person=new THREE.Group();
+                            const body=new THREE.Mesh(pedestrianBodyGeo,pedestrianClothes[(x+z+side+10)%pedestrianClothes.length]);
+                            body.position.y=.92;person.add(body);
+                            const head=new THREE.Mesh(pedestrianHeadGeo,pedestrianSkin[(x+z+side+10)%pedestrianSkin.length]);
+                            head.position.y=1.58;person.add(head);
+                            const leg1=new THREE.Mesh(pedestrianLegGeo,new THREE.MeshStandardMaterial({color:'#29333c'}));
+                            leg1.position.set(-.13,.28,0);person.add(leg1);
+                            const leg2=leg1.clone();leg2.position.x=.13;person.add(leg2);
+                            person.position.set(wx+side*13,0,wz+9);
+                            scene.add(person);
+                        }
+                    }
+                }
                 const boxGeo = new THREE.BoxGeometry(1,1,1);
                 const wallOffX = w * BLOCK_SIZE / 2, wallOffZ = h * BLOCK_SIZE / 2;
                 serviceBuildings=[];
