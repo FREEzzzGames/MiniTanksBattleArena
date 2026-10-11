@@ -31,8 +31,7 @@ try {
   if (!/AUTO AIM OFF/.test(await page.locator('#aimBtn').innerText())) throw new Error('Auto aim toggle did not change');
   await page.locator('#aimBtn').click();
   await page.locator('#reloadBtn').click();
-  await page.locator('#fireBtn').dispatchEvent('pointerdown', { pointerId: 1, pointerType: 'touch', clientX: 350, clientY: 750, isPrimary: true });
-  await page.locator('#fireBtn').dispatchEvent('pointerup', { pointerId: 1, pointerType: 'touch', clientX: 350, clientY: 750, isPrimary: true });
+  await page.locator('#fireBtn').tap();
   await page.locator('#smokeBtn').click();
   if (!/SMOKE ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
   await page.locator('#pauseBtn').click();
