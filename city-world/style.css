@@ -510,3 +510,55 @@ h1 { font-size:clamp(16px, 5vw, 30px); }
   .mobile-control-btn.tank-fire { width: 62px; height: 62px; }
   #mobile-action { max-width: 52vw; }
 }
+
+
+/* Final responsive touch HUD: safe-area aware, no legacy controls */
+#mobile-controls {
+  z-index: 3000;
+  padding: 0 clamp(7px, 2vw, 16px) max(14px, env(safe-area-inset-bottom));
+  align-items: flex-end;
+  gap: clamp(4px, 1.5vw, 12px);
+}
+#mobile-drive, #mobile-action { pointer-events: none; }
+#mobile-drive { align-items: center; gap: 6px; }
+#mobile-action { align-items: center; gap: 6px; max-width: 49vw; }
+.drive-row, .aim-row { pointer-events: none; gap: clamp(4px, 1.2vw, 8px); }
+.mobile-control-btn { pointer-events: auto; touch-action: none; }
+.mobile-control-btn.drive-btn {
+  width: clamp(42px, 11vw, 62px);
+  height: clamp(42px, 11vw, 62px);
+}
+.mobile-control-btn.tank-aim {
+  width: clamp(42px, 10.5vw, 60px);
+  height: clamp(42px, 10.5vw, 60px);
+}
+.mobile-control-btn.tank-fire {
+  width: clamp(64px, 16vw, 86px);
+  height: clamp(64px, 16vw, 86px);
+}
+.mobile-auto-aim {
+  pointer-events: auto;
+  touch-action: manipulation;
+  border: 1px solid rgba(110,255,196,.7);
+  border-radius: 18px;
+  padding: 8px 10px;
+  min-height: 34px;
+  color: #eafff5;
+  background: rgba(11,43,35,.92);
+  font: 800 clamp(9px, 2.5vw, 12px)/1 monospace;
+  letter-spacing: .3px;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,.3);
+}
+.mobile-auto-aim.auto-aim-on { background: rgba(17,105,68,.95); border-color: #6dffc1; }
+.mobile-auto-aim:not(.auto-aim-on) { background: rgba(48,48,48,.92); border-color: #a2a2a2; color: #d0d0d0; }
+#mobile-controls button { -webkit-tap-highlight-color: transparent; }
+@media (orientation: landscape) {
+  #mobile-controls { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .tank-control-cluster { gap: 4px; }
+  .mobile-control-btn.drive-btn, .mobile-control-btn.tank-aim {
+    width: clamp(38px, 8vh, 54px); height: clamp(38px, 8vh, 54px);
+  }
+  .mobile-control-btn.tank-fire { width: clamp(52px, 10vh, 68px); height: clamp(52px, 10vh, 68px); }
+  .mobile-auto-aim { min-height: 28px; padding: 6px 8px; }
+}
