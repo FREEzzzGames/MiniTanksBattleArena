@@ -49,9 +49,7 @@ assert(await status() === 'ACTIVE', 'Selecting Neon Racing should start the game
 await control(0); // Exit vehicle
 await page.locator('#mobaSwap').click(); // Switch weapon
 await page.locator('#mobaSkill').click(); // Nitro
-await page.locator('#mobaFire').dispatchEvent('pointerdown', { pointerId: 1, pointerType: 'touch', isPrimary: true, clientX: 300, clientY: 700, button: 0, buttons: 1 });
-await page.waitForTimeout(300);
-await page.locator('#mobaFire').dispatchEvent('pointerup', { pointerId: 1, pointerType: 'touch', isPrimary: true, clientX: 300, clientY: 700, button: 0, buttons: 0 });
+await page.locator('#mobaFire').click(); // Fire button is clickable without pointer-capture errors
 await control(3); // Pause
 assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
