@@ -14,15 +14,17 @@ const status = async () => (await page.locator('#status').innerText()).trim();
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
 assert(await page.locator('[data-mode]').count() === 3, 'Expected three game selectors');
-assert(await page.locator('#controls button').count() === 6, 'Tetris must expose six functional controls');
+assert(await page.locator('#controls button').count() === 7, 'Tetris must expose seven functional controls including Hold');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Tetris Play should start the game');
-await control(0); await control(1); await control(2); await control(3); await control(4);
-await control(5);
+await control(0); await control(1); await control(2); await control(3); await control(4); // HOLD
+await control(5); // DROP
+await control(6); // PAUSE
 assert(await status() === 'PAUSED', 'Tetris pause button should pause');
 assert((await page.locator('#play').innerText()).includes('RESUME'), 'Pause overlay must offer Resume');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Resume should return to active play');
+await control(4); // Hold can be used once on the active piece
 
 await click('[data-mode="arkanoid"]');
 assert(await page.locator('#controls button').count() === 5, 'Arkanoid should expose five controls');
