@@ -40,9 +40,9 @@ try {
   await frame.locator('#mapMenu.hidden').waitFor({ state: 'attached' });
   await frame.locator('#customizeButton').evaluate(el => el.click());
   await frame.locator('#customizeMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await cityPage.keyboard.press('c');
+  await frame.locator('#customizeButton').evaluate(el => el.click());
   await frame.locator('#customizeMenu.hidden').waitFor({ state: 'attached' });
-  await cityPage.keyboard.press('o');
+  await frame.locator('#optionsHint').evaluate(el => el.dispatchEvent(new KeyboardEvent('keydown', {key:'o', bubbles:true})));
   await frame.locator('#optionsMenu:not(.hidden)').waitFor({ state: 'visible' });
   await frame.locator('#physOldBtn').evaluate(el => el.click());
   await frame.locator('#physNewBtn').evaluate(el => el.click());
