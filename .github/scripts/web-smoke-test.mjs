@@ -55,6 +55,28 @@ assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Racing resume should work');
 await page.waitForTimeout(350);
+// Driver exit, city building interaction, and a route back to the road.
+await page.locator('#mobaExit').click();
+await page.waitForTimeout(1750);
+await page.keyboard.press('e');
+await page.waitForTimeout(80);
+assert((await page.locator('#task').innerText()).includes('BANK'), 'Walking mode should allow interaction with the bank');
+await page.keyboard.press('ArrowLeft'); // Transit gate at city position zero
+await page.locator('#mobaExit').click();
+await page.waitForTimeout(80);
+assert((await page.locator('#task').innerText()).includes('RETURNED TO ROAD'), 'Transit gate should return the driver to the road');
+// Check small portrait, landscape, and large viewport canvas scaling.
+for (const viewport of [{ width: 320, height: 640 }, { width: 844, height: 390 }, { width: 768, height: 1024 }]) {
+  await page.setViewportSize(viewport);
+  await page.waitForTimeout(100);
+  const layout = await page.evaluate(() => {
+    const c = document.querySelector('#game'), r = c.getBoundingClientRect();
+    return { vw: innerWidth, vh: innerHeight, cw: c.width, ch: c.height, left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+  });
+  assert(layout.cw > 0 && layout.ch > 0, 'Canvas should resize at ' + viewport.width + 'x' + viewport.height);
+  assert(layout.left >= -1 && layout.right <= viewport.width + 1, 'Canvas must stay horizontally in viewport at ' + viewport.width + 'x' + viewport.height);
+  assert(layout.top >= -1 && layout.bottom <= viewport.height + 1, 'Canvas must stay vertically in viewport at ' + viewport.width + 'x' + viewport.height);
+}
 const canvasState = await page.locator('#game').evaluate(c => ({ width: c.width, height: c.height, hasContext: !!c.getContext('2d') }));
 assert(canvasState.width > 0 && canvasState.height > 0 && canvasState.hasContext, 'Canvas should be initialized');
 assert(errors.length === 0 && consoleErrors.length === 0, 'Runtime errors: ' + errors.join(' | ') + '; console: ' + consoleErrors.join(' | '));
