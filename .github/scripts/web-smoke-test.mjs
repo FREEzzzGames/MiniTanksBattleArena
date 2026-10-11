@@ -77,6 +77,19 @@ for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft'); // Transit g
 await page.locator('#mobaExit').click();
 await page.waitForTimeout(80);
 assert((await page.locator('#task').innerText()).includes('RETURNED TO ROAD'), 'Transit gate should return the driver to the road');
+// The copied MIT-licensed procedural city must launch inside the portal and close cleanly.
+await click('#openCityWorld');
+await page.waitForFunction(() => {
+  const frame = document.querySelector('#cityWorldFrame');
+  try { return frame?.contentDocument?.querySelector('#gameContainer') !== null; } catch { return false; }
+}, null, { timeout: 10000 });
+const cityFrame = page.frameLocator('#cityWorldFrame');
+assert(await cityFrame.locator('#gameContainer').count() === 1, 'Open City overlay should load the standalone city game');
+assert(await page.locator('#cityWorldOverlay').evaluate(el => el.classList.contains('open')), 'Open City overlay should become visible');
+await click('#closeCityWorld');
+assert(!(await page.locator('#cityWorldOverlay').evaluate(el => el.classList.contains('open'))), 'Open City overlay should close');
+await page.waitForTimeout(100);
+
 // Check small portrait, landscape, and large viewport canvas scaling.
 for (const viewport of [{ width: 320, height: 640 }, { width: 844, height: 390 }, { width: 768, height: 1024 }]) {
   await page.setViewportSize(viewport);
