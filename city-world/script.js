@@ -2010,12 +2010,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const boxGeo = new THREE.BoxGeometry(1,1,1);
                 const wallOffX = w * BLOCK_SIZE / 2, wallOffZ = h * BLOCK_SIZE / 2;
                 serviceBuildings=[];
-                const serviceCells=serviceDefs.map((def,index)=>({
-                    ...def,
-                    gx:Math.max(2,Math.min(w-3,Math.round(2+def.x*(w-5)))),
-                    gz:Math.max(2,Math.min(h-3,Math.round(2+def.z*(h-5)))),
-                    index
-                }));
+                const serviceCells=serviceDefs.map((def,index)=>{
+                    const tx=Math.max(2,Math.min(w-3,Math.round(2+def.x*(w-5))));
+                    const tz=Math.max(2,Math.min(h-3,Math.round(2+def.z*(h-5))));
+                    let gx=tx,gz=tz,best=Infinity;
+                    for(let bz=1;bz<h-1;bz++) for(let bx=1;bx<w-1;bx++) {
+                        if(mapGrid[bz][bx]!=='#') continue;
+                        const score=(bx-tx)*(bx-tx)+(bz-tz)*(bz-tz);
+                        if(score<best){best=score;gx=bx;gz=bz;}
+                    }
+                    return {...def,gx,gz,index};
+                });
                 for (let z = 0; z < h; z++) {
                     for (let x = 0; x < w; x++) {
                         if (mapGrid[z][x] === '#') {
