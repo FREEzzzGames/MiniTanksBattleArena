@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - '.github/workflows/pages.yml'
       - '.github/scripts/**'
+      - 'city-world/**'
   workflow_dispatch:
 permissions:
   contents: read
