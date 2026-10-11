@@ -1,72 +1,54 @@
 import { chromium } from 'playwright';
 
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
-const failures = [];
-page.on('pageerror', error => { if (!/getGamepads.*disallowed by permissions policy/i.test(error.message)) failures.push('shell: ' + error.message); });
-
+const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, hasTouch: true });
+const errors = [];
+page.on('pageerror', e => errors.push(e.message));
 try {
   await page.goto('file://' + process.cwd() + '/index.html', { waitUntil: 'domcontentloaded' });
-  const frame = page.frameLocator('#cityFrame');
-  await frame.locator('#gameContainer').waitFor({ state: 'attached', timeout: 20000 });
-  const cityPage = page.frames().find(f => f.url().includes('city-world/index.html'));
-  if (!cityPage) throw new Error('City game frame did not load');
-  cityPage.on('pageerror', error => { if (!/getGamepads.*disallowed by permissions policy/i.test(error.message)) failures.push('city: ' + error.message); });
-  if (await page.locator('#cityFrame').count() !== 1) throw new Error('Only one Open City iframe should exist');
-  if (await page.locator('header').innerText() === '') throw new Error('Open City header is missing');
-  if (await frame.locator('#canvas-container canvas').count() < 1) throw new Error('City WebGL canvas did not mount');
-  if (await frame.locator('#careerHud').count() !== 1) throw new Error('Career economy HUD missing');
-  if (await frame.locator('[data-career]').count() !== 5) throw new Error('All five service actions should be available');
-  if (await frame.locator('#careerBankBalance').count() !== 1) throw new Error('Bank account balance display missing');
-
-  // Menu entry and game mode controls.
-  await frame.locator('#btnMode1P').click();
-  await frame.locator('#btnMode2PH').click();
-  await frame.locator('#btnMode2PV').click();
-  await frame.locator('#btnMode1P').click();
-  await frame.locator('button[onclick="startGameWithMap(\'default\')"]').click();
-  await frame.locator('#startScreen').waitFor({ state: 'hidden', timeout: 30000 });
-  await frame.locator('#careerHud:not(.hidden)').waitFor({ state: 'visible', timeout: 30000 });
-  await frame.locator('#gameHeader:not(.hidden)').waitFor({ state: 'visible' });
-
-  // Exercise primary in-game overlays and their close paths.
-  await frame.locator('#helpButton').evaluate(el => el.click());
-  await frame.locator('#helpMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('.close-help').evaluate(el => el.click());
-  await frame.locator('#helpMenu.hidden').waitFor({ state: 'attached' });
-  await frame.locator('#mapButton').evaluate(el => el.click());
-  await frame.locator('#mapMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('.close-map').evaluate(el => el.click());
-  await frame.locator('#mapMenu.hidden').waitFor({ state: 'attached' });
-  await frame.locator('#customizeButton').evaluate(el => el.click());
-  await frame.locator('#customizeMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('#customizeButton').evaluate(el => el.click());
-  await frame.locator('#customizeMenu.hidden').waitFor({ state: 'attached' });
-  await cityPage.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', {key:'o', code:'KeyO', bubbles:true})));
-  await frame.locator('#optionsMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('#physOldBtn').evaluate(el => el.click());
-  await frame.locator('#physNewBtn').evaluate(el => el.click());
-  await frame.locator('.close-options').evaluate(el => el.click());
-  await frame.locator('#optionsMenu.hidden').waitFor({ state: 'attached' });
-
-  // Verify mobile viewport scaling and touch controls exist.
-  await page.setViewportSize({ width: 320, height: 640 });
-  await page.waitForTimeout(300);
-  const frameBox = await page.locator('#cityFrame').boundingBox();
-  if (!frameBox || frameBox.width < 300 || frameBox.height < 500) throw new Error('City viewport did not adapt to mobile dimensions');
-  const screenBox = await frame.locator('#screen').boundingBox();
-  if (!screenBox || screenBox.width < 300 || screenBox.height < 500) throw new Error('Game screen is still letterboxed on portrait mobile');
-  const canvasBox = await frame.locator('#canvas-container canvas').boundingBox();
-  if (!canvasBox || canvasBox.width < 300 || canvasBox.height < 500) throw new Error('WebGL canvas does not fill the portrait game viewport');
-  for (const id of ['mobile-left','mobile-right','mobile-up','mobile-down','mobile-handbrake']) {
-    if (await frame.locator('#' + id).count() !== 1) throw new Error('Missing mobile control: ' + id);
+  await page.locator('#game').waitFor({ state: 'visible' });
+  if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
+  if (await page.locator('#cityFrame').count() !== 0) throw new Error('Legacy iframe still present');
+  for (const id of ['startBtn','pauseBtn','menuBtn','aimBtn','reloadBtn','fireBtn','smokeBtn','joystick']) {
+    if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
-  // Keyboard input and all service buttons must be callable without JS exceptions.
-  await cityPage.evaluate(() => { window.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowUp', code:'ArrowUp', bubbles:true})); window.dispatchEvent(new KeyboardEvent('keyup', {key:'ArrowUp', code:'ArrowUp', bubbles:true})); window.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowLeft', code:'ArrowLeft', bubbles:true})); window.dispatchEvent(new KeyboardEvent('keyup', {key:'ArrowLeft', code:'ArrowLeft', bubbles:true})); });
-  for (const id of ['bank','dealer','property','gym','delivery']) await frame.locator('[data-career="' + id + '"]').evaluate(el => el.click());
-  await page.waitForTimeout(500);
-  if (failures.length) throw new Error('Runtime errors: ' + failures.join('; '));
-  console.log('Open City: menu entry, mode buttons, HUD, overlays, physics toggles, mobile controls, keyboard input and service actions passed.');
+  if (await page.locator('[data-order]').count() !== 3) throw new Error('Squad order buttons missing');
+  await page.locator('#startBtn').click();
+  await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
+  await page.waitForTimeout(250);
+  const state = await page.evaluate(() => ({
+    canvas: !!document.querySelector('#game').getContext('2d'),
+    wave: document.querySelector('#waveText').textContent,
+    hud: document.querySelector('#healthText').textContent,
+    running: !document.querySelector('#overlay').classList.contains('hidden')
+  }));
+  if (!state.canvas || state.wave !== '01' || state.hud !== '100' || state.running) throw new Error('Game did not initialize correctly: ' + JSON.stringify(state));
+  await page.locator('[data-order="hold"]').click();
+  if (!await page.locator('[data-order="hold"]').evaluate(el => el.classList.contains('active'))) throw new Error('HOLD order did not activate');
+  await page.locator('[data-order="retreat"]').click();
+  await page.locator('[data-order="push"]').click();
+  await page.locator('#aimBtn').click();
+  if (!/AUTO AIM OFF/.test(await page.locator('#aimBtn').innerText())) throw new Error('Auto aim toggle did not change');
+  await page.locator('#aimBtn').click();
+  await page.locator('#reloadBtn').click();
+  await page.locator('#fireBtn').dispatchEvent('pointerdown', { pointerId: 1, pointerType: 'touch', clientX: 350, clientY: 750, isPrimary: true });
+  await page.locator('#fireBtn').dispatchEvent('pointerup', { pointerId: 1, pointerType: 'touch', clientX: 350, clientY: 750, isPrimary: true });
+  await page.locator('#smokeBtn').click();
+  if (!/SMOKE ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
+  await page.locator('#pauseBtn').click();
+  await page.locator('#overlay').waitFor({ state: 'visible' });
+  await page.locator('#resumeBtn').click();
+  await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
+  await page.setViewportSize({ width: 320, height: 640 });
+  const layout = await page.evaluate(() => {
+    const c = document.querySelector('#game').getBoundingClientRect();
+    const j = document.querySelector('#joystick').getBoundingClientRect();
+    return { canvasWidth: c.width, canvasHeight: c.height, joy: j.width, overflow: document.documentElement.scrollWidth > innerWidth };
+  });
+  if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 60 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
+  await page.keyboard.press('1'); await page.keyboard.press('2'); await page.keyboard.press('3'); await page.keyboard.press('r'); await page.keyboard.press('q');
+  if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
+  console.log('IRON FRONT smoke tests passed: standalone canvas, deployment, squad orders, auto aim, reload, fire input, smoke, pause/resume, keyboard and mobile layout.');
 } finally {
   await browser.close();
 }
