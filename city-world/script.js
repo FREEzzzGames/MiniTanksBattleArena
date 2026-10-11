@@ -2236,34 +2236,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const screenElement = document.getElementById("screen");
 
     window.scaleGame = function() {
-        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-
-        if (isFullscreen) {
-            const scale = Math.min(
-                window.innerWidth / BASE_WIDTH,
-                window.innerHeight / BASE_HEIGHT
-            );
-            screenElement.style.width = `${BASE_WIDTH}px`;
-            screenElement.style.height = `${BASE_HEIGHT}px`;
-            screenElement.style.transform = `scale(${scale})`;
-            document.body.classList.add('mobile-mode');
-            
-            renderer.setSize(BASE_WIDTH, BASE_HEIGHT);
-            if (uiCanvas) {
-                uiCanvas.width = BASE_WIDTH;
-                uiCanvas.height = BASE_HEIGHT;
-            }
-        } else {
-            screenElement.style.width = '100vw';
-            screenElement.style.height = '100vh';
-            screenElement.style.transform = 'none'; 
-            document.body.classList.remove('mobile-mode');
-            
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            if (uiCanvas) {
-                uiCanvas.width = window.innerWidth;
-                uiCanvas.height = window.innerHeight;
-            }
+        // Render to the real iframe viewport. Scaling a fixed 960x720 canvas
+        // made the game only ~320px wide on portrait phones.
+        const width = Math.max(1, Math.floor(window.innerWidth));
+        const height = Math.max(1, Math.floor(window.innerHeight));
+        const mobile = width <= 900 || height <= 600;
+        screenElement.style.width = width + 'px';
+        screenElement.style.height = height + 'px';
+        screenElement.style.transform = 'none';
+        screenElement.style.maxWidth = 'none';
+        screenElement.style.maxHeight = 'none';
+        document.body.classList.toggle('mobile-mode', mobile);
+        renderer.setSize(width, height, false);
+        camera1.aspect = width / height;
+        camera1.updateProjectionMatrix();
+        camera2.aspect = width / height;
+        camera2.updateProjectionMatrix();
+        if (uiCanvas) {
+            uiCanvas.width = width;
+            uiCanvas.height = height;
+            uiCanvas.style.width = width + 'px';
+            uiCanvas.style.height = height + 'px';
         }
     };
 
