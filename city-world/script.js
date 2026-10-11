@@ -114,7 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if(typeof scaleGame === 'function') scaleGame();
     });
 
-    // FREEzzz GRAPHICS POLISH: clearer daylight, atmospheric depth and restrained mobile rendering.\n    const ambientLight = new THREE.AmbientLight(0xc6d9e8, 1.15);
+    // FREEzzz GRAPHICS POLISH: clearer daylight, atmospheric depth and restrained mobile rendering.
+    const ambientLight = new THREE.AmbientLight(0xc6d9e8, 1.15);
     scene.add(ambientLight);
 
     const dirLight = new THREE.DirectionalLight(0xffe3b0, 1.25);
