@@ -16,16 +16,18 @@ try {
   const fogSource = await page.content();
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('RPG-style fog of war / visibility system missing');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
-  await page.locator('[data-tank="support"]').evaluate(el => el.click());
-  await page.waitForFunction(() => document.querySelector('#selArmor').textContent === '125');
+  await page.evaluate(() => document.querySelector('[data-tank="support"]').dispatchEvent(new MouseEvent('click', { bubbles: true })));
+  await page.waitForTimeout(100);
+  if (await page.locator('#selArmor').textContent() !== '125') throw new Error('Support tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
   const supportStats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
     speed: document.querySelector('#selSpeed').textContent,
     damage: document.querySelector('#selDamage').textContent
   }));
   if (supportStats.armor !== '125' || supportStats.speed !== '88' || supportStats.damage !== '20') throw new Error('Support tank stats incorrect: ' + JSON.stringify(supportStats));
-  await page.locator('[data-tank="heavy"]').evaluate(el => el.click());
-  await page.waitForFunction(() => document.querySelector('#selArmor').textContent === '165');
+  await page.evaluate(() => document.querySelector('[data-tank="heavy"]').dispatchEvent(new MouseEvent('click', { bubbles: true })));
+  await page.waitForTimeout(100);
+  if (await page.locator('#selArmor').textContent() !== '165') throw new Error('Heavy tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
   const stats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
     speed: document.querySelector('#selSpeed').textContent,
