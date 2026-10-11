@@ -9,7 +9,7 @@ try {
   await page.locator('#game').waitFor({ state: 'visible' });
   if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
   if (await page.locator('#cityFrame').count() !== 0) throw new Error('Legacy iframe still present');
-  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','joystick']) {
+  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','joystick','ammoText']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
   if (await page.locator('[data-tank]').count() !== 4) throw new Error('Tank selection cards missing');
@@ -26,9 +26,10 @@ try {
     canvas: !!document.querySelector('#game').getContext('2d'),
     wave: document.querySelector('#waveText').textContent,
     hud: document.querySelector('#healthText').textContent,
-    overlayHidden: document.querySelector('#overlay').classList.contains('hidden')
+    overlayHidden: document.querySelector('#overlay').classList.contains('hidden'),
+    ammo: document.querySelector('#ammoText').textContent
   }));
-  if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden) throw new Error('Game did not initialize selected tank correctly: ' + JSON.stringify(state));
+  if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden || state.ammo !== '4 / 4') throw new Error('Game did not initialize selected tank/ammo correctly: ' + JSON.stringify(state));
   await page.locator('#orderBtn').click();
   if (!/TACTIC: HOLD/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to HOLD');
   await page.locator('#orderBtn').click();
@@ -38,6 +39,29 @@ try {
   await page.locator('#fireBtn').tap();
   await page.locator('#smokeBtn').click();
   if (!/SMOKE ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
+  // Simulate two simultaneous touch contacts: steering while holding FIRE.
+  const cdp = await page.context().newCDPSession(page);
+  const joyBox = await page.locator('#joystick').boundingBox();
+  const fireBox = await page.locator('#fireBtn').boundingBox();
+  const jx = joyBox.x + joyBox.width / 2, jy = joyBox.y + joyBox.height / 2;
+  const fx = fireBox.x + fireBox.width / 2, fy = fireBox.y + fireBox.height / 2;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [
+    { id: 1, x: jx, y: jy, radiusX: 8, radiusY: 8, force: 1 },
+    { id: 2, x: fx, y: fy, radiusX: 8, radiusY: 8, force: 1 }
+  ]});
+  const ammoSeen = new Set();
+  for (let i = 0; i < 90; i++) {
+    ammoSeen.add(await page.locator('#ammoText').innerText());
+    await page.waitForTimeout(100);
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [
+    { id: 1, x: jx + 18, y: jy + 4, radiusX: 8, radiusY: 8, force: 1 },
+    { id: 2, x: fx, y: fy, radiusX: 8, radiusY: 8, force: 1 }
+  ]});
+  await page.waitForTimeout(350);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  if (ammoSeen.size < 2) throw new Error('Holding FIRE did not consume ammo during simultaneous touch test: ' + [...ammoSeen].join(', '));
+  if (![...ammoSeen].some(v => v === '4 / 4')) throw new Error('Ammo never recovered to a full magazine during combat: ' + [...ammoSeen].join(', '));
   await page.locator('#pauseBtn').click();
   await page.locator('#overlay').waitFor({ state: 'visible' });
   await page.locator('#resumeBtn').click();
@@ -51,7 +75,7 @@ try {
   if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 60 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
   await page.keyboard.press('1'); await page.keyboard.press('2'); await page.keyboard.press('3'); await page.keyboard.press('q');
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  console.log('IRON FRONT smoke tests passed: tank selection, selected stats, deploy, tactical order cycling, fire input, smoke, pause/resume, keyboard and mobile layout.');
+  console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, keyboard and mobile layout.');
 } finally {
   await browser.close();
 }
