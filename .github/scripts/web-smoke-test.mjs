@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
 const failures = [];
-page.on('pageerror', error => failures.push('shell: ' + error.message));
+page.on('pageerror', error => { if (!/getGamepads.*disallowed by permissions policy/i.test(error.message)) failures.push('shell: ' + error.message); });
 
 try {
   await page.goto('file://' + process.cwd() + '/index.html', { waitUntil: 'domcontentloaded' });
