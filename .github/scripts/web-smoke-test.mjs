@@ -41,18 +41,22 @@ await control(4);
 assert(await status() === 'ACTIVE', 'Arkanoid restart should remain playable');
 
 await click('[data-mode="racing"]');
-assert(await page.locator('#controls button').count() === 7, 'Racing should expose seven controls including Enter/Exit, Nitro and Shield');
+assert(await page.locator('#controls button').count() === 4, 'Racing should expose compact utility controls while MOBA overlay handles combat');
+assert(await page.locator('#mobaPad').isVisible(), 'Racing should show the MOBA-style touch overlay');
+assert(await page.locator('#mobaJoy').isVisible(), 'Racing should show the virtual movement joystick');
+assert(await page.locator('#mobaFire').isVisible(), 'Racing should show the hold-to-fire button');
 assert(await status() === 'ACTIVE', 'Selecting Neon Racing should start the game');
-await control(0); await control(1); // Lane movement
-await control(2); // Exit vehicle and switch to on-foot controls
-assert((await page.locator('#controls button').nth(2).innerText()).trim() === 'ENTER', 'Racing controls must refresh to ENTER after exiting the vehicle');
-await control(3); // Nitro
-await control(4); // Shield
-await control(5); // Pause
+await control(0); // Exit vehicle
+await page.locator('#mobaSwap').click(); // Switch weapon
+await page.locator('#mobaSkill').click(); // Nitro
+await page.locator('#mobaFire').dispatchEvent('pointerdown', { pointerId: 1, pointerType: 'touch', isPrimary: true, clientX: 300, clientY: 700, button: 0, buttons: 1 });
+await page.waitForTimeout(300);
+await page.locator('#mobaFire').dispatchEvent('pointerup', { pointerId: 1, pointerType: 'touch', isPrimary: true, clientX: 300, clientY: 700, button: 0, buttons: 0 });
+await control(3); // Pause
 assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Racing resume should work');
-await control(6); // Restart
+await control(3); // Restart
 assert(await status() === 'ACTIVE', 'Racing restart should remain playable');
 await page.waitForTimeout(350);
 const canvasState = await page.locator('#game').evaluate(c => ({ width: c.width, height: c.height, hasContext: !!c.getContext('2d') }));
