@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameActive = false;
     let loadedTextures = [];
     let currentMapType = 'default';
+    const TANK_COMBAT_MODE = true;
+    const TANK_TURN_RATE = 1.8;
     let physicsMode = 'new'; // 'old' or 'new'
     
     // --- Split-Screen & Player State ---
@@ -614,10 +616,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function createTankModel(isPlayer) {
+        const root = new THREE.Group();
+        const trackMat = new THREE.MeshStandardMaterial({color: isPlayer ? 0x252f2d : 0x382b28, roughness:.95});
+        const hullMat = new THREE.MeshStandardMaterial({color: isPlayer ? 0x657b57 : 0x8b4938, roughness:.88, metalness:.08});
+        const edgeMat = new THREE.MeshStandardMaterial({color:0x303936, roughness:.85});
+        const turretMat = new THREE.MeshStandardMaterial({color:isPlayer ? 0x84966b : 0xa85a43, roughness:.85});
+        const trackGeo = new THREE.BoxGeometry(.48,.52,3.7);
+        for (const side of [-1,1]) {
+            const track = new THREE.Mesh(trackGeo, trackMat);
+            track.position.set(side*1.13,.42,0); track.castShadow=true; root.add(track);
+            const treadLine = new THREE.Mesh(new THREE.BoxGeometry(.12,.54,3.35), edgeMat);
+            treadLine.position.set(side*1.13,.43,0); root.add(treadLine);
+            for(let i=0;i<7;i++){
+                const roller = new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.12,8), edgeMat);
+                roller.rotation.z=Math.PI/2; roller.position.set(side*1.4,.42,-1.35+i*.45); root.add(roller);
+            }
+        }
+        const hull = new THREE.Mesh(new THREE.BoxGeometry(1.65,.72,2.9),hullMat);
+        hull.position.y=.75; hull.castShadow=true; root.add(hull);
+        const nose = new THREE.Mesh(new THREE.BoxGeometry(1.42,.28,.72),turretMat);
+        nose.position.set(0,.91,1.25); nose.castShadow=true; root.add(nose);
+        const turret = new THREE.Group(); turret.position.set(0,1.18,-.12);
+        const turretBase = new THREE.Mesh(new THREE.CylinderGeometry(.78,.9,.32,8),edgeMat);
+        turretBase.position.y=.12; turret.add(turretBase);
+        const turretBody = new THREE.Mesh(new THREE.BoxGeometry(1.22,.52,1.35),turretMat);
+        turretBody.position.set(0,.38,-.05); turretBody.castShadow=true; turret.add(turretBody);
+        const barrel = new THREE.Mesh(new THREE.BoxGeometry(.22,.22,1.85),edgeMat);
+        barrel.position.set(0,.4,1.22); barrel.castShadow=true; turret.add(barrel);
+        const muzzle = new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.25,8),trackMat);
+        muzzle.rotation.x=Math.PI/2; muzzle.position.set(0,.4,2.13); turret.add(muzzle);
+        root.add(turret);
+        root.userData.turret=turret;
+        return root;
+    }
+
     class Car extends Entity {
         constructor(x, y, isPlayer, playerIndex, texture, plannedAction = 'random', laneOffset = 2.5) {
-            const width = 1.8;
-            const height = 3.8;
+            const width = TANK_COMBAT_MODE ? 2.8 : 1.8;
+            const height = TANK_COMBAT_MODE ? 3.8 : 3.8;
             const geometry = new THREE.PlaneGeometry(width, height);
             
             let material;
@@ -627,15 +664,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 material = new THREE.MeshStandardMaterial({ map: texture, transparent: true, alphaTest: 0.5, roughness: 0.5, side: THREE.DoubleSide });
             }
 
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            mesh.rotation.x = -Math.PI / 2; 
-            mesh.frustumCulled = false; 
-
-            const containerMesh = new THREE.Group(); 
-            containerMesh.frustumCulled = false; 
-            containerMesh.add(mesh);
+            let containerMesh;
+            let turret = null;
+            if (TANK_COMBAT_MODE) {
+                containerMesh = createTankModel(isPlayer);
+                turret = containerMesh.userData.turret;
+            } else {
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.castShadow = true; mesh.receiveShadow = true;
+                mesh.rotation.x = -Math.PI / 2; mesh.frustumCulled = false;
+                containerMesh = new THREE.Group(); containerMesh.frustumCulled = false; containerMesh.add(mesh);
+            }
 
             if (gameParams.headlightsEnabled) {
                 const leftLight = new THREE.SpotLight(0xffffff, 10, 40, 0.6, 0.5, 1);
@@ -670,6 +709,8 @@ document.addEventListener('DOMContentLoaded', () => {
             super(containerMesh, body);
             this.isPlayer = isPlayer;
             this.playerIndex = playerIndex;
+            this.turret = turret;
+            this.health = isPlayer ? 100 : 45;
             this.shootCooldown = 0;
             this.maxSpeed = isPlayer ? gameParams.playerSpeed : gameParams.enemySpeed;
             this.power = isPlayer ? 900 : 150; 
@@ -1076,21 +1117,15 @@ document.addEventListener('DOMContentLoaded', () => {
         shoot() {
             if (this.shootCooldown > 0) return;
             const pos = this.body.getPosition();
-            const angle = this.body.getAngle();
+            const bodyAngle = this.body.getAngle();
+            const angle = TANK_COMBAT_MODE && this.turret ? bodyAngle - this.turret.rotation.y : bodyAngle;
             const fwd = { x: -Math.sin(angle), y: Math.cos(angle) };
-            const right = { x: Math.cos(angle), y: Math.sin(angle) };
-            const carVel = this.body.getLinearVelocity(); 
-            
-            const gunOffset = 0.6; 
-            const spawnDist = 3.0; 
-            const speed = 60; 
-            
-            const totalVx = carVel.x + (fwd.x * speed);
-            const totalVy = carVel.y + (fwd.y * speed);
-            
-            createBullet(pos.x + fwd.x*spawnDist - right.x*gunOffset, pos.y + fwd.y*spawnDist - right.y*gunOffset, totalVx, totalVy, this.playerIndex);
-            createBullet(pos.x + fwd.x*spawnDist + right.x*gunOffset, pos.y + fwd.y*spawnDist + right.y*gunOffset, totalVx, totalVy, this.playerIndex);
-            this.shootCooldown = 0.2;
+            const velocity = this.body.getLinearVelocity();
+            const speed = TANK_COMBAT_MODE ? 48 : 60;
+            const spawnDist = TANK_COMBAT_MODE ? 3.0 : 3.0;
+            createBullet(pos.x + fwd.x*spawnDist, pos.y + fwd.y*spawnDist,
+                velocity.x + fwd.x*speed, velocity.y + fwd.y*speed, this.playerIndex);
+            this.shootCooldown = TANK_COMBAT_MODE ? 0.72 : 0.2;
         }
     }
 
@@ -1109,7 +1144,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const ent = new Entity(mesh, body);
         ent.isBullet = true;
         ent.owner = ownerIndex;
-        ent.life = 1.0;
+        ent.damage = TANK_COMBAT_MODE ? 25 : 1;
+        ent.life = 1.35;
         ent.update = function(dt) {
             Entity.prototype.update.call(this);
             this.life -= dt;
@@ -1500,7 +1536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getPlayerInput(playerIndex) {
         let dev = playerIndex === 1 ? devices.p1 : devices.p2;
-        let input = { accelerate: false, brake: false, steer: 0, shoot: false, handbrake: false };
+        let input = { accelerate: false, brake: false, steer: 0, shoot: false, handbrake: false, aimLeft:false, aimRight:false };
         if (!dev) return input;
 
         if (dev === 'kb_arrows') {
@@ -1510,6 +1546,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowRight']) input.steer = -1;
             if (keys['Enter'] || keys['ControlRight']) input.shoot = true;
             if (keys['ShiftRight'] || keys['Space']) input.handbrake = true;
+            input.aimLeft=!!keys['KeyQ']; input.aimRight=!!keys['KeyE'];
         } else if (dev === 'kb_wasd') {
             if (keys['KeyW']) input.accelerate = true;
             if (keys['KeyS']) input.brake = true;
@@ -1517,6 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['KeyD']) input.steer = -1;
             if (keys['KeyF'] || keys['ControlLeft']) input.shoot = true;
             if (keys['Space'] || keys['ShiftLeft']) input.handbrake = true;
+            input.aimLeft=!!keys['KeyQ']; input.aimRight=!!keys['KeyE'];
         } else if (dev.startsWith('gp_')) {
             let gpIndex = parseInt(dev.split('_')[1]);
             let gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -1790,12 +1828,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (player1) {
             let i = getPlayerInput(1);
             player1.drivePlayer(i.accelerate, i.brake, i.handbrake, i.steer);
+            if (TANK_COMBAT_MODE && player1.turret) player1.turret.rotation.y += ((i.aimLeft?1:0)-(i.aimRight?1:0))*TANK_TURN_RATE*dt;
             if (i.shoot) player1.shoot();
         }
 
         if (player2) {
             let i = getPlayerInput(2);
             player2.drivePlayer(i.accelerate, i.brake, i.handbrake, i.steer);
+            if (TANK_COMBAT_MODE && player2.turret) player2.turret.rotation.y += ((i.aimLeft?1:0)-(i.aimRight?1:0))*TANK_TURN_RATE*dt;
             if (i.shoot) player2.shoot();
         }
 
@@ -1803,6 +1843,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if(!car.markedForDeletion) {
                 car.update(dt);
                 car.aiUpdate(dt);
+                if (TANK_COMBAT_MODE && car.turret && player1 && !player1.markedForDeletion) {
+                    const enemyPos=car.body.getPosition(), playerPos=player1.body.getPosition();
+                    const dx=playerPos.x-enemyPos.x, dz=playerPos.y-enemyPos.y;
+                    if(dx*dx+dz*dz<48*48){
+                        const targetAngle=Math.atan2(-dx,dz);
+                        const wanted=angleDiff(car.body.getAngle()-targetAngle,car.turret.rotation.y);
+                        car.turret.rotation.y += clamp(wanted,-TANK_TURN_RATE*dt,TANK_TURN_RATE*dt);
+                        if(Math.abs(wanted)<.22) car.shoot();
+                    }
+                }
             }
         });
 
@@ -2378,6 +2428,9 @@ document.addEventListener('DOMContentLoaded', () => {
         addControlListener(mobileUpBtn, 'ArrowUp');
         addControlListener(mobileDownBtn, 'ArrowDown');
         addControlListener(document.getElementById('mobile-handbrake'), 'Space');
+        addControlListener(document.getElementById('mobile-aim-left'), 'KeyQ');
+        addControlListener(document.getElementById('mobile-aim-right'), 'KeyE');
+        addControlListener(document.getElementById('mobile-fire'), 'KeyF');
     }
 
     setupMobileControls();
