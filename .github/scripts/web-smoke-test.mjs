@@ -7,6 +7,7 @@ page.on('pageerror', e => errors.push(e.message));
 try {
   await page.goto('file://' + process.cwd() + '/index.html', { waitUntil: 'domcontentloaded' });
   await page.locator('#game').waitFor({ state: 'visible' });
+  if (errors.length) throw new Error('Browser JavaScript errors before interaction: ' + errors.join(' | '));
   if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
   if (await page.locator('#cityFrame').count() !== 0) throw new Error('Legacy iframe still present');
   for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','joystick','ammoText']) {
@@ -16,7 +17,13 @@ try {
   const fogSource = await page.content();
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('RPG-style fog of war / visibility system missing');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
+  const supportClick = await page.evaluate(() => {
+    const button = document.querySelector('[data-tank="support"]');
+    return { disabled: button.disabled, tag: button.tagName, connected: button.isConnected, overlay: getComputedStyle(document.querySelector('#overlay')).display, scriptCount: document.scripts.length };
+  });
   await page.locator('[data-tank="support"]').click({ force: true });
+  await page.waitForTimeout(100);
+  if (await page.locator('#selArmor').textContent() !== '125') throw new Error('Support click failed; diagnostics=' + JSON.stringify(supportClick) + '; pageErrors=' + errors.join(' | '));
   if (await page.locator('#selArmor').textContent() !== '125') throw new Error('Support tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
   const supportStats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
