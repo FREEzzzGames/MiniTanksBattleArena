@@ -248,16 +248,25 @@
         </div>
     </div>
 
-    <!-- MOBILE TOUCH CONTROLS OVERLAY -->
-    <div id="mobile-controls">
-        <div id="mobile-dpad">
-            <button id="mobile-left" class="mobile-control-btn">◀</button>
-            <button id="mobile-right" class="mobile-control-btn">▶</button>
+    <!-- MOBILE TANK CONTROLS: left hand drives, right hand aims and fires -->
+    <div id="mobile-controls" aria-label="Tank controls">
+        <div id="mobile-drive" class="tank-control-cluster">
+            <button id="mobile-up" class="mobile-control-btn drive-btn" aria-label="Drive forward">▲</button>
+            <div class="drive-row">
+                <button id="mobile-left" class="mobile-control-btn drive-btn" aria-label="Steer left">◀</button>
+                <button id="mobile-down" class="mobile-control-btn drive-btn" aria-label="Reverse">▼</button>
+                <button id="mobile-right" class="mobile-control-btn drive-btn" aria-label="Steer right">▶</button>
+            </div>
+            <div class="drive-caption">DRIVE</div>
         </div>
-        <div id="mobile-action">
-            <button id="mobile-handbrake" class="mobile-control-btn" style="font-size: 18px; font-weight: bold;">HB</button>
-            <button id="mobile-down" class="mobile-control-btn" style="font-size: 24px;">▼</button>
-            <button id="mobile-up" class="mobile-control-btn">▲</button>
+        <div id="mobile-action" class="tank-control-cluster">
+            <div class="aim-row">
+                <button id="mobile-aim-left" class="mobile-control-btn tank-aim" aria-label="Aim turret left">↶</button>
+                <button id="mobile-aim-right" class="mobile-control-btn tank-aim" aria-label="Aim turret right">↷</button>
+            </div>
+            <button id="mobile-fire" class="mobile-control-btn tank-fire" aria-label="Fire">FIRE</button>
+            <button id="mobile-handbrake" class="mobile-control-btn tank-utility" aria-label="Handbrake">HB</button>
+            <div class="drive-caption">TURRET / WEAPON</div>
         </div>
     </div>
 </body>
