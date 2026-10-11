@@ -711,9 +711,10 @@ document.addEventListener('DOMContentLoaded', () => {
             this.playerIndex = playerIndex;
             this.turret = turret;
             this.health = isPlayer ? 100 : 45;
+            this.spawnX = x; this.spawnZ = y;
             this.shootCooldown = 0;
-            this.maxSpeed = isPlayer ? gameParams.playerSpeed : gameParams.enemySpeed;
-            this.power = isPlayer ? 900 : 150; 
+            this.maxSpeed = TANK_COMBAT_MODE ? (isPlayer ? 42 : 24) : (isPlayer ? gameParams.playerSpeed : gameParams.enemySpeed);
+            this.power = TANK_COMBAT_MODE ? (isPlayer ? 260 : 170) : (isPlayer ? 900 : 150); 
             
             this.aiTargetAngle = 0;
             this.lastDecisionTile = null;
@@ -739,7 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
         update(dt) {
             super.update();
             if (this.shootCooldown > 0) this.shootCooldown -= dt;
-            this.maxSpeed = this.isPlayer ? gameParams.playerSpeed : gameParams.enemySpeed;
+            this.maxSpeed = TANK_COMBAT_MODE ? (this.isPlayer ? 42 : 24) : (this.isPlayer ? gameParams.playerSpeed : gameParams.enemySpeed);
 
             if (physicsMode === 'old') {
                 this.updatePhysicsOld(dt);
@@ -1138,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mesh.add(light);
         }
         const body = world.createBody({ type: 'dynamic', position: pl.Vec2(x, y), bullet: true });
-        body.createFixture(pl.Circle(0.15), { filterCategoryBits: CAT_BULLET, filterMaskBits: CAT_ENEMY | CAT_WALL });
+        body.createFixture(pl.Circle(0.15), { filterCategoryBits: CAT_BULLET, filterMaskBits: CAT_ENEMY | CAT_PLAYER | CAT_WALL });
         body.setLinearVelocity(pl.Vec2(vx, vy));
 
         const ent = new Entity(mesh, body);
@@ -1460,14 +1461,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if(entA.isBullet || entB.isBullet) {
             const bullet = entA.isBullet ? entA : entB;
             const target = entA.isBullet ? entB : entA;
-            if(target instanceof Car && !target.isPlayer) {
-                bullet.markedForDeletion = true;
-                target.markedForDeletion = true; 
-                if(bullet.owner === 1) { p1Score += 100; p1ScoreEl.innerText = `P1: ${p1Score}`; }
-                else { p2Score += 100; p2ScoreEl.innerText = `P2: ${p2Score}`; }
-                createExplosion(target.mesh.position);
+            if (bullet.owner === target.playerIndex && target instanceof Car && target.isPlayer) return;
+            bullet.markedForDeletion = true;
+            if(target instanceof Car) {
+                if (bullet.owner === target.playerIndex) return;
+                target.health = Math.max(0, (target.health || 100) - (TANK_COMBAT_MODE ? 25 : 100));
+                if(target.isPlayer) {
+                    if(target.health <= 0) {
+                        target.health = 100;
+                        target.body.setLinearVelocity(pl.Vec2(0,0));
+                        target.body.setAngularVelocity(0);
+                        target.body.setPosition(pl.Vec2(target.spawnX ?? 0, target.spawnZ ?? 0));
+                        if(target.turret) target.turret.rotation.y=0;
+                        createExplosion(target.mesh.position);
+                    }
+                    const hp=document.getElementById('tankHealth');
+                    if(hp) hp.textContent=String(target.health);
+                } else if(target.health <= 0) {
+                    target.markedForDeletion = true;
+                    if(bullet.owner === 1) { p1Score += 100; p1ScoreEl.innerText = `P1: ${p1Score}`; }
+                    else if(bullet.owner === 2) { p2Score += 100; p2ScoreEl.innerText = `P2: ${p2Score}`; }
+                    createExplosion(target.mesh.position);
+                } else {
+                    createExplosion(target.mesh.position);
+                }
             } else if (!target.isPlayer) {
-                bullet.markedForDeletion = true; 
+                bullet.markedForDeletion = true;
             }
         }
     });
