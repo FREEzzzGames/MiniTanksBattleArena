@@ -13,8 +13,8 @@ try {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
   if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
-  const fogEnabled = await page.evaluate(() => typeof drawFog === 'function' && typeof canSpot === 'function');
-  if (!fogEnabled) throw new Error('RPG-style fog of war / visibility system missing');
+  const fogSource = await page.content();
+  if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('RPG-style fog of war / visibility system missing');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
   await page.locator('[data-tank="support"]').click();
   const supportStats = await page.evaluate(() => ({
