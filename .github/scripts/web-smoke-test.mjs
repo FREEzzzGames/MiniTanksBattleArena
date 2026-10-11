@@ -14,6 +14,13 @@ try {
   }
   if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
+  await page.locator('[data-tank="support"]').click();
+  const supportStats = await page.evaluate(() => ({
+    armor: document.querySelector('#selArmor').textContent,
+    speed: document.querySelector('#selSpeed').textContent,
+    damage: document.querySelector('#selDamage').textContent
+  }));
+  if (supportStats.armor !== '125' || supportStats.speed !== '88' || supportStats.damage !== '20') throw new Error('Support tank stats incorrect: ' + JSON.stringify(supportStats));
   await page.locator('[data-tank="heavy"]').click();
   const stats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
