@@ -95,14 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('lowResToggle') && document.getElementById('lowResToggle').checked) {
         renderer.setPixelRatio(0.5);
     } else {
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     }
     
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222);
-    scene.fog = new THREE.Fog(0x222222, 100, 300);
+    scene.background = new THREE.Color(0x9bb8c8);
+    scene.fog = new THREE.Fog(0x9bb8c8, 180, 520);
 
     const camera1 = new THREE.PerspectiveCamera(gameParams.cameraFOV, BASE_WIDTH / BASE_HEIGHT, 0.1, 1000);
     camera1.position.set(0, gameParams.cameraHeight, 30); 
@@ -114,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(typeof scaleGame === 'function') scaleGame();
     });
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    // FREEzzz GRAPHICS POLISH: clearer daylight, atmospheric depth and restrained mobile rendering.\n    const ambientLight = new THREE.AmbientLight(0xc6d9e8, 1.15);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    const dirLight = new THREE.DirectionalLight(0xffe3b0, 1.25);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -395,19 +395,33 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillRect(0, 0, 128, 128);
 
         if (type === 'road') {
-            ctx.fillStyle = '#333333';
-            ctx.fillRect(0, 0, 128, 128);
-            ctx.fillStyle = '#eeeeee'; 
-            ctx.fillRect(62, 0, 4, 128); 
-            ctx.fillRect(0, 62, 128, 4); 
+            // Asphalt base with subtle aggregate, patching and readable lane markings.
+            ctx.fillStyle = '#343b42'; ctx.fillRect(0, 0, 128, 128);
+            for (let i = 0; i < 150; i++) {
+                const x = (i * 47) % 128, y = (i * 83) % 128;
+                ctx.fillStyle = i % 3 === 0 ? '#414950' : '#2e353b';
+                ctx.fillRect(x, y, 1 + (i % 3), 1);
+            }
+            ctx.fillStyle = '#d8cda7'; ctx.fillRect(62, 0, 2, 128); ctx.fillRect(0, 62, 128, 2);
+            ctx.fillStyle = '#e5e6dd'; ctx.fillRect(4, 4, 2, 120); ctx.fillRect(122, 4, 2, 120);
+            ctx.fillStyle = '#252b31'; ctx.fillRect(8, 8, 2, 112); ctx.fillRect(118, 8, 2, 112);
+            ctx.strokeStyle = '#555d63'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(18, 30); ctx.lineTo(39, 27); ctx.lineTo(43, 31); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(84, 91); ctx.lineTo(104, 88); ctx.stroke();
         } else if (type === 'roof') {
-            ctx.fillStyle = '#555555'; 
-            ctx.fillRect(0, 0, 128, 128);
-            ctx.strokeStyle = '#444444';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(0,0,128,128);
-            ctx.fillStyle = '#666666';
-            ctx.fillRect(20, 20, 20, 20); 
+            // Rooftops read as occupied city blocks rather than flat grey slabs.
+            ctx.fillStyle = '#626970'; ctx.fillRect(0, 0, 128, 128);
+            ctx.fillStyle = '#737b80'; ctx.fillRect(5, 5, 118, 118);
+            ctx.strokeStyle = '#3e474d'; ctx.lineWidth = 3; ctx.strokeRect(3, 3, 122, 122);
+            ctx.fillStyle = '#444e55'; ctx.fillRect(14, 14, 100, 100);
+            ctx.fillStyle = '#8c9699'; ctx.fillRect(18, 18, 92, 92);
+            ctx.fillStyle = '#59636a'; ctx.fillRect(24, 24, 80, 80);
+            ctx.fillStyle = '#a6afb0'; ctx.fillRect(28, 28, 72, 72);
+            ctx.fillStyle = '#3d474d'; ctx.fillRect(36, 36, 56, 56);
+            ctx.fillStyle = '#7e898e'; ctx.fillRect(42, 42, 44, 44);
+            ctx.fillStyle = '#59636a'; ctx.fillRect(52, 52, 24, 24);
+            ctx.fillStyle = '#a9b2b3'; ctx.fillRect(16, 16, 10, 10); ctx.fillRect(102, 16, 10, 10);
+            ctx.fillStyle = '#424b51'; ctx.fillRect(16, 102, 10, 10); ctx.fillRect(102, 102, 10, 10);
         } else if (type === 'skid') {
             ctx.clearRect(0,0,128,128);
             ctx.fillStyle = 'rgba(10, 10, 10, 0.6)';
