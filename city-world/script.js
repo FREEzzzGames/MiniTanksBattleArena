@@ -2492,6 +2492,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addControlListener(document.getElementById('mobile-aim-left'), 'KeyQ');
         addControlListener(document.getElementById('mobile-aim-right'), 'KeyE');
         addControlListener(document.getElementById('mobile-fire'), 'KeyF');
+        document.querySelectorAll('[data-order]').forEach(button => {
+            button.addEventListener('click', () => {
+                playerCommand = button.dataset.order;
+                document.querySelectorAll('[data-order]').forEach(item => item.classList.toggle('active', item === button));
+            });
+        });
         const autoBtn = document.getElementById('mobile-auto-aim');
         if (autoBtn) {
             const updateAutoBtn = () => {
