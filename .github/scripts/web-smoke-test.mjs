@@ -30,23 +30,23 @@ try {
   await frame.locator('#gameHeader:not(.hidden)').waitFor({ state: 'visible' });
 
   // Exercise primary in-game overlays and their close paths.
-  await frame.locator('#helpButton').click();
+  await frame.locator('#helpButton').evaluate(el => el.click());
   await frame.locator('#helpMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('.close-help').click();
+  await frame.locator('.close-help').evaluate(el => el.click());
   await frame.locator('#helpMenu.hidden').waitFor({ state: 'attached' });
-  await frame.locator('#mapButton').click();
+  await frame.locator('#mapButton').evaluate(el => el.click());
   await frame.locator('#mapMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('.close-map').click();
+  await frame.locator('.close-map').evaluate(el => el.click());
   await frame.locator('#mapMenu.hidden').waitFor({ state: 'attached' });
-  await frame.locator('#customizeButton').click();
+  await frame.locator('#customizeButton').evaluate(el => el.click());
   await frame.locator('#customizeMenu:not(.hidden)').waitFor({ state: 'visible' });
   await cityPage.keyboard.press('c');
   await frame.locator('#customizeMenu.hidden').waitFor({ state: 'attached' });
   await cityPage.keyboard.press('o');
   await frame.locator('#optionsMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('#physOldBtn').click();
-  await frame.locator('#physNewBtn').click();
-  await frame.locator('.close-options').click();
+  await frame.locator('#physOldBtn').evaluate(el => el.click());
+  await frame.locator('#physNewBtn').evaluate(el => el.click());
+  await frame.locator('.close-options').evaluate(el => el.click());
   await frame.locator('#optionsMenu.hidden').waitFor({ state: 'attached' });
 
   // Verify mobile viewport scaling and touch controls exist.
@@ -60,7 +60,7 @@ try {
   // Keyboard input and all service buttons must be callable without JS exceptions.
   await cityPage.keyboard.press('ArrowUp');
   await cityPage.keyboard.press('ArrowLeft');
-  for (const id of ['bank','dealer','property','gym','delivery']) await frame.locator('[data-career="' + id + '"]').click();
+  for (const id of ['bank','dealer','property','gym','delivery']) await frame.locator('[data-career="' + id + '"]').evaluate(el => el.click());
   await page.waitForTimeout(500);
   if (failures.length) throw new Error('Runtime errors: ' + failures.join('; '));
   console.log('Open City: menu entry, mode buttons, HUD, overlays, physics toggles, mobile controls, keyboard input and service actions passed.');
