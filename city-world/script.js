@@ -1883,45 +1883,89 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(animate);
 
     // FREEzzz CAREER MECHANICS: persistent session economy and service actions.
-    const career = { money:120, fuel:76, hunger:18, fitness:45, property:false, deliveries:0, vehicle:0 };
+    const career = { money:120, bank:0, fuel:76, hunger:18, fitness:45, property:false, deliveries:0, vehicle:0, lastRentAt:0, lastDeliveryAt:0 };
     const careerTask = document.getElementById('careerTask');
     const careerHud = document.getElementById('careerHud');
+    const serviceDefs = [
+      {id:'bank',name:'BANK',x:.18,z:.18,color:0x36d9ff},
+      {id:'dealer',name:'AUTO DEALER',x:.78,z:.18,color:0xffb703},
+      {id:'property',name:'REAL ESTATE',x:.18,z:.78,color:0xb7a0ff},
+      {id:'gym',name:'GYM',x:.78,z:.78,color:0x35ff9b},
+      {id:'delivery',name:'LOGISTICS',x:.50,z:.50,color:0xff765e}
+    ];
+    let serviceBuildings=[];
     function updateCareer(task) {
       if(task) careerTask.textContent=task;
       document.getElementById('careerMoney').textContent=career.money;
       document.getElementById('careerFuel').textContent=career.fuel+'%';
       document.getElementById('careerHunger').textContent=career.hunger+'%';
       document.getElementById('careerFitness').textContent=career.fitness+'%';
+      const bankEl=document.getElementById('careerBankBalance');
+      if(bankEl) bankEl.textContent=career.bank;
     }
-    document.querySelectorAll('[data-career]').forEach(btn=>btn.addEventListener('click',()=>{
-      if(!gameActive){updateCareer('Start a city map first');return;}
-      switch(btn.dataset.career){
+    function closestService() {
+      if(!player1 || !player1.body || serviceBuildings.length===0) return null;
+      const p=player1.body.getPosition(); let best=null,dist=Infinity;
+      for(const b of serviceBuildings){const d=Math.hypot(p.x-b.x,p.y-b.z);if(d<dist){dist=d;best=b;}}
+      return best?{...best,distance:dist}:null;
+    }
+    function requireService(id) {
+      const nearest=closestService();
+      if(!nearest || nearest.id!==id || nearest.distance>34) {
+        updateCareer(nearest ? 'DRIVE TO '+nearest.name+' // '+Math.round(nearest.distance)+'m' : 'START A CITY MAP FIRST');
+        return false;
+      }
+      return true;
+    }
+    function careerAction(id) {
+      if(!gameActive){updateCareer('START A CITY MAP FIRST');return;}
+      if(!requireService(id)) return;
+      switch(id){
         case 'bank':
-          if(career.money<30){career.money+=50;updateCareer('BANK // CASH WITHDRAWAL +€50');}
-          else {career.money-=10;updateCareer('BANK // ACCOUNT SERVICE -€10');}
+          if(career.money>=20){career.money-=20;career.bank+=20;updateCareer('BANK // DEPOSIT €20');}
+          else if(career.bank>=20){career.bank-=20;career.money+=20;updateCareer('BANK // WITHDRAW €20');}
+          else updateCareer('BANK // NEED €20 CASH OR ACCOUNT BALANCE');
           break;
-        case 'dealer':
-          if(career.money>=80){career.money-=80;career.vehicle=(career.vehicle+1)%5;updateCareer('DEALER // VEHICLE UPGRADE -€80');}
-          else updateCareer('DEALER // NEED €80 FOR UPGRADE');
+        case 'dealer': {
+          const prices=[80,180,350,600,950],price=prices[career.vehicle]||950;
+          if(career.vehicle>=4){updateCareer('DEALER // TOP VEHICLE ALREADY OWNED');break;}
+          if(career.money<price){updateCareer('DEALER // NEED €'+price);break;}
+          career.money-=price;career.vehicle++;
+          updateCareer('DEALER // VEHICLE TIER '+career.vehicle+' BOUGHT -€'+price);
           break;
+        }
         case 'property':
-          if(!career.property&&career.money>=180){career.money-=180;career.property=true;updateCareer('PROPERTY // FLAT PURCHASED');}
-          else if(career.property){career.money+=12;updateCareer('PROPERTY // RENT INCOME +€12');}
-          else updateCareer('PROPERTY // FLAT COSTS €180');
+          if(!career.property){
+            if(career.money<180){updateCareer('PROPERTY // NEED €180');break;}
+            career.money-=180;career.property=true;career.lastRentAt=Date.now();
+            updateCareer('PROPERTY // FLAT PURCHASED -€180');
+          } else {
+            const now=Date.now();
+            if(now-career.lastRentAt<60000){updateCareer('PROPERTY // RENT READY IN '+Math.ceil((60000-(now-career.lastRentAt))/1000)+'s');break;}
+            career.lastRentAt=now;career.money+=12;updateCareer('PROPERTY // RENT +€12');
+          }
           break;
         case 'gym':
-          if(career.money>=8){career.money-=8;career.fitness=Math.min(100,career.fitness+20);career.hunger=Math.min(100,career.hunger+4);updateCareer('GYM // FITNESS +20%');}
-          else updateCareer('GYM // SESSION COSTS €8');
+          if(career.money<8){updateCareer('GYM // SESSION COSTS €8');break;}
+          if(career.fitness>=100){updateCareer('GYM // FITNESS ALREADY MAXED');break;}
+          career.money-=8;career.fitness=Math.min(100,career.fitness+20);career.hunger=Math.min(100,career.hunger+4);
+          updateCareer('GYM // FITNESS +20% · -€8');
           break;
-        case 'delivery':
-          if(career.fuel<=0){updateCareer('DELIVERY // REFUEL BEFORE DEPARTURE');break;}
-          career.fuel=Math.max(0,career.fuel-8);career.hunger=Math.min(100,career.hunger+5);career.money+=35;career.deliveries++;
-          updateCareer('DELIVERY COMPLETE // +€35 · JOB '+career.deliveries);
+        case 'delivery': {
+          const now=Date.now();
+          if(now-career.lastDeliveryAt<20000){updateCareer('LOGISTICS // NEXT JOB IN '+Math.ceil((20000-(now-career.lastDeliveryAt))/1000)+'s');break;}
+          if(career.fuel<8){updateCareer('LOGISTICS // NEED AT LEAST 8% FUEL');break;}
+          career.lastDeliveryAt=now;career.fuel-=8;career.hunger=Math.min(100,career.hunger+5);career.money+=45;career.deliveries++;
+          updateCareer('DELIVERY COMPLETE // +€45, FUEL -8% · JOB '+career.deliveries);
           break;
+        }
       }
-    }));
+    }
+    document.querySelectorAll('[data-career]').forEach(btn=>btn.addEventListener('click',()=>careerAction(btn.dataset.career)));
+
     window.startGameWithMap = function(type) {
         currentMapType = type;
+        serviceBuildings=[];
         document.getElementById('startScreen').classList.add('hidden');
         document.getElementById('customizeMenu').classList.add('hidden');
         document.getElementById('gameHeader').classList.remove('hidden');
@@ -1964,10 +2008,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const boxGeo = new THREE.BoxGeometry(1,1,1);
                 const wallOffX = w * BLOCK_SIZE / 2, wallOffZ = h * BLOCK_SIZE / 2;
+                serviceBuildings=[];
+                const serviceCells=serviceDefs.map((def,index)=>({
+                    ...def,
+                    gx:Math.max(2,Math.min(w-3,Math.round(2+def.x*(w-5)))),
+                    gz:Math.max(2,Math.min(h-3,Math.round(2+def.z*(h-5)))),
+                    index
+                }));
                 for (let z = 0; z < h; z++) {
                     for (let x = 0; x < w; x++) {
                         if (mapGrid[z][x] === '#') {
-                            const height = Math.random() * 25 + 5;
+                            const service=serviceCells.find(b=>b.gx===x&&b.gz===z);
+                            const height = service ? 12 : Math.random() * 25 + 5;
                             const buildTex = createProceduralTexture('building');
                             buildTex.repeat.set(BLOCK_SIZE/10, height/10);
                             const roofTex = createProceduralTexture('roof');
@@ -1980,6 +2032,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             const wz = (z * BLOCK_SIZE) - wallOffZ;
                             mesh.position.set(wx, height/2, wz);
                             mesh.castShadow = true; mesh.receiveShadow = true;
+                            if(service){
+                                const signMat=new THREE.MeshStandardMaterial({color:service.color,emissive:service.color,emissiveIntensity:.12});
+                                const sign=new THREE.Mesh(new THREE.BoxGeometry(9,1.6,.45),signMat);
+                                sign.position.set(wx,height+1,wz+BLOCK_SIZE/2+.35);scene.add(sign);
+                                serviceBuildings.push({id:service.id,name:service.name,x:wx,z:wz,mesh,sign});
+                            }
                             scene.add(mesh);
                             const body = world.createBody(pl.Vec2(wx, wz));
                             body.createFixture(pl.Box(BLOCK_SIZE/2, BLOCK_SIZE/2), { filterCategoryBits: CAT_WALL });
