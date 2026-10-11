@@ -22,6 +22,7 @@ class MainActivity : Activity() {
     private lateinit var board: TetrisView
     private lateinit var pauseButton: Button
     private var paused = false
+    private lateinit var taskLabel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +41,9 @@ class MainActivity : Activity() {
         val level = label("LEVEL\n01", 12f, Color.rgb(114,229,192))
         listOf(score, lines, level).forEach { stats.addView(it, LinearLayout.LayoutParams(0, dp(46), 1f)) }
         root.addView(stats)
-        board = TetrisView(this) { s, l, v -> score.text = "SCORE\n%06d".format(s); lines.text = "LINES\n%02d".format(l); level.text = "LEVEL\n%02d".format(v) }
+        taskLabel = label("TASK: ...", 11f, Color.rgb(255,190,90))
+        root.addView(taskLabel, LinearLayout.LayoutParams(-1, dp(42)))
+        board = TetrisView(this) { s, l, v, task -> score.text = "SCORE\n%06d".format(s); lines.text = "LINES\n%02d".format(l); level.text = "LEVEL\n%02d".format(v); taskLabel.text = task }
         root.addView(board, LinearLayout.LayoutParams(-1, 0, 1f))
         val actions = LinearLayout(this).apply { gravity = Gravity.CENTER; orientation = LinearLayout.HORIZONTAL }
         actions.addView(button("ROTATE", 1.3f) { board.rotate() })
@@ -75,7 +78,30 @@ class MainActivity : Activity() {
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 }
 
-private class TetrisView(context: Context, val report: (Int, Int, Int) -> Unit) : View(context) {
+private class TetrisView(context: Context, val report: (Int, Int, Int, String) -> Unit) : View(context) {
+    private data class Task(val id: String, val title: String, val event: String, val target: Int, val reward: Int)
+    private val tasks = listOf(
+        Task("move10", "Move 10 times", "move", 10, 60),
+        Task("move20", "Move 20 times", "move", 20, 100),
+        Task("drop5", "Soft-drop 5 times", "drop", 5, 60),
+        Task("drop15", "Soft-drop 15 times", "drop", 15, 110),
+        Task("rotate3", "Rotate 3 times", "rotate", 3, 60),
+        Task("rotate8", "Rotate 8 times", "rotate", 8, 100),
+        Task("lock5", "Lock 5 pieces", "lock", 5, 70),
+        Task("lock12", "Lock 12 pieces", "lock", 12, 130),
+        Task("lines3", "Clear 3 lines total", "lines", 3, 80),
+        Task("lines8", "Clear 8 lines total", "lines", 8, 140),
+        Task("single", "Clear a single line", "clear1", 1, 70),
+        Task("double", "Clear 2 lines at once", "clear2", 1, 100),
+        Task("triple", "Clear 3 lines at once", "clear3", 1, 140),
+        Task("tetris", "Clear 4 lines at once", "clear4", 1, 200),
+        Task("level3", "Reach level 3", "level", 3, 100),
+        Task("level5", "Reach level 5", "level", 5, 180)
+    )
+    private var activeTask = tasks.random()
+    private var previousTaskId = activeTask.id
+    private var taskProgress = 0
+    private fun taskText() = "TASK: ${activeTask.title}  [${taskProgress}/${activeTask.target}]  +${activeTask.reward}"
     private val cols = 10; private val rows = 20
     private val board = Array(rows) { IntArray(cols) }
     private val shapes = arrayOf(
@@ -102,13 +128,14 @@ private class TetrisView(context: Context, val report: (Int, Int, Int) -> Unit) 
             invalidate(); handler.postDelayed(this, 32)
         }
     }
-    init { handler.post(tick) }
+    init { handler.post(tick); report(score, lines, level, taskText()) }
     fun setPaused(value: Boolean) { paused = value; lastTick = System.currentTimeMillis(); invalidate() }
-    fun restart() { board.forEach { it.fill(0) }; score=0; lines=0; level=1; gameOver=false; paused=false; spawn(); report(score,lines,level); invalidate() }
-    fun move(dx: Int) { if (!paused && !gameOver && valid(piece, px+dx, py)) { px+=dx; invalidate() } }
-    fun softDrop() { if (!paused && !gameOver) { if (valid(piece,px,py+1)) { py++; score++ } else lockPiece(); report(score,lines,level); invalidate() } }
+    fun restart() { board.forEach { it.fill(0) }; score=0; lines=0; level=1; gameOver=false; paused=false; taskProgress=0; previousTaskId=""; chooseNextTask(); spawn(); report(score,lines,level,taskText()); invalidate() }
+    fun move(dx: Int) { if (!paused && !gameOver && valid(piece, px+dx, py)) { px+=dx; onTaskEvent("move"); invalidate() } }
+    fun softDrop() { if (!paused && !gameOver) { onTaskEvent("drop"); if (valid(piece,px,py+1)) { py++; score++ } else lockPiece(); report(score,lines,level,taskText()); invalidate() } }
     fun rotate() {
         if (paused || gameOver) return
+        onTaskEvent("rotate")
         val h = piece.size; val w = piece.maxOf { it.size }
         val rotated = Array(w) { IntArray(h) }
         for (r in piece.indices) for (c in piece[r].indices) if (piece[r][c] != 0) rotated[c][h-1-r] = 1
@@ -124,6 +151,7 @@ private class TetrisView(context: Context, val report: (Int, Int, Int) -> Unit) 
         return true
     }
     private fun lockPiece() {
+        onTaskEvent("lock")
         for (r in piece.indices) for (c in piece[r].indices) if (piece[r][c]!=0) {
             val bx=px+c; val by=py+r
             if (by<0) { gameOver=true; return }
@@ -136,8 +164,31 @@ private class TetrisView(context: Context, val report: (Int, Int, Int) -> Unit) 
                 board[0]=IntArray(cols); cleared++
             } else r--
         }
-        if (cleared>0) { lines+=cleared; score+=when(cleared) { 1->100; 2->300; 3->500; else->800 }*level; level=lines/10+1 }
-        spawn(); report(score,lines,level)
+        if (cleared>0) {
+            lines+=cleared
+            score+=when(cleared) { 1->100; 2->300; 3->500; else->800 }*level
+            val oldLevel = level
+            level=lines/10+1
+            if (level > oldLevel) onTaskEvent("level", level)
+            else if (activeTask.event == "lines") onTaskEvent("lines", cleared)
+            else onTaskEvent("clear$cleared")
+        }
+        spawn(); report(score,lines,level,taskText())
+    }
+    private fun chooseNextTask() {
+        val options = tasks.filter { it.id != previousTaskId }
+        activeTask = options.random()
+        previousTaskId = activeTask.id
+        taskProgress = 0
+    }
+    private fun onTaskEvent(event: String, amount: Int = 1) {
+        if (activeTask.event != event || gameOver || paused) return
+        taskProgress = (taskProgress + amount).coerceAtMost(activeTask.target)
+        if (taskProgress >= activeTask.target) {
+            score += activeTask.reward
+            chooseNextTask()
+        }
+        report(score, lines, level, taskText())
     }
     private fun spawn() {
         piece=copyShape(shapes.random()); px=(cols-piece.maxOf { it.size })/2; py=0
