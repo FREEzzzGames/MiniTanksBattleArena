@@ -9,28 +9,32 @@ try {
   await page.locator('#game').waitFor({ state: 'visible' });
   if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
   if (await page.locator('#cityFrame').count() !== 0) throw new Error('Legacy iframe still present');
-  for (const id of ['startBtn','pauseBtn','menuBtn','aimBtn','reloadBtn','fireBtn','smokeBtn','joystick']) {
+  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','joystick']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
-  if (await page.locator('[data-order]').count() !== 3) throw new Error('Squad order buttons missing');
+  if (await page.locator('[data-tank]').count() !== 4) throw new Error('Tank selection cards missing');
+  await page.locator('[data-tank="heavy"]').click();
+  const stats = await page.evaluate(() => ({
+    armor: document.querySelector('#selArmor').textContent,
+    speed: document.querySelector('#selSpeed').textContent,
+    damage: document.querySelector('#selDamage').textContent
+  }));
+  if (stats.armor !== '165' || stats.speed !== '76' || stats.damage !== '38') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
   await page.locator('#startBtn').click();
-  await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(300);
   const state = await page.evaluate(() => ({
     canvas: !!document.querySelector('#game').getContext('2d'),
     wave: document.querySelector('#waveText').textContent,
     hud: document.querySelector('#healthText').textContent,
-    running: !document.querySelector('#overlay').classList.contains('hidden')
+    overlayHidden: document.querySelector('#overlay').classList.contains('hidden')
   }));
-  if (!state.canvas || state.wave !== '01' || state.hud !== '100' || state.running) throw new Error('Game did not initialize correctly: ' + JSON.stringify(state));
-  await page.locator('[data-order="hold"]').click();
-  if (!await page.locator('[data-order="hold"]').evaluate(el => el.classList.contains('active'))) throw new Error('HOLD order did not activate');
-  await page.locator('[data-order="retreat"]').click();
-  await page.locator('[data-order="push"]').click();
-  await page.locator('#aimBtn').click();
-  if (!/AUTO AIM OFF/.test(await page.locator('#aimBtn').innerText())) throw new Error('Auto aim toggle did not change');
-  await page.locator('#aimBtn').click();
-  await page.locator('#reloadBtn').click();
+  if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden) throw new Error('Game did not initialize selected tank correctly: ' + JSON.stringify(state));
+  await page.locator('#orderBtn').click();
+  if (!/TACTIC: HOLD/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to HOLD');
+  await page.locator('#orderBtn').click();
+  if (!/TACTIC: FALL BACK/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to FALL BACK');
+  await page.locator('#orderBtn').click();
+  if (!/TACTIC: PUSH/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle back to PUSH');
   await page.locator('#fireBtn').tap();
   await page.locator('#smokeBtn').click();
   if (!/SMOKE ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
@@ -45,9 +49,9 @@ try {
     return { canvasWidth: c.width, canvasHeight: c.height, joy: j.width, overflow: document.documentElement.scrollWidth > innerWidth };
   });
   if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 60 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
-  await page.keyboard.press('1'); await page.keyboard.press('2'); await page.keyboard.press('3'); await page.keyboard.press('r'); await page.keyboard.press('q');
+  await page.keyboard.press('1'); await page.keyboard.press('2'); await page.keyboard.press('3'); await page.keyboard.press('q');
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  console.log('IRON FRONT smoke tests passed: standalone canvas, deployment, squad orders, auto aim, reload, fire input, smoke, pause/resume, keyboard and mobile layout.');
+  console.log('IRON FRONT smoke tests passed: tank selection, selected stats, deploy, tactical order cycling, fire input, smoke, pause/resume, keyboard and mobile layout.');
 } finally {
   await browser.close();
 }
