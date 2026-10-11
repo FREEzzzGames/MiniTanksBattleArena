@@ -61,7 +61,19 @@ await page.waitForTimeout(1750);
 await page.keyboard.press('e');
 await page.waitForTimeout(80);
 assert((await page.locator('#task').innerText()).includes('BANK'), 'Walking mode should allow interaction with the bank');
-await page.keyboard.press('ArrowLeft'); // Transit gate at city position zero
+await page.keyboard.press('ArrowRight'); // Auto dealer
+await page.keyboard.press('e');
+await page.waitForTimeout(80);
+assert((await page.locator('#task').innerText()).includes('AUTO DEALER'), 'Auto dealer interaction should run');
+await page.keyboard.press('ArrowRight'); // Real estate
+await page.keyboard.press('e');
+await page.waitForTimeout(80);
+assert((await page.locator('#task').innerText()).includes('REAL ESTATE'), 'Real estate interaction should run');
+await page.keyboard.press('ArrowRight'); // Gym
+await page.keyboard.press('e');
+await page.waitForTimeout(80);
+assert((await page.locator('#task').innerText()).includes('GYM'), 'Gym interaction should run');
+for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft'); // Transit gate
 await page.locator('#mobaExit').click();
 await page.waitForTimeout(80);
 assert((await page.locator('#task').innerText()).includes('RETURNED TO ROAD'), 'Transit gate should return the driver to the road');
