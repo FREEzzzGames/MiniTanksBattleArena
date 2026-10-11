@@ -562,3 +562,35 @@ h1 { font-size:clamp(16px, 5vw, 30px); }
   .mobile-control-btn.tank-fire { width: clamp(52px, 10vh, 68px); height: clamp(52px, 10vh, 68px); }
   .mobile-auto-aim { min-height: 28px; padding: 6px 8px; }
 }
+
+
+/* Tactical command strip */
+.mobile-orders {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 5px;
+  pointer-events: none;
+}
+.order-btn {
+  pointer-events: auto;
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(210,230,235,.38);
+  background: rgba(9,18,25,.88);
+  color: #d4e1e5;
+  font: 800 clamp(8px, 2.2vw, 11px)/1 monospace;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+.order-btn.active[data-order="push"] { background:#6b3a1c; border-color:#ffb15e; color:#fff1dc; }
+.order-btn.active[data-order="hold"] { background:#244b5b; border-color:#65d9f2; color:#e2fbff; }
+.order-btn.active[data-order="retreat"] { background:#63302e; border-color:#ff8b7d; color:#fff0ee; }
+@media (max-width: 390px) {
+  .order-btn { padding: 7px 5px; letter-spacing: 0; }
+}
+@media (orientation: landscape) {
+  .mobile-orders { gap: 3px; }
+  .order-btn { padding: 5px 6px; font-size: 9px; }
+}
