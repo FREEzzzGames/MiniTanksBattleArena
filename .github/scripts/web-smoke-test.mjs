@@ -16,6 +16,9 @@ try {
   await page.waitForTimeout(300);
   const frameBox = await page.locator('#cityFrame').boundingBox();
   if (!frameBox || frameBox.width < 300 || frameBox.height < 500) throw new Error('City viewport did not adapt to mobile dimensions');
+  if (await frame.locator('#careerHud').count() !== 1) throw new Error('Career economy HUD missing');
+  if (await frame.locator('[data-career]').count() !== 5) throw new Error('All five service actions should be available');
+  if (await frame.locator('#careerBankBalance').count() !== 1) throw new Error('Bank account balance display missing');
   if (failures.length) throw new Error('Runtime errors: ' + failures.join('; '));
   console.log('Open City only: iframe, canvas and mobile viewport checks passed.');
 } finally {
