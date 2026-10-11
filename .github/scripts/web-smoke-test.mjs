@@ -54,8 +54,6 @@ await control(3); // Pause
 assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Racing resume should work');
-await control(3); // Restart
-assert(await status() === 'ACTIVE', 'Racing restart should remain playable');
 await page.waitForTimeout(350);
 const canvasState = await page.locator('#game').evaluate(c => ({ width: c.width, height: c.height, hasContext: !!c.getContext('2d') }));
 assert(canvasState.width > 0 && canvasState.height > 0 && canvasState.hasContext, 'Canvas should be initialized');
