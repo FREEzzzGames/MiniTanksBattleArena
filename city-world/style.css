@@ -420,3 +420,14 @@ h1 { font-size:clamp(16px, 5vw, 30px); }
   #headerButtons { top:8px; right:8px; }
   #optionsHint { font-size:11px; }
 }
+
+/* Tank combat touch controls */
+#mobile-action { align-items:flex-end; flex-wrap:wrap; justify-content:flex-end; max-width:58vw; }
+.mobile-control-btn.tank-fire { width:clamp(64px,16vw,88px); height:clamp(64px,16vw,88px); background:rgba(181,48,35,.82); border-color:#ff8a65; color:#fff2e8; font-size:clamp(13px,3.5vw,18px); box-shadow:0 0 16px rgba(255,75,40,.22); }
+.mobile-control-btn.tank-aim { background:rgba(48,91,67,.82); border-color:#9dd69a; }
+.mobile-control-btn.tank-utility { width:clamp(42px,10vw,56px); height:clamp(42px,10vw,56px); font-size:13px; }
+#mobile-dpad { align-items:flex-end; }
+@media(max-width:600px) {
+  #mobile-action { gap:5px; max-width:64vw; }
+  #mobile-controls { align-items:flex-end; }
+}
