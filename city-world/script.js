@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration Constants ---
-    const ASSET_FOLDER = 'https://cdn.jsdelivr.net/gh/pemmyz/js_pikkuautot_redux@main/auto/';
+    const ASSET_FOLDER = 'auto/';
     const MAX_ASSETS = 9; 
     const BLOCK_SIZE = 20; 
     
@@ -1846,11 +1846,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     requestAnimationFrame(animate);
 
+    // FREEzzz CAREER MECHANICS: persistent session economy and service actions.
+    const career = { money:120, fuel:76, hunger:18, fitness:45, property:false, deliveries:0, vehicle:0 };
+    const careerTask = document.getElementById('careerTask');
+    const careerHud = document.getElementById('careerHud');
+    function updateCareer(task) {
+      if(task) careerTask.textContent=task;
+      document.getElementById('careerMoney').textContent=career.money;
+      document.getElementById('careerFuel').textContent=career.fuel+'%';
+      document.getElementById('careerHunger').textContent=career.hunger+'%';
+      document.getElementById('careerFitness').textContent=career.fitness+'%';
+    }
+    document.querySelectorAll('[data-career]').forEach(btn=>btn.addEventListener('click',()=>{
+      if(!gameActive){updateCareer('Start a city map first');return;}
+      switch(btn.dataset.career){
+        case 'bank':
+          if(career.money<30){career.money+=50;updateCareer('BANK // CASH WITHDRAWAL +€50');}
+          else {career.money-=10;updateCareer('BANK // ACCOUNT SERVICE -€10');}
+          break;
+        case 'dealer':
+          if(career.money>=80){career.money-=80;career.vehicle=(career.vehicle+1)%5;updateCareer('DEALER // VEHICLE UPGRADE -€80');}
+          else updateCareer('DEALER // NEED €80 FOR UPGRADE');
+          break;
+        case 'property':
+          if(!career.property&&career.money>=180){career.money-=180;career.property=true;updateCareer('PROPERTY // FLAT PURCHASED');}
+          else if(career.property){career.money+=12;updateCareer('PROPERTY // RENT INCOME +€12');}
+          else updateCareer('PROPERTY // FLAT COSTS €180');
+          break;
+        case 'gym':
+          if(career.money>=8){career.money-=8;career.fitness=Math.min(100,career.fitness+20);career.hunger=Math.min(100,career.hunger+4);updateCareer('GYM // FITNESS +20%');}
+          else updateCareer('GYM // SESSION COSTS €8');
+          break;
+        case 'delivery':
+          if(career.fuel<=0){updateCareer('DELIVERY // REFUEL BEFORE DEPARTURE');break;}
+          career.fuel=Math.max(0,career.fuel-8);career.hunger=Math.min(100,career.hunger+5);career.money+=35;career.deliveries++;
+          updateCareer('DELIVERY COMPLETE // +€35 · JOB '+career.deliveries);
+          break;
+      }
+    }));
     window.startGameWithMap = function(type) {
         currentMapType = type;
         document.getElementById('startScreen').classList.add('hidden');
         document.getElementById('customizeMenu').classList.add('hidden');
         document.getElementById('gameHeader').classList.remove('hidden');
+        careerHud.classList.remove('hidden'); updateCareer('CITY // EXPLORE AND COMPLETE JOBS');
         document.getElementById('hud').classList.remove('hidden');
         document.getElementById('optionsHint').classList.remove('hidden');
         mapMenu.classList.add('hidden');
