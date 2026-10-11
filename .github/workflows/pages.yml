@@ -5,6 +5,7 @@ on:
     paths:
       - 'index.html'
       - '.github/workflows/pages.yml'
+      - '.github/scripts/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,6 +23,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test dependencies
+        run: npm install --no-save playwright
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run web gameplay smoke tests
+        run: node .github/scripts/web-smoke-test.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
