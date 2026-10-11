@@ -474,34 +474,65 @@ document.addEventListener('DOMContentLoaded', () => {
         return tex;
     }
 
+    function makeClassicCarTexture(index) {
+        // Nine distinct self-contained top-down car sprites; used whenever optional PNG artwork is absent.
+        const canvas=document.createElement('canvas'); canvas.width=96; canvas.height=160;
+        const ctx=canvas.getContext('2d');
+        const palette=[
+          ['#d93636','#761f28','#9dd8e7'],['#e5e7eb','#59636c','#87c6dc'],['#2868c7','#173d78','#9ad7e6'],
+          ['#e2b52d','#70531b','#a8dbe5'],['#278b55','#164d33','#a0dbe8'],['#8a52bd','#482b68','#a4dbe8'],
+          ['#dce2e5','#525e66','#8dc9de'],['#db7135','#773819','#9bd3e4'],['#252b33','#090d12','#8fc7d7']
+        ];
+        const [body,dark,glass]=palette[(index-1)%palette.length],type=(index-1)%6;
+        ctx.clearRect(0,0,96,160);
+        ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(49,82,34,67,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#171b20';
+        const tire=(x,y,w=10,h=25)=>ctx.fillRect(x,y,w,h);
+        tire(8,27);tire(78,27);tire(8,108);tire(78,108);
+        if(type===2||type===3){tire(6,48,12,30);tire(78,48,12,30);}
+        ctx.fillStyle=dark;
+        if(type===0){ctx.beginPath();ctx.moveTo(48,7);ctx.lineTo(66,18);ctx.lineTo(75,42);ctx.lineTo(72,118);ctx.lineTo(60,149);ctx.lineTo(36,149);ctx.lineTo(24,118);ctx.lineTo(21,42);ctx.lineTo(30,18);ctx.closePath();ctx.fill();}
+        else if(type===2||type===3){ctx.fillRect(type===2?20:17, type===2?12:8,type===2?56:62,type===2?136:144);}
+        else {ctx.beginPath();ctx.roundRect(19,8,58,144,type===4?5:12);ctx.fill();}
+        ctx.fillStyle=body;
+        if(type===0){ctx.beginPath();ctx.moveTo(48,10);ctx.lineTo(63,22);ctx.lineTo(70,44);ctx.lineTo(68,119);ctx.lineTo(57,145);ctx.lineTo(39,145);ctx.lineTo(28,119);ctx.lineTo(26,44);ctx.lineTo(33,22);ctx.closePath();ctx.fill();}
+        else if(type===2||type===3){ctx.fillRect(type===2?23:20,type===2?14:10,type===2?50:56,type===2?132:140);}
+        else {ctx.beginPath();ctx.roundRect(22,10,52,140,type===4?4:10);ctx.fill();}
+        ctx.fillStyle='#e6d9b8';ctx.fillRect(29,17,38,4);
+        ctx.fillStyle=dark;
+        if(type===0){ctx.beginPath();ctx.moveTo(31,37);ctx.lineTo(65,37);ctx.lineTo(62,57);ctx.lineTo(34,57);ctx.closePath();ctx.fill();ctx.fillRect(34,108,28,17);}
+        else if(type===2){ctx.fillRect(27,27,42,28);ctx.fillRect(27,101,42,21);}
+        else if(type===3){ctx.fillRect(25,22,46,35);ctx.fillRect(25,99,46,27);}
+        else {ctx.fillRect(28,31,40,type===4?43:32);ctx.fillRect(29,103,38,19);}
+        ctx.fillStyle=glass;
+        if(type===3){ctx.fillRect(27,26,42,26);ctx.fillRect(27,60,42,31);}
+        else {ctx.fillRect(30,34,36,type===0?18:24);ctx.fillRect(30,66,36,type===4?31:22);}
+        ctx.fillStyle='rgba(255,255,255,.28)';ctx.fillRect(31,35,4,18);ctx.fillRect(31,68,4,18);
+        ctx.fillStyle='#fff3c4';ctx.fillRect(27,12,12,4);ctx.fillRect(57,12,12,4);
+        ctx.fillStyle='#e94545';ctx.fillRect(27,143,12,4);ctx.fillRect(57,143,12,4);
+        ctx.fillStyle='#171b20';ctx.fillRect(20,61,4,5);ctx.fillRect(72,61,4,5);
+        if(type===3){ctx.fillStyle='#f7f7f7';ctx.fillRect(22,83,52,7);ctx.fillStyle='#222';ctx.font='bold 7px sans-serif';ctx.fillText('TAXI',37,89);}
+        if(type===4){ctx.fillStyle='#f5f0d7';ctx.fillRect(24,58,48,5);ctx.fillRect(24,94,48,5);}
+        const tex=new THREE.CanvasTexture(canvas);
+        tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.encoding=THREE.sRGBEncoding;
+        return tex;
+    }
+
     function loadAssets() {
         if(loadedTextures.length > 0) return Promise.resolve();
         skidTexture = createProceduralTexture('skid');
-
-        const promises = [];
-        for (let i = 1; i <= MAX_ASSETS; i++) {
-            const num = i.toString().padStart(3, '0');
-            const path = `${ASSET_FOLDER}${num}.png`;
-            const p = new Promise((resolve) => {
-                textureLoader.load(path, (tex) => { 
-                    tex.magFilter = THREE.NearestFilter;
-                    tex.minFilter = THREE.NearestFilter;
-                    tex.encoding = THREE.sRGBEncoding;
-                    loadedTextures.push(tex); 
-                    resolve(); 
-                }, undefined, () => {
-                    const c = document.createElement('canvas'); c.width=64; c.height=128;
-                    const ctx = c.getContext('2d');
-                    ctx.fillStyle = `hsl(${i*40},70%,50%)`; ctx.fillRect(0,0,64,128);
-                    ctx.fillStyle='#000'; ctx.fillRect(10,10,44,20);
-                    const t = new THREE.CanvasTexture(c);
-                    t.magFilter = THREE.NearestFilter;
-                    t.encoding = THREE.sRGBEncoding;
-                    loadedTextures.push(t);
-                    resolve();
+        const promises=[];
+        for(let i=1;i<=MAX_ASSETS;i++){
+            const index=i-1;
+            const path=`${ASSET_FOLDER}${String(i).padStart(3,'0')}.png`;
+            promises.push(new Promise(resolve=>{
+                textureLoader.load(path,tex=>{
+                    tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.encoding=THREE.sRGBEncoding;
+                    loadedTextures[index]=tex;resolve();
+                },undefined,()=>{
+                    loadedTextures[index]=makeClassicCarTexture(i);resolve();
                 });
-            });
-            promises.push(p);
+            }));
         }
         return Promise.all(promises);
     }
