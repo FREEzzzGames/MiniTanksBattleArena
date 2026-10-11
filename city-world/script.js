@@ -1988,7 +1988,8 @@ document.addEventListener('DOMContentLoaded', () => {
             entities = []; trafficPool = []; skidMarks = [];
             intersectionLocks = {}; 
             
-            if(type === 'default') createCity(); 
+            if(type === 'default') { type='medium'; currentMapType='medium'; }
+            if(type === 'default') createCity();
             else {
                 let w=20, h=20;
                 if(type === 'medium') {w=40; h=40;}
