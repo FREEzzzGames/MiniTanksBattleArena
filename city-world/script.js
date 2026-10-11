@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let entities = []; 
     let trafficPool = [];
     let player1, player2;
+    let autoAimEnabled = true;
     let mapGrid = [];
     let roadTiles = []; 
     let roadLookup = {}; 
@@ -1130,6 +1131,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateAutoAim(player, dt) {
+        if (!TANK_COMBAT_MODE || !player || !player.turret || !autoAimEnabled) return;
+        const p = player.body.getPosition();
+        const maxRangeSq = 64 * 64;
+        let target = player.autoAimTarget;
+        const validTarget = candidate => candidate && !candidate.markedForDeletion &&
+            candidate.body && candidate.body.getPosition &&
+            (!candidate.health || candidate.health > 0);
+        if (validTarget(target)) {
+            const tp = target.body.getPosition();
+            const dx = tp.x - p.x, dz = tp.y - p.y;
+            if (dx * dx + dz * dz > maxRangeSq) target = null;
+        } else target = null;
+        if (!target) {
+            let best = maxRangeSq;
+            for (let n = 0; n < trafficPool.length; n++) {
+                const candidate = trafficPool[n];
+                if (!validTarget(candidate) || candidate.isPlayer) continue;
+                const cp = candidate.body.getPosition();
+                const dx = cp.x - p.x, dz = cp.y - p.y;
+                const d2 = dx * dx + dz * dz;
+                if (d2 < best) { best = d2; target = candidate; }
+            }
+        }
+        player.autoAimTarget = target || null;
+        if (!target) return;
+        const tp = target.body.getPosition();
+        const dx = tp.x - p.x, dz = tp.y - p.y;
+        const targetWorldAngle = Math.atan2(-dx, dz);
+        const wanted = angleDiff(player.body.getAngle() - targetWorldAngle, player.turret.rotation.y);
+        player.turret.rotation.y += clamp(wanted, -TANK_TURN_RATE * 1.65 * dt, TANK_TURN_RATE * 1.65 * dt);
+    }
+
     function createBullet(x, y, vx, vy, ownerIndex) {
         const geo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
         const mat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
@@ -1563,7 +1597,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowDown']) input.brake = true;
             if (keys['ArrowLeft']) input.steer = 1;
             if (keys['ArrowRight']) input.steer = -1;
-            if (keys['Enter'] || keys['ControlRight']) input.shoot = true;
+            if (keys['Enter'] || keys['ControlRight'] || keys['KeyF'] || keys['ControlLeft']) input.shoot = true;
             if (keys['ShiftRight'] || keys['Space']) input.handbrake = true;
             input.aimLeft=!!keys['KeyQ']; input.aimRight=!!keys['KeyE'];
         } else if (dev === 'kb_wasd') {
@@ -1847,14 +1881,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (player1) {
             let i = getPlayerInput(1);
             player1.drivePlayer(i.accelerate, i.brake, i.handbrake, i.steer);
-            if (TANK_COMBAT_MODE && player1.turret) player1.turret.rotation.y += ((i.aimLeft?1:0)-(i.aimRight?1:0))*TANK_TURN_RATE*dt;
+            if (TANK_COMBAT_MODE && player1.turret) {
+                if (autoAimEnabled) updateAutoAim(player1, dt);
+                else player1.turret.rotation.y += ((i.aimLeft?1:0)-(i.aimRight?1:0))*TANK_TURN_RATE*dt;
+            }
             if (i.shoot) player1.shoot();
         }
 
         if (player2) {
             let i = getPlayerInput(2);
             player2.drivePlayer(i.accelerate, i.brake, i.handbrake, i.steer);
-            if (TANK_COMBAT_MODE && player2.turret) player2.turret.rotation.y += ((i.aimLeft?1:0)-(i.aimRight?1:0))*TANK_TURN_RATE*dt;
+            if (TANK_COMBAT_MODE && player2.turret) {
+                if (autoAimEnabled) updateAutoAim(player2, dt);
+                else player2.turret.rotation.y += ((i.aimLeft?1:0)-(i.aimRight?1:0))*TANK_TURN_RATE*dt;
+            }
             if (i.shoot) player2.shoot();
         }
 
@@ -2419,29 +2459,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupMobileControls() {
         if (!mobileControls) return;
-
         const addControlListener = (element, keyCode) => {
             if (!element) return;
             const pressKey = (e) => {
-                if(e.cancelable) e.preventDefault(); 
+                if (e.cancelable) e.preventDefault();
                 keys[keyCode] = true;
+                element.classList.add('pressed');
+                if (element.setPointerCapture && e.pointerId !== undefined) {
+                    try { element.setPointerCapture(e.pointerId); } catch (_) {}
+                }
             };
             const releaseKey = (e) => {
-                if(e.cancelable) e.preventDefault();
+                if (e && e.cancelable) e.preventDefault();
                 keys[keyCode] = false;
+                element.classList.remove('pressed');
             };
-
-            element.addEventListener('touchstart', pressKey, { passive: false });
-            element.addEventListener('touchend', releaseKey, { passive: false });
-            element.addEventListener('touchcancel', releaseKey, { passive: false });
-            
-            element.addEventListener('mousedown', pressKey);
-            element.addEventListener('mouseup', releaseKey);
-            element.addEventListener('mouseleave', (e) => {
-                if (e.buttons === 1) { releaseKey(e); }
-            });
+            element.addEventListener('pointerdown', pressKey, { passive: false });
+            element.addEventListener('pointerup', releaseKey, { passive: false });
+            element.addEventListener('pointercancel', releaseKey, { passive: false });
+            element.addEventListener('lostpointercapture', releaseKey);
+            element.addEventListener('contextmenu', e => e.preventDefault());
+            window.addEventListener('pointerup', releaseKey, { passive: false });
+            window.addEventListener('blur', releaseKey);
         };
-
         addControlListener(mobileLeftBtn, 'ArrowLeft');
         addControlListener(mobileRightBtn, 'ArrowRight');
         addControlListener(mobileUpBtn, 'ArrowUp');
@@ -2450,6 +2490,26 @@ document.addEventListener('DOMContentLoaded', () => {
         addControlListener(document.getElementById('mobile-aim-left'), 'KeyQ');
         addControlListener(document.getElementById('mobile-aim-right'), 'KeyE');
         addControlListener(document.getElementById('mobile-fire'), 'KeyF');
+        const autoBtn = document.getElementById('mobile-auto-aim');
+        if (autoBtn) {
+            const updateAutoBtn = () => {
+                autoBtn.textContent = autoAimEnabled ? 'AUTO AIM: ON' : 'AUTO AIM: OFF';
+                autoBtn.classList.toggle('auto-aim-on', autoAimEnabled);
+                autoBtn.setAttribute('aria-pressed', String(autoAimEnabled));
+            };
+            autoBtn.addEventListener('click', () => {
+                autoAimEnabled = !autoAimEnabled;
+                if (player1) player1.autoAimTarget = null;
+                updateAutoBtn();
+            });
+            updateAutoBtn();
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                Object.keys(keys).forEach(k => { keys[k] = false; });
+                mobileControls.querySelectorAll('.pressed').forEach(el => el.classList.remove('pressed'));
+            }
+        });
     }
 
     setupMobileControls();
