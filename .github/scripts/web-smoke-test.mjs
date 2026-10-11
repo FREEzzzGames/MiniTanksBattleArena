@@ -17,14 +17,14 @@ assert(await page.locator('[data-mode]').count() === 3, 'Expected three game sel
 assert(await page.locator('#controls button').count() === 7, 'Tetris must expose seven functional controls including Hold');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Tetris Play should start the game');
-await control(0); await control(1); await control(2); await control(3); await control(4); // HOLD
-await control(5); // DROP
-await control(6); // PAUSE
+await control(0); await control(1); await control(2); await control(3); await control(4);
+await control(5);
+await control(6);
 assert(await status() === 'PAUSED', 'Tetris pause button should pause');
 assert((await page.locator('#play').innerText()).includes('RESUME'), 'Pause overlay must offer Resume');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Resume should return to active play');
-await control(4); // Hold can be used once on the active piece
+await control(4);
 
 await click('[data-mode="arkanoid"]');
 assert(await page.locator('#controls button').count() === 5, 'Arkanoid should expose five controls');
@@ -38,15 +38,17 @@ await control(4);
 assert(await status() === 'ACTIVE', 'Arkanoid restart should remain playable');
 
 await click('[data-mode="racing"]');
-assert(await page.locator('#controls button').count() === 6, 'Racing should expose six actionable controls including Nitro and Shield');
+assert(await page.locator('#controls button').count() === 7, 'Racing should expose seven controls including Enter/Exit, Nitro and Shield');
 assert(await status() === 'ACTIVE', 'Selecting Neon Racing should start the game');
-await control(0); await control(1); await control(2); // Nitro
-await control(3); // Shield
-await control(4); // Pause
+await control(0); await control(1); // Lane movement
+await control(2); // Enter/Exit vehicle
+await control(3); // Nitro
+await control(4); // Shield
+await control(5); // Pause
 assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Racing resume should work');
-await control(5);
+await control(6); // Restart
 assert(await status() === 'ACTIVE', 'Racing restart should remain playable');
 await page.waitForTimeout(350);
 const canvasState = await page.locator('#game').evaluate(c => ({ width: c.width, height: c.height, hasContext: !!c.getContext('2d') }));
