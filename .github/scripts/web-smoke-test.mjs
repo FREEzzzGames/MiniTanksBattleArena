@@ -38,14 +38,15 @@ await control(4);
 assert(await status() === 'ACTIVE', 'Arkanoid restart should remain playable');
 
 await click('[data-mode="racing"]');
-assert(await page.locator('#controls button').count() === 5, 'Racing should expose five actionable controls including Shield');
+assert(await page.locator('#controls button').count() === 6, 'Racing should expose six actionable controls including Nitro and Shield');
 assert(await status() === 'ACTIVE', 'Selecting Neon Racing should start the game');
-await control(0); await control(1); await control(2); // Shield
-await control(3); // Pause
+await control(0); await control(1); await control(2); // Nitro
+await control(3); // Shield
+await control(4); // Pause
 assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Racing resume should work');
-await control(4);
+await control(5);
 assert(await status() === 'ACTIVE', 'Racing restart should remain playable');
 await page.waitForTimeout(350);
 const canvasState = await page.locator('#game').evaluate(c => ({ width: c.width, height: c.height, hasContext: !!c.getContext('2d') }));
