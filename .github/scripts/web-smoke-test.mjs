@@ -44,7 +44,8 @@ await click('[data-mode="racing"]');
 assert(await page.locator('#controls button').count() === 7, 'Racing should expose seven controls including Enter/Exit, Nitro and Shield');
 assert(await status() === 'ACTIVE', 'Selecting Neon Racing should start the game');
 await control(0); await control(1); // Lane movement
-await control(2); // Enter/Exit vehicle
+await control(2); // Exit vehicle and switch to on-foot controls
+assert((await page.locator('#controls button').nth(2).innerText()).trim() === 'ENTER', 'Racing controls must refresh to ENTER after exiting the vehicle');
 await control(3); // Nitro
 await control(4); // Shield
 await control(5); // Pause
