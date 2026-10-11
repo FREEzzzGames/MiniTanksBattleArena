@@ -40,9 +40,14 @@ try {
   await frame.locator('#mapMenu.hidden').waitFor({ state: 'attached' });
   await frame.locator('#customizeButton').click();
   await frame.locator('#customizeMenu:not(.hidden)').waitFor({ state: 'visible' });
-  await frame.locator('#newGameButton').count();
+  await cityPage.keyboard.press('c');
+  await frame.locator('#customizeMenu.hidden').waitFor({ state: 'attached' });
+  await cityPage.keyboard.press('o');
+  await frame.locator('#optionsMenu:not(.hidden)').waitFor({ state: 'visible' });
   await frame.locator('#physOldBtn').click();
   await frame.locator('#physNewBtn').click();
+  await frame.locator('.close-options').click();
+  await frame.locator('#optionsMenu.hidden').waitFor({ state: 'attached' });
 
   // Verify mobile viewport scaling and touch controls exist.
   await page.setViewportSize({ width: 320, height: 640 });
