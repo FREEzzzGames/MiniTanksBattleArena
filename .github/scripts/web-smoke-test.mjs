@@ -79,11 +79,8 @@ await page.waitForTimeout(80);
 assert((await page.locator('#task').innerText()).includes('RETURNED TO ROAD'), 'Transit gate should return the driver to the road');
 // The copied MIT-licensed procedural city must launch inside the portal and close cleanly.
 await click('#openCityWorld');
-await page.waitForFunction(() => {
-  const frame = document.querySelector('#cityWorldFrame');
-  try { return frame?.contentDocument?.querySelector('#gameContainer') !== null; } catch { return false; }
-}, null, { timeout: 10000 });
 const cityFrame = page.frameLocator('#cityWorldFrame');
+await cityFrame.locator('#gameContainer').waitFor({ state: 'attached', timeout: 15000 });
 assert(await cityFrame.locator('#gameContainer').count() === 1, 'Open City overlay should load the standalone city game');
 assert(await page.locator('#cityWorldOverlay').evaluate(el => el.classList.contains('open')), 'Open City overlay should become visible');
 await click('#closeCityWorld');
