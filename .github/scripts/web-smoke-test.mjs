@@ -61,7 +61,10 @@ try {
   await page.waitForTimeout(350);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   if (ammoSeen.size < 2) throw new Error('Holding FIRE did not consume ammo during simultaneous touch test: ' + [...ammoSeen].join(', '));
-  if (![...ammoSeen].some(v => v === '4 / 4')) throw new Error('Ammo never recovered to a full magazine during combat: ' + [...ammoSeen].join(', '));
+  if (![...ammoSeen].some(v => v === '0 / 4')) throw new Error('Magazine never emptied during sustained fire: ' + [...ammoSeen].join(', '));
+  await page.waitForTimeout(2800);
+  const reloadedAmmo = await page.locator('#ammoText').innerText();
+  if (reloadedAmmo !== '4 / 4') throw new Error('Empty magazine did not recover after releasing FIRE: ' + reloadedAmmo);
   await page.locator('#pauseBtn').click();
   await page.locator('#overlay').waitFor({ state: 'visible' });
   await page.locator('#resumeBtn').click();
