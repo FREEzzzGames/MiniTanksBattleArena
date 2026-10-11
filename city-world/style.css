@@ -431,3 +431,82 @@ h1 { font-size:clamp(16px, 5vw, 30px); }
   #mobile-action { gap:5px; max-width:64vw; }
   #mobile-controls { align-items:flex-end; }
 }
+
+
+/* Tank-combat touch layout: fixed, thumb-reachable controls on portrait phones */
+#mobile-controls {
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 12px max(18px, env(safe-area-inset-bottom));
+  gap: 10px;
+}
+.tank-control-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+  margin: 0;
+}
+#mobile-drive { margin-left: 0; }
+#mobile-action { margin-right: 0; max-width: 48vw; flex-wrap: nowrap; align-items: center; }
+.drive-row, .aim-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.4vw, 9px);
+}
+.drive-caption {
+  color: rgba(230,245,248,.8);
+  font: 700 9px/1.2 monospace;
+  letter-spacing: 1.4px;
+  text-shadow: 0 1px 4px #000;
+}
+.mobile-control-btn {
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  margin: 0;
+  flex: 0 0 auto;
+  width: clamp(43px, 11.5vw, 64px);
+  height: clamp(43px, 11.5vw, 64px);
+  padding: 0;
+  border-radius: 50%;
+  font-size: clamp(19px, 5vw, 27px);
+  border: 2px solid rgba(224,245,250,.55);
+  background: rgba(12,23,31,.72);
+  box-shadow: 0 3px 12px rgba(0,0,0,.35);
+  backdrop-filter: blur(3px);
+}
+.mobile-control-btn:active, .mobile-control-btn.pressed {
+  transform: scale(.93);
+  background: rgba(90,220,195,.55);
+  border-color: #8fffe8;
+}
+.mobile-control-btn.tank-aim {
+  background: rgba(31,83,67,.82);
+  border-color: #9dd69a;
+}
+.mobile-control-btn.tank-fire {
+  width: clamp(66px, 17vw, 88px);
+  height: clamp(66px, 17vw, 88px);
+  font-size: clamp(13px, 3.5vw, 17px);
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: rgba(166,38,30,.9);
+  border-color: #ff9b83;
+  box-shadow: 0 0 18px rgba(255,75,40,.25);
+}
+.mobile-control-btn.tank-utility {
+  width: clamp(42px, 10vw, 54px);
+  height: clamp(42px, 10vw, 54px);
+  font-size: 12px;
+}
+@media (max-width: 380px) {
+  #mobile-controls { padding-left: 7px; padding-right: 7px; gap: 4px; }
+  .mobile-control-btn { width: 42px; height: 42px; }
+  .mobile-control-btn.tank-fire { width: 62px; height: 62px; }
+  #mobile-action { max-width: 52vw; }
+}
