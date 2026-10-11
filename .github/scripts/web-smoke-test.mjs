@@ -42,7 +42,7 @@ try {
   await frame.locator('#customizeMenu:not(.hidden)').waitFor({ state: 'visible' });
   await frame.locator('#customizeButton').evaluate(el => el.click());
   await frame.locator('#customizeMenu.hidden').waitFor({ state: 'attached' });
-  await frame.locator('#optionsHint').evaluate(el => el.dispatchEvent(new KeyboardEvent('keydown', {key:'o', bubbles:true})));
+  await cityPage.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', {key:'o', code:'KeyO', bubbles:true})));
   await frame.locator('#optionsMenu:not(.hidden)').waitFor({ state: 'visible' });
   await frame.locator('#physOldBtn').evaluate(el => el.click());
   await frame.locator('#physNewBtn').evaluate(el => el.click());
@@ -58,8 +58,7 @@ try {
     if (await frame.locator('#' + id).count() !== 1) throw new Error('Missing mobile control: ' + id);
   }
   // Keyboard input and all service buttons must be callable without JS exceptions.
-  await cityPage.keyboard.press('ArrowUp');
-  await cityPage.keyboard.press('ArrowLeft');
+  await cityPage.evaluate(() => { window.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowUp', code:'ArrowUp', bubbles:true})); window.dispatchEvent(new KeyboardEvent('keyup', {key:'ArrowUp', code:'ArrowUp', bubbles:true})); window.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowLeft', code:'ArrowLeft', bubbles:true})); window.dispatchEvent(new KeyboardEvent('keyup', {key:'ArrowLeft', code:'ArrowLeft', bubbles:true})); });
   for (const id of ['bank','dealer','property','gym','delivery']) await frame.locator('[data-career="' + id + '"]').evaluate(el => el.click());
   await page.waitForTimeout(500);
   if (failures.length) throw new Error('Runtime errors: ' + failures.join('; '));
