@@ -2479,8 +2479,10 @@ document.addEventListener('DOMContentLoaded', () => {
             element.addEventListener('pointercancel', releaseKey, { passive: false });
             element.addEventListener('lostpointercapture', releaseKey);
             element.addEventListener('contextmenu', e => e.preventDefault());
-            window.addEventListener('pointerup', releaseKey, { passive: false });
             window.addEventListener('blur', releaseKey);
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) releaseKey();
+            });
         };
         addControlListener(mobileLeftBtn, 'ArrowLeft');
         addControlListener(mobileRightBtn, 'ArrowRight');
@@ -2504,12 +2506,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             updateAutoBtn();
         }
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                Object.keys(keys).forEach(k => { keys[k] = false; });
-                mobileControls.querySelectorAll('.pressed').forEach(el => el.classList.remove('pressed'));
-            }
-        });
     }
 
     setupMobileControls();
