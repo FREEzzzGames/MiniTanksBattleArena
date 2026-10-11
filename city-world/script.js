@@ -1142,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (validTarget(target)) {
             const tp = target.body.getPosition();
             const dx = tp.x - p.x, dz = tp.y - p.y;
-            if (dx * dx + dz * dz > maxRangeSq) target = null;
+            if (dx * dx + dz * dz > maxRangeSq || !hasTankLineOfSight(p, tp)) target = null;
         } else target = null;
         if (!target) {
             let best = maxRangeSq;
@@ -1152,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cp = candidate.body.getPosition();
                 const dx = cp.x - p.x, dz = cp.y - p.y;
                 const d2 = dx * dx + dz * dz;
-                if (d2 < best) { best = d2; target = candidate; }
+                if (d2 < best && hasTankLineOfSight(p, cp)) { best = d2; target = candidate; }
             }
         }
         player.autoAimTarget = target || null;
