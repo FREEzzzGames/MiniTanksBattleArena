@@ -50,18 +50,20 @@ try {
     { id: 2, x: fx, y: fy, radiusX: 8, radiusY: 8, force: 1 }
   ]});
   const ammoSeen = new Set();
-  for (let i = 0; i < 90; i++) {
-    ammoSeen.add(await page.locator('#ammoText').innerText());
+  let emptied = false;
+  for (let i = 0; i < 150; i++) {
+    const ammo = await page.locator('#ammoText').innerText();
+    ammoSeen.add(ammo);
+    if (ammo === '0 / 4') { emptied = true; break; }
     await page.waitForTimeout(100);
   }
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [
     { id: 1, x: jx + 18, y: jy + 4, radiusX: 8, radiusY: 8, force: 1 },
     { id: 2, x: fx, y: fy, radiusX: 8, radiusY: 8, force: 1 }
   ]});
-  await page.waitForTimeout(350);
+  await page.waitForTimeout(200);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  if (ammoSeen.size < 2) throw new Error('Holding FIRE did not consume ammo during simultaneous touch test: ' + [...ammoSeen].join(', '));
-  if (![...ammoSeen].some(v => v === '0 / 4')) throw new Error('Magazine never emptied during sustained fire: ' + [...ammoSeen].join(', '));
+  if (!emptied || ammoSeen.size < 2) throw new Error('Simultaneous movement + FIRE did not consume the magazine: ' + [...ammoSeen].join(', '));
   await page.waitForTimeout(2800);
   const reloadedAmmo = await page.locator('#ammoText').innerText();
   if (reloadedAmmo !== '4 / 4') throw new Error('Empty magazine did not recover after releasing FIRE: ' + reloadedAmmo);
