@@ -64,6 +64,7 @@ canvas{position:relative;z-index:0;display:block;width:100%;height:100%;min-heig
 <div class="controls" id="controls"></div><div class="hint" id="hint">Keyboard: ← → move · ↑ rotate · ↓ soft drop · Space pause</div>
 <footer class="footer"><span>d3tr01t // SIMPLE CONSOLE</span><span>WEB ARCADE · LOCAL SCORES</span></footer>
 </main>
+<div id="cityWorldOverlay" class="city-world-overlay" aria-hidden="true"><div class="city-world-bar"><strong>FREEzzzGames // PROCEDURAL OPEN CITY</strong><button id="closeCityWorld" type="button">✕ CLOSE</button></div><iframe id="cityWorldFrame" class="city-world-frame" title="Open-world city driving game" loading="lazy" allow="fullscreen; gamepad" src="about:blank"></iframe></div>
 <script>
 (()=>{'use strict';
 function syncAppHeight(){const h=window.visualViewport?.height||window.innerHeight;if(h>0)document.documentElement.style.setProperty('--app-height',Math.round(h)+'px')}syncAppHeight();window.addEventListener('resize',syncAppHeight,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncAppHeight,100),{passive:true});window.visualViewport?.addEventListener('resize',syncAppHeight,{passive:true});
