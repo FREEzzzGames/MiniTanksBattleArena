@@ -1535,7 +1535,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkDeviceJoins() {
         if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) assignDevice('kb_arrows');
-        if (keys['KeyW'] || keys['KeyA'] || keys['KeyS'] || keys['KeyD']) assignDevice('kb_wasd');
+        if (keys['KeyW'] || keys['KeyA'] || keys['KeyS'] || keys['KeyD'] || keys['KeyF'] || keys['KeyQ'] || keys['KeyE']) assignDevice('kb_wasd');
 
         const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
         for (let i = 0; i < gamepads.length; i++) {
