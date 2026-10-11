@@ -54,6 +54,10 @@ try {
   await page.waitForTimeout(300);
   const frameBox = await page.locator('#cityFrame').boundingBox();
   if (!frameBox || frameBox.width < 300 || frameBox.height < 500) throw new Error('City viewport did not adapt to mobile dimensions');
+  const screenBox = await frame.locator('#screen').boundingBox();
+  if (!screenBox || screenBox.width < 300 || screenBox.height < 500) throw new Error('Game screen is still letterboxed on portrait mobile');
+  const canvasBox = await frame.locator('#canvas-container canvas').boundingBox();
+  if (!canvasBox || canvasBox.width < 300 || canvasBox.height < 500) throw new Error('WebGL canvas does not fill the portrait game viewport');
   for (const id of ['mobile-left','mobile-right','mobile-up','mobile-down','mobile-handbrake']) {
     if (await frame.locator('#' + id).count() !== 1) throw new Error('Missing mobile control: ' + id);
   }
