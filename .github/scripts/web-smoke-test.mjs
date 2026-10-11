@@ -3,9 +3,11 @@ import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const errors = [];
+const consoleErrors = [];
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
 page.on('pageerror', error => errors.push(error.message));
+page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
 await page.goto(pathToFileURL(path.resolve('index.html')).href);
 await page.waitForSelector('#game');
 const click = async (selector) => page.locator(selector).click();
@@ -15,7 +17,8 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 
 assert(await page.locator('[data-mode]').count() === 3, 'Expected three game selectors');
 await click('#play');
-assert(await status() === 'ACTIVE', 'Tetris Play should start the game');
+await page.waitForFunction(() => document.querySelector('#status')?.textContent?.trim() === 'ACTIVE', null, { timeout: 1500 }).catch(() => {});
+assert(await status() === 'ACTIVE', 'Tetris Play should start the game; page errors: ' + errors.join(' | ') + '; console: ' + consoleErrors.join(' | '));
 assert(await page.locator('#controls button').count() === 7, 'Tetris must expose seven functional controls including Hold');
 await control(0); await control(1); await control(2); await control(3); await control(4);
 await control(5);
@@ -53,6 +56,6 @@ assert(await status() === 'ACTIVE', 'Racing restart should remain playable');
 await page.waitForTimeout(350);
 const canvasState = await page.locator('#game').evaluate(c => ({ width: c.width, height: c.height, hasContext: !!c.getContext('2d') }));
 assert(canvasState.width > 0 && canvasState.height > 0 && canvasState.hasContext, 'Canvas should be initialized');
-assert(errors.length === 0, 'Runtime errors: ' + errors.join(' | '));
+assert(errors.length === 0 && consoleErrors.length === 0, 'Runtime errors: ' + errors.join(' | ') + '; console: ' + consoleErrors.join(' | '));
 console.log('PASS: Tetris, Arkanoid, Neon Racing selectors, controls, pause/resume, restart, canvas and runtime errors');
 await browser.close();
