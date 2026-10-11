@@ -14,9 +14,9 @@ const status = async () => (await page.locator('#status').innerText()).trim();
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
 assert(await page.locator('[data-mode]').count() === 3, 'Expected three game selectors');
-assert(await page.locator('#controls button').count() === 7, 'Tetris must expose seven functional controls including Hold');
 await click('#play');
 assert(await status() === 'ACTIVE', 'Tetris Play should start the game');
+assert(await page.locator('#controls button').count() === 7, 'Tetris must expose seven functional controls including Hold');
 await control(0); await control(1); await control(2); await control(3); await control(4);
 await control(5);
 await control(6);
