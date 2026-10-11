@@ -12,7 +12,8 @@ try {
   for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','joystick','ammoText']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
-  if (await page.locator('[data-tank]').count() !== 4) throw new Error('Tank selection cards missing');
+  if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
+  if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
   await page.locator('[data-tank="heavy"]').click();
   const stats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
