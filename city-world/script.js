@@ -1096,6 +1096,65 @@ document.addEventListener('DOMContentLoaded', () => {
         addWall(-40, zStart + CHUNK_LENGTH/2, 2, CHUNK_LENGTH);
         addWall(40, zStart + CHUNK_LENGTH/2, 2, CHUNK_LENGTH);
 
+        // City streetscape: sidewalks, curb strips, street lights, trees and storefront props.
+        const addStaticBox = (x,y,z,w,h,d,color,cast=true) => {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial({color, roughness:.86}));
+            mesh.position.set(x,y,z); mesh.castShadow=cast; mesh.receiveShadow=true; scene.add(mesh); chunk.meshes.push(mesh); return mesh;
+        };
+        // Raised concrete sidewalks run along both sides of the asphalt corridor.
+        addStaticBox(-29,-.025,zStart+CHUNK_LENGTH/2,18,.28,CHUNK_LENGTH,'#858a86',false);
+        addStaticBox(29,-.025,zStart+CHUNK_LENGTH/2,18,.28,CHUNK_LENGTH,'#858a86',false);
+        addStaticBox(-20,.04,zStart+CHUNK_LENGTH/2,.45,.18,CHUNK_LENGTH,'#d4c9a8',false);
+        addStaticBox(20,.04,zStart+CHUNK_LENGTH/2,.45,.18,CHUNK_LENGTH,'#d4c9a8',false);
+        // Repeating lane dashes and zebra crossings provide a stronger road scale cue.
+        for(let rz=zStart+18; rz<zStart+CHUNK_LENGTH; rz+=48){
+            for(const lx of [-10,10]) addStaticBox(lx,.015,rz, .22,.025,10,'#e0d8bd',false);
+            for(let stripe=0;stripe<7;stripe++){
+                addStaticBox(-6+stripe*2,.025,rz+8,.95,.035,3.8,'#e8e7dd',false);
+            }
+        }
+        const poleGeo = new THREE.CylinderGeometry(.12,.2,5,6);
+        const lampGeo = new THREE.BoxGeometry(1.1,.18,.45);
+        const poleMat = new THREE.MeshStandardMaterial({color:'#303b43',roughness:.75});
+        const lampMat = new THREE.MeshStandardMaterial({color:'#f5df9c',emissive:'#c18c35',emissiveIntensity:.28});
+        const trunkGeo = new THREE.CylinderGeometry(.18,.28,1.8,6);
+        const leafGeo = new THREE.SphereGeometry(1.05,7,6);
+        const trunkMat = new THREE.MeshStandardMaterial({color:'#655044',roughness:1});
+        const leafMats=['#426b51','#52764b','#6b8051'].map(color=>new THREE.MeshStandardMaterial({color,roughness:1}));
+        for(let pz=zStart+14;pz<zStart+CHUNK_LENGTH;pz+=34){
+            for(const side of [-1,1]){
+                const x=side*29;
+                const pole=new THREE.Mesh(poleGeo,poleMat);pole.position.set(x,2.5,pz);scene.add(pole);chunk.meshes.push(pole);
+                const arm=new THREE.Mesh(lampGeo,lampMat);arm.position.set(x-side*.48,4.85,pz);scene.add(arm);chunk.meshes.push(arm);
+                if((Math.floor((pz-zStart)/34)+ (side===1?1:0))%2===0){
+                    const tx=side*34.8;
+                    const trunk=new THREE.Mesh(trunkGeo,trunkMat);trunk.position.set(tx,.95,pz+8);trunk.castShadow=true;scene.add(trunk);chunk.meshes.push(trunk);
+                    const crown=new THREE.Mesh(leafGeo,leafMats[Math.abs(Math.floor(pz/34))%leafMats.length]);crown.position.set(tx,2.65,pz+8);crown.scale.set(1.15,1.05,1.15);crown.castShadow=true;scene.add(crown);chunk.meshes.push(crown);
+                }
+            }
+        }
+        // Pedestrians are low-poly, colourful figures placed on the sidewalks.
+        const skinMats=['#c98e65','#e1b18a','#80563f'].map(color=>new THREE.MeshStandardMaterial({color,roughness:.9}));
+        const clothesMats=['#d24e48','#3b85a7','#d5a83d','#4e8061','#d4d4d0','#795c9e'].map(color=>new THREE.MeshStandardMaterial({color,roughness:.88}));
+        const bodyGeo=new THREE.CapsuleGeometry(.34,.72,2,5);
+        const headGeo=new THREE.SphereGeometry(.25,6,5);
+        const legGeo=new THREE.CylinderGeometry(.105,.12,.48,5);
+        for(let pz=zStart+24;pz<zStart+CHUNK_LENGTH;pz+=31){
+            for(const side of [-1,1]){
+                if(Math.random()<.18) continue;
+                const px=side*(25+Math.random()*7);
+                const person=new THREE.Group();
+                const body=new THREE.Mesh(bodyGeo,clothesMats[Math.floor(Math.random()*clothesMats.length)]);
+                body.position.y=.92;body.castShadow=true;person.add(body);
+                const head=new THREE.Mesh(headGeo,skinMats[Math.floor(Math.random()*skinMats.length)]);
+                head.position.y=1.58;head.castShadow=true;person.add(head);
+                const legA=new THREE.Mesh(legGeo,new THREE.MeshStandardMaterial({color:'#29333c'}));legA.position.set(-.13,.28,0);person.add(legA);
+                const legB=legA.clone();legB.position.x=.13;person.add(legB);
+                person.position.set(px,0,pz+(Math.random()-.5)*7);person.rotation.y=side===-1?Math.PI/2:-Math.PI/2;
+                scene.add(person);chunk.meshes.push(person);
+            }
+        }
+
         const boxGeo = new THREE.BoxGeometry(1,1,1);
         const addBuilding = (x, z) => {
             const h = Math.random() * 15 + 5;
