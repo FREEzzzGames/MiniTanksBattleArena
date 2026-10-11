@@ -2,20 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0b0c10"><title>Tetris Console — FREEzzzGames</title>
+<meta name="theme-color" content="#05070d"><meta name="description" content="d3tr01t simple console — Tetris, Arkanoid and Neon Racing in one mobile arcade."><title>d3tr01t simple console</title>
 <style>
-:root{color-scheme:dark;--bg:#0b0c10;--panel:#12161d;--line:#28343c;--cyan:#66fcf1;--green:#00ff66;--amber:#ffb703;--red:#d90429}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;min-height:0;overflow:hidden;background:var(--bg);color:#e9f1f5;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}body{height:var(--app-height,100vh);min-height:0;display:flex;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 0,#14202a 0,transparent 65%),var(--bg)}button{font:inherit;color:var(--cyan);background:#101920;border:1px solid #35515a;border-radius:8px;min-height:42px;padding:9px 12px;touch-action:manipulation;cursor:pointer}button:active,button.active{background:#17343a;border-color:var(--cyan);transform:translateY(1px)}button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}.app{width:min(100%,620px);height:var(--app-height,100vh);min-height:0;max-height:var(--app-height,100vh);padding:clamp(8px,2.5vw,18px);display:grid;grid-template-rows:auto auto auto auto minmax(0,1fr) auto auto auto;gap:clamp(5px,1.2vh,12px);overflow:hidden;align-content:stretch}.brand,.modes,.stats,.task,.controls,.hint,.footer{min-height:0;flex-shrink:0}.screen{height:auto;min-height:0}.brand{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:3px 0 12px}.brand strong{letter-spacing:.15em;color:var(--cyan);font-size:clamp(17px,4vw,23px)}.brand small{color:#8296a1;font-size:10px}.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.modes button{font-size:clamp(10px,2.8vw,13px);letter-spacing:.06em}.modes button.selected{color:#071113;background:var(--cyan);border-color:var(--cyan);font-weight:900}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}.stat span{display:block;color:#8296a1;font-size:10px;margin-bottom:4px}.stat b{font-size:clamp(15px,4vw,20px);color:var(--amber)}.task{font-size:12px;color:var(--green);border:1px solid #234b3a;background:#0c1914;border-radius:8px;padding:9px 11px;min-height:34px}.screen{position:relative;border:1px solid #34515a;border-radius:10px;overflow:hidden;background:#080b10;box-shadow:0 0 26px #66fcf10c;flex:1 1 0;min-height:0;min-width:0;display:flex;align-items:stretch;justify-content:center}canvas{display:block;width:100%;height:100%;min-height:0;min-width:0;touch-action:none}.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#05070bdc;text-align:center;padding:20px}.overlay.show{display:flex}.overlay strong{font-size:clamp(23px,7vw,34px);color:var(--cyan);letter-spacing:.12em}.overlay span{font-size:12px;color:#a5b5be}.controls{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.controls button{padding:8px 2px;font-size:clamp(12px,3vw,15px);min-height:48px}.controls .primary{color:#071113;background:var(--cyan);font-weight:900}.hint{font-size:10px;line-height:1.6;color:#71848e;text-align:center}.footer{display:flex;justify-content:space-between;color:#617681;font-size:10px;border-top:1px solid var(--line);padding-top:10px}@media(min-height:850px){.screen{min-height:0}}@media(max-height:650px){.app{gap:5px;padding:6px}.brand{padding:1px 0 6px}.task{padding:5px 8px;min-height:0;font-size:10px}.screen{min-height:0}.stat{padding:4px 6px}.controls button{min-height:34px;padding:5px 2px}.hint{font-size:9px;line-height:1.2}.footer{padding-top:5px}}
+:root{color-scheme:dark;--bg:#05070d;--panel:#0a111c;--line:#153b50;--cyan:#43f5ff;--blue:#087dff;--green:#35ff9b;--amber:#ffb52e;--pink:#ff36bd;--red:#ff4268;--muted:#8ba9bb}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;min-height:0;overflow:hidden;background:var(--bg);color:#e9f8ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+body{height:var(--app-height,100vh);min-height:0;display:flex;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% -15%,#12354c 0,transparent 55%),linear-gradient(180deg,#05070d,#080b14)}
+button{font:inherit;color:var(--cyan);background:linear-gradient(180deg,#0d1c2b,#08111b);border:1px solid #1c6982;border-radius:10px;min-height:40px;padding:8px 10px;touch-action:manipulation;cursor:pointer;box-shadow:inset 0 0 12px #087dff0b,0 0 10px #087dff0a;transition:background .12s,border-color .12s,transform .12s}
+button:active,button.active{background:#103849;border-color:var(--cyan);transform:translateY(1px);box-shadow:0 0 14px #43f5ff26}
+button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.app{position:relative;width:min(100%,620px);height:var(--app-height,100vh);min-height:0;max-height:var(--app-height,100vh);padding:clamp(8px,2.3vw,16px);display:grid;grid-template-rows:auto auto auto auto minmax(0,1fr) auto auto auto;gap:clamp(5px,1.05vh,10px);overflow:hidden;align-content:stretch}
+.app:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(#1a587022 1px,transparent 1px),linear-gradient(90deg,#1a587022 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(to bottom,black,transparent 82%)}
+.brand,.modes,.stats,.task,.controls,.hint,.footer,.screen{position:relative;z-index:1;min-height:0}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #17485d;padding:3px 2px 9px}
+.brand strong{letter-spacing:.09em;color:var(--cyan);font-size:clamp(17px,4.4vw,24px);text-shadow:0 0 14px #43f5ff48}
+.brand small{color:var(--muted);font-size:9px;letter-spacing:.07em}
+.brand .edition{text-align:right;white-space:nowrap}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.modes button{font-size:clamp(9px,2.5vw,13px);letter-spacing:.035em;padding:8px 2px;border-color:#19475b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modes button[data-mode="tetris"]{--mode:#43f5ff}.modes button[data-mode="arkanoid"]{--mode:#ffb52e}.modes button[data-mode="racing"]{--mode:#ff36bd}
+.modes button.selected{color:var(--mode,#43f5ff);background:color-mix(in srgb,var(--mode,#43f5ff) 12%,#07111c);border-color:var(--mode,#43f5ff);font-weight:900;box-shadow:inset 0 0 18px color-mix(in srgb,var(--mode,#43f5ff) 9%,transparent),0 0 12px color-mix(in srgb,var(--mode,#43f5ff) 12%,transparent)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.stat{background:linear-gradient(135deg,#0d1a28,#080e17);border:1px solid #174156;border-radius:9px;padding:7px 9px;min-width:0;box-shadow:inset 0 0 14px #0b7ca10a}
+.stat span{display:block;color:#7da3b7;font-size:9px;letter-spacing:.12em;margin-bottom:3px}
+.stat b{display:block;font-size:clamp(14px,3.8vw,20px);color:var(--amber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task{font-size:10px;letter-spacing:.04em;color:var(--green);border:1px solid #18553f;background:linear-gradient(90deg,#071c17,#0b151b);border-radius:8px;padding:8px 10px;min-height:31px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.screen{height:auto;position:relative;border:1px solid #1a6076;border-radius:12px;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,#0b1d2c,#050911 72%);box-shadow:0 0 22px #087dff12,inset 0 0 25px #087dff0a;flex:1 1 0;min-height:0;min-width:0;display:flex;align-items:stretch;justify-content:center}
+.screen:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px #43f5ff08,inset 0 0 28px #0005}
+canvas{position:relative;z-index:0;display:block;width:100%;height:100%;min-height:0;min-width:0;touch-action:none}
+.overlay{position:absolute;z-index:2;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:11px;background:#030711e8;backdrop-filter:blur(5px);text-align:center;padding:20px}
+.overlay.show{display:flex}
+.overlay strong{font-size:clamp(23px,7vw,36px);color:var(--cyan);letter-spacing:.1em;text-shadow:0 0 22px #43f5ff55}
+.overlay span{font-size:11px;line-height:1.5;color:#a5c3d1;max-width:260px}
+.overlay button{min-width:145px;border-color:var(--cyan);color:#041116;background:linear-gradient(135deg,#43f5ff,#0dbbdc);font-weight:900;letter-spacing:.12em}
+.controls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.controls button{padding:7px 1px;font-size:clamp(11px,3vw,15px);min-height:45px;font-weight:800;overflow:hidden}
+.controls button.primary{color:#08131a;background:linear-gradient(135deg,#43f5ff,#0784d7);border-color:#43f5ff}
+.hint{font-size:9px;line-height:1.4;color:#7897a8;text-align:center;padding:0 3px}
+.footer{display:flex;justify-content:space-between;gap:8px;color:#638294;font-size:9px;letter-spacing:.035em;border-top:1px solid #153b50;padding-top:7px}
+@media(max-height:720px){.app{gap:5px;padding:7px}.brand{padding:1px 2px 6px}.brand small{font-size:8px}.task{padding:5px 8px;min-height:0;font-size:9px}.stat{padding:4px 7px}.stat span{font-size:8px;margin-bottom:2px}.controls button{min-height:36px;padding:4px 1px}.hint{font-size:8px;line-height:1.2}.footer{padding-top:5px;font-size:8px}}
+@media(max-width:360px){.modes{gap:4px}.modes button{font-size:9px}.controls{gap:4px}.controls button{font-size:11px}.brand strong{font-size:16px}.brand .edition{font-size:8px}}
 </style>
 </head>
 <body><main class="app">
-<header class="brand"><div><strong>TETRIS CONSOLE</strong><br><small>FREEzzzGAMES // WEB EDITION</small></div><small>v1.1 · OFFLINE READY</small></header>
+<header class="brand"><div><strong>d3tr01t</strong><br><small>SIMPLE CONSOLE // ARCADE SYSTEM</small></div><small class="edition">3 GAMES<br>1 CONSOLE</small></header>
 <nav class="modes" aria-label="Select game"><button data-mode="tetris" class="selected">▦ TETRIS</button><button data-mode="arkanoid">▤ ARKANOID</button><button data-mode="racing">▰ NEON RACING</button></nav>
 <section class="stats"><div class="stat"><span>SCORE</span><b id="score">000000</b></div><div class="stat"><span id="metricLabel">LINES</span><b id="metric">0</b></div><div class="stat"><span>STATUS</span><b id="status">READY</b></div></section>
-<div id="task" class="task">SYSTEM READY // Select PLAY to begin</div>
+<div id="task" class="task">SYSTEM READY // SELECT A GAME</div>
 <section class="screen"><canvas id="game" aria-label="Game area"></canvas><div class="overlay show" id="overlay"><strong id="overlayTitle">READY?</strong><span id="overlayText">Three arcade games. One console.</span><button id="play" class="primary">▶ PLAY</button></div></section>
 <div class="controls" id="controls"></div><div class="hint" id="hint">Keyboard: ← → move · ↑ rotate · ↓ soft drop · Space pause</div>
-<footer class="footer"><span>NO ACCOUNT · NO INSTALL</span><span>LOCAL SCORES ONLY</span></footer>
+<footer class="footer"><span>PLAY · RELAX · ENJOY</span><span>FREEzzzGAMES // WEB ARCADE</span></footer>
 </main>
 <script>
 (()=>{'use strict';
