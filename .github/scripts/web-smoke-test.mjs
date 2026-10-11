@@ -26,7 +26,7 @@ assert(await status() === 'ACTIVE', 'Resume should return to active play');
 
 await click('[data-mode="arkanoid"]');
 assert(await page.locator('#controls button').count() === 5, 'Arkanoid should expose five controls');
-await click('#play');
+assert(await status() === 'ACTIVE', 'Selecting Arkanoid should start the game');
 await control(0); await control(1); await control(2);
 await control(3);
 assert(await status() === 'PAUSED', 'Arkanoid pause should work');
@@ -37,7 +37,7 @@ assert(await status() === 'ACTIVE', 'Arkanoid restart should remain playable');
 
 await click('[data-mode="racing"]');
 assert(await page.locator('#controls button').count() === 4, 'Racing should expose four actionable controls');
-await click('#play');
+assert(await status() === 'ACTIVE', 'Selecting Neon Racing should start the game');
 await control(0); await control(1); await control(2);
 assert(await status() === 'PAUSED', 'Racing pause should work');
 await click('#play');
