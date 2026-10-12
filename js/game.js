@@ -106,8 +106,23 @@ ctx.save();ctx.rotate(rotation);ctx.scale(scale,scale);
 ctx.fillStyle='#0009';ctx.beginPath();ctx.ellipse(2,s*.28,s*1.38,s*.87,0,0,TAU);ctx.fill();
 const hw=heavy?2.28:scout?1.82:2.02,hh=heavy?1.68:scout?1.36:1.52;
 for(const side of [-1,1]){const ty=side<0?-s*hh*.51:s*hh*.35;ctx.fillStyle='#151d21';ctx.beginPath();ctx.roundRect(-s*hw/2-2,ty-1,s*hw+4,s*.25,3);ctx.fill();ctx.fillStyle=heavy?'#48514b':'#354247';ctx.fillRect(-s*hw/2,ty+2,s*hw,s*.14);for(let k=0;k<8;k++){const wx=-s*hw/2+s*hw*(k+.5)/8;ctx.fillStyle='#a0a69a';ctx.beginPath();ctx.arc(wx,ty+s*.105,s*.072,0,TAU);ctx.fill();ctx.fillStyle='#263138';ctx.beginPath();ctx.arc(wx,ty+s*.105,s*.033,0,TAU);ctx.fill()}}
+/* Moving track cleats follow actual accumulated travel distance. */
+const treadPhase=((t.trackDistance||0)*.32)% (s*.34||1);
+for(const side of [-1,1]){
+ const ty=side<0?-s*hh*.51:s*hh*.35;
+ ctx.save();ctx.beginPath();ctx.roundRect(-s*hw/2-2,ty-1,s*hw+4,s*.25,3);ctx.clip();
+ ctx.strokeStyle='#b6c2b588';ctx.lineWidth=Math.max(.7,s*.035);
+ for(let k=-1;k<10;k++){const tx=-s*hw/2+(k* s*hw/8)+treadPhase;ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(tx-s*.04,ty+s*.22);ctx.stroke()}
+ ctx.restore();
+}
+/* Hull armor panels, service hatch, optics and role-specific identification. */
 ctx.fillStyle=base;ctx.beginPath();if(scout){ctx.moveTo(-s*.58,-s*.49);ctx.lineTo(s*.5,-s*.49);ctx.lineTo(s*.8,-s*.12);ctx.lineTo(s*.72,s*.38);ctx.lineTo(-s*.65,s*.38);ctx.lineTo(-s*.8,-s*.12)}else{ctx.moveTo(-s*.78,-s*.5);ctx.lineTo(s*.66,-s*.5);ctx.lineTo(s*.84,-s*.24);ctx.lineTo(s*.84,s*.24);ctx.lineTo(s*.62,s*.5);ctx.lineTo(-s*.72,s*.5);ctx.lineTo(-s*.86,s*.2);ctx.lineTo(-s*.86,-s*.2)}ctx.closePath();ctx.fill();ctx.strokeStyle='#d9e5e6a0';ctx.lineWidth=1.1;ctx.stroke();
 const shade=ctx.createLinearGradient(-s, -s, s, s);shade.addColorStop(0,'#ffffff38');shade.addColorStop(.45,'#ffffff00');shade.addColorStop(1,'#0000004d');ctx.fillStyle=shade;ctx.fill();
+ctx.save();ctx.strokeStyle='#dce8df55';ctx.lineWidth=Math.max(.65,s*.022);
+ctx.beginPath();ctx.moveTo(-s*.59,-s*.28);ctx.lineTo(-s*.42,-s*.39);ctx.lineTo(-s*.19,-s*.38);ctx.moveTo(s*.2,-s*.38);ctx.lineTo(s*.47,-s*.35);ctx.lineTo(s*.61,-s*.2);ctx.moveTo(-s*.6,s*.24);ctx.lineTo(-s*.43,s*.38);ctx.lineTo(-s*.2,s*.39);ctx.moveTo(s*.2,s*.39);ctx.lineTo(s*.46,s*.36);ctx.lineTo(s*.62,s*.2);ctx.stroke();
+ctx.fillStyle='#111b1d';ctx.beginPath();ctx.roundRect(-s*.18,-s*.29,s*.36,s*.16,2);ctx.fill();ctx.fillStyle=laser?'#68eaff':support?'#91eaff':scout?'#d6a8ff':'#b5d8c5';ctx.fillRect(-s*.11,-s*.26,s*.22,s*.045);
+for(const [hx,hy] of [[-.51,-.12],[.51,-.12],[-.51,.12],[.51,.12]]){ctx.fillStyle='#182124';ctx.beginPath();ctx.arc(s*hx,s*hy,s*.055,0,TAU);ctx.fill();ctx.fillStyle='#91a49c';ctx.beginPath();ctx.arc(s*hx,s*hy,s*.025,0,TAU);ctx.fill()}
+ctx.restore();
 ctx.fillStyle='#263940';ctx.fillRect(-s*.46,-s*.31,s*.92,s*.62);ctx.fillStyle=base;ctx.fillRect(-s*.34,-s*.23,s*.68,s*.46);ctx.fillStyle='#18272e';ctx.fillRect(-s*.12,-s*.22,s*.24,s*.44);ctx.strokeStyle='#e0e8d066';ctx.strokeRect(-s*.39,-s*.27,s*.78,s*.54);
 for(const [bx,by] of [[-.67,-.35],[.65,-.35],[-.67,.35],[.65,.35]]){ctx.fillStyle='#d7dfd0a0';ctx.beginPath();ctx.arc(s*bx,s*by,s*.04,0,TAU);ctx.fill()}
 ctx.save();ctx.rotate((t.turret||t.a||0)-(t.a||0));
