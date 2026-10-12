@@ -116,8 +116,8 @@ const base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668
 const dark=heavy?'#29332d':scout?'#303d2c':laser?'#29343a':support?'#2e3d3b':'#303a30';
 const mid=heavy?'#77816b':scout?'#718650':laser?'#75848b':support?'#6e9187':'#71836c';
 const light=heavy?'#c4bd96':scout?'#c0d28f':laser?'#b9c9ce':support?'#b4d4ca':'#bdc9b4';
-const hullL=heavy?-.82:scout?-.73:laser?-.88:-.8,hullR=heavy?.78:scout?.72:laser?.76:.78;
-const hullH=heavy?.58:scout?.43:laser?.48:support?.53:.5;
+const hullL=demolisher?-.9:ironclad?-.84:viper?-.77:wraith?-.86:thunder?-.82:heavy?-.82:scout?-.73:laser?-.88:-.8,hullR=demolisher?.9:ironclad?.82:viper?.88:wraith?.8:thunder?.84:heavy?.78:scout?.72:laser?.76:.78;
+const hullH=demolisher?.66:ironclad?.61:viper?.38:wraith?.46:thunder?.57:heavy?.58:scout?.43:laser?.48:support?.53:.5;
 ctx.save();
 /* Directional ground shadow: hard contact core plus a soft offset cast shadow.
    Keep it procedural and allocation-free in the frame loop. */
@@ -298,8 +298,8 @@ for(const side of [-1,1]){
 ctx.restore();
 /* Turret and barrel rotate independently from the hull. */
 ctx.save();ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
-const turretW=demolisher ? 1.17 : ironclad ? 1.12 : viper ? 0.61 : wraith ? 0.72 : thunder ? 0.9 : heavy ? 1.08 : scout ? 0.68 : laser ? 0.86 : support ? 0.86 : 0.88;
-const turretH=demolisher ? 0.78 : ironclad ? 0.68 : viper ? 0.42 : wraith ? 0.46 : thunder ? 0.59 : heavy ? 0.72 : scout ? 0.48 : laser ? 0.43 : support ? 0.56 : 0.55;
+const turretW=demolisher ? 1.32 : ironclad ? 0.96 : viper ? 0.55 : wraith ? 0.78 : thunder ? 0.78 : heavy ? 1.08 : scout ? 0.68 : laser ? 0.86 : support ? 0.86 : 0.88;
+const turretH=demolisher ? 0.9 : ironclad ? 0.78 : viper ? 0.38 : wraith ? 0.44 : thunder ? 0.68 : heavy ? 0.72 : scout ? 0.48 : laser ? 0.43 : support ? 0.56 : 0.55;
 const tx=heavy?.02:laser?-.05:.0,ty=0;
 const turretTop=-s*turretH*.5,turretLeft=s*tx-s*turretW*.5;
 /* Turret drop shadow and contact occlusion separate it from the hull. */
@@ -410,7 +410,7 @@ ctx.fillStyle='#1c2825';ctx.beginPath();ctx.roundRect(turretLeft+s*turretW*.68,t
 ctx.fillStyle='#87947e';ctx.fillRect(turretLeft+s*turretW*.71,turretTop+s*turretH*.7,s*.1,s*.025);
 /* Gun barrel layer: above hull and turret, then covered at the joint by the mantlet. */
 /* Long gun silhouette first; sniper has a visibly extended barrel. */
-const barrelLen=s*(laser ? 1.78 : demolisher ? 1.05 : ironclad ? 1.38 : heavy ? 1.28 : viper ? 0.78 : wraith ? 0.96 : thunder ? 1.18 : scout ? 0.86 : support ? 0.91 : 1.08),barrelH=s*(laser ? 0.115 : demolisher ? 0.24 : heavy ? 0.19 : scout ? 0.105 : 0.135);
+const barrelLen=s*(laser ? 1.78 : demolisher ? 0.82 : ironclad ? 1.52 : heavy ? 1.28 : viper ? 0.68 : wraith ? 0.94 : thunder ? 1.26 : scout ? 0.86 : support ? 0.91 : 1.08),barrelH=s*(laser ? 0.115 : demolisher ? 0.31 : ironclad ? 0.16 : heavy ? 0.19 : viper ? 0.085 : wraith ? 0.11 : thunder ? 0.18 : scout ? 0.105 : 0.135);
 ctx.fillStyle='#0a1113';ctx.beginPath();ctx.roundRect(s*(tx+.16),-barrelH*.7,barrelLen,barrelH*1.4,barrelH*.2);ctx.fill();
 const barrel=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);barrel.addColorStop(0,'#c4cfc0');barrel.addColorStop(.22,laser?'#8ea6b0':'#7d8c7b');barrel.addColorStop(.55,'#43534b');barrel.addColorStop(1,'#172124');
 ctx.fillStyle=barrel;ctx.beginPath();ctx.roundRect(s*(tx+.18),-barrelH*.43,barrelLen-s*.03,barrelH*.86,barrelH*.13);ctx.fill();
@@ -473,28 +473,35 @@ if(support){
 }
 /* Individual vehicle kits: large silhouette cues stay readable at gameplay scale. */
 if(ironclad){
- /* Heavy armour package: wide cheek blocks and a squared rear engine grille. */
- ctx.fillStyle='#202a25';ctx.strokeStyle='#aeb69a';ctx.lineWidth=Math.max(.8,s*.025);
- for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.38,side*s*.43);ctx.lineTo(s*.32,side*s*.43);ctx.lineTo(s*.42,side*s*.58);ctx.lineTo(-s*.3,side*s*.58);ctx.closePath();ctx.fill();ctx.stroke();}
- ctx.fillStyle='#111a19';ctx.fillRect(-s*.69,-s*.12,s*.18,s*.24);ctx.fillRect(-s*.69-s*.015,-s*.12,s*.025,s*.24);
+ /* IRONCLAD: long rectangular side skirts and a clearly elongated, narrow gun. */
+ ctx.fillStyle='#202a25';ctx.strokeStyle='#c3c8a8';ctx.lineWidth=Math.max(1,s*.028);
+ for(const side of [-1,1]){
+  ctx.beginPath();ctx.moveTo(-s*.56,side*s*.43);ctx.lineTo(s*.43,side*s*.43);ctx.lineTo(s*.53,side*s*.58);ctx.lineTo(-s*.48,side*s*.58);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#8e9b83';ctx.fillRect(-s*.34,side*s*.48,s*.52,s*.045);ctx.fillStyle='#202a25';
+ }
+ ctx.fillStyle='#111a19';ctx.fillRect(-s*.72,-s*.17,s*.2,s*.34);
+ ctx.strokeStyle='#d7ddc3';ctx.lineWidth=Math.max(1,s*.035);ctx.beginPath();ctx.moveTo(-s*.62,-s*.12);ctx.lineTo(-s*.62,s*.12);ctx.stroke();
 }
 if(demolisher){
- /* Siege chassis: unmistakable front dozer blade, reinforced nose and paired rear ammunition bins. */
- ctx.fillStyle='#151e1d';ctx.strokeStyle='#c1b994';ctx.lineWidth=Math.max(.9,s*.03);
- ctx.beginPath();ctx.moveTo(s*.49,-s*.58);ctx.lineTo(s*.91,-s*.47);ctx.lineTo(s*.98,-s*.31);ctx.lineTo(s*.98,s*.31);ctx.lineTo(s*.91,s*.47);ctx.lineTo(s*.49,s*.58);ctx.lineTo(s*.58,s*.25);ctx.lineTo(s*.58,-s*.25);ctx.closePath();ctx.fill();ctx.stroke();
- ctx.fillStyle='#8f967c';ctx.fillRect(s*.65,-s*.34,s*.24,s*.07);ctx.fillRect(s*.65,s*.27,s*.24,s*.07);
- ctx.fillStyle='#202a25';for(const side of [-1,1]){ctx.beginPath();ctx.roundRect(-s*.75,side*s*.36-s*.09,s*.25,s*.18,s*.025);ctx.fill();ctx.stroke();}
+ /* DEMOLISHER: oversized bulldozer blade spans the nose; stubby cannon and rear ammo drums. */
+ ctx.fillStyle='#151e1d';ctx.strokeStyle='#d4cba4';ctx.lineWidth=Math.max(1.2,s*.04);
+ ctx.beginPath();ctx.moveTo(s*.47,-s*.7);ctx.lineTo(s*.99,-s*.58);ctx.lineTo(s*1.08,-s*.37);ctx.lineTo(s*1.08,s*.37);ctx.lineTo(s*.99,s*.58);ctx.lineTo(s*.47,s*.7);ctx.lineTo(s*.59,s*.27);ctx.lineTo(s*.59,-s*.27);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#a6a17e';ctx.fillRect(s*.7,-s*.43,s*.27,s*.08);ctx.fillRect(s*.7,s*.35,s*.27,s*.08);
+ ctx.fillStyle='#202a25';ctx.strokeStyle='#9da58c';for(const side of [-1,1]){ctx.beginPath();ctx.roundRect(-s*.76,side*s*.37-s*.12,s*.3,s*.24,s*.035);ctx.fill();ctx.stroke();ctx.fillStyle='#59654f';ctx.fillRect(-s*.7,side*s*.37-s*.035,s*.18,s*.07);ctx.fillStyle='#202a25';}
 }
 if(viper){
- /* Raid scout: pointed prow and paired forward sensor eyes. */
- ctx.fillStyle='#a6d8b5';ctx.beginPath();ctx.moveTo(s*.58,-s*.18);ctx.lineTo(s*.92,0);ctx.lineTo(s*.58,s*.18);ctx.closePath();ctx.fill();
- ctx.fillStyle='#091315';ctx.beginPath();ctx.arc(s*.56,-s*.16,s*.055,0,TAU);ctx.arc(s*.56,s*.16,s*.055,0,TAU);ctx.fill();
+ /* VIPER: very narrow wedge hull, twin forward sensor eyes and split prow fins. */
+ ctx.fillStyle='#182622';ctx.strokeStyle='#b5d6a7';ctx.lineWidth=Math.max(.8,s*.025);
+ ctx.beginPath();ctx.moveTo(s*.35,-s*.22);ctx.lineTo(s*1.02,-s*.09);ctx.lineTo(s*1.08,0);ctx.lineTo(s*1.02,s*.09);ctx.lineTo(s*.35,s*.22);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#a6f0c6';ctx.beginPath();ctx.arc(s*.63,-s*.13,s*.06,0,TAU);ctx.arc(s*.63,s*.13,s*.06,0,TAU);ctx.fill();
+ ctx.fillStyle='#0b1515';ctx.beginPath();ctx.moveTo(-s*.62,-s*.31);ctx.lineTo(-s*.88,-s*.42);ctx.lineTo(-s*.77,-s*.18);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(-s*.62,s*.31);ctx.lineTo(-s*.88,s*.42);ctx.lineTo(-s*.77,s*.18);ctx.closePath();ctx.fill();
 }
 if(wraith){
- /* Low-observable scout: broad flat side skirts and a split rear stealth deck. */
- ctx.fillStyle='#172421';ctx.strokeStyle='#a3b3a2';ctx.lineWidth=Math.max(.7,s*.02);
- for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.58,side*s*.36);ctx.lineTo(s*.38,side*s*.36);ctx.lineTo(s*.52,side*s*.46);ctx.lineTo(-s*.48,side*s*.46);ctx.closePath();ctx.fill();ctx.stroke();}
- ctx.fillStyle='#0c1516';ctx.beginPath();ctx.moveTo(-s*.72,-s*.16);ctx.lineTo(-s*.48,-s*.28);ctx.lineTo(-s*.22,0);ctx.lineTo(-s*.48,s*.28);ctx.lineTo(-s*.72,s*.16);ctx.closePath();ctx.fill();
+ /* WRAITH: long flat stealth side skirts, rear split deck and low-profile turret shield. */
+ ctx.fillStyle='#172421';ctx.strokeStyle='#a3b3a2';ctx.lineWidth=Math.max(.8,s*.025);
+ for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.68,side*s*.35);ctx.lineTo(s*.54,side*s*.35);ctx.lineTo(s*.66,side*s*.47);ctx.lineTo(-s*.58,side*s*.47);ctx.closePath();ctx.fill();ctx.stroke();}
+ ctx.fillStyle='#0c1516';ctx.beginPath();ctx.moveTo(-s*.82,-s*.14);ctx.lineTo(-s*.5,-s*.29);ctx.lineTo(-s*.18,0);ctx.lineTo(-s*.5,s*.29);ctx.lineTo(-s*.82,s*.14);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#8ab0a0';ctx.fillRect(-s*.18,-s*.36,s*.42,s*.06);ctx.fillRect(-s*.18,s*.3,s*.42,s*.06);
 }
 if(thunder){
  /* Fire-support vehicle: twin side ammunition pods and a raised rectangular gun cradle. */
