@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { readFile } from 'node:fs/promises';
 
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, hasTouch: true });
+const page = await browser.newPage({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 1, hasTouch: true });
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 try {
@@ -36,7 +36,7 @@ try {
         const r = button.getBoundingClientRect();
         return { id: button.id, top: r.top, bottom: r.bottom, left: r.left, right: r.right };
       });
-      return { canvasWidth: canvas.width, canvasHeight: canvas.height,
+      return { canvasWidth: canvas.width, canvasHeight: canvas.height, viewportWidth: window.innerWidth,
         overflow: document.documentElement.scrollWidth > innerWidth,
         messageBottom: message.bottom, arenaTop: arena.top, arenaBottom: arena.bottom, controls };
     });
@@ -49,9 +49,12 @@ try {
         throw new Error('Control overlaps mission message: ' + JSON.stringify({ control, layout }));
     }
   };
-  await checkMobileLayout(390, 844);
-  await checkMobileLayout(320, 640);
+  await checkMobileLayout(844, 390);
+  await checkMobileLayout(640, 320);
   await page.setViewportSize({ width: 390, height: 844 });
+  const portraitGate = await page.evaluate(() => ({ gate: getComputedStyle(document.querySelector('#orientationGate')).display, app: getComputedStyle(document.querySelector('#app')).visibility }));
+  if (portraitGate.gate !== 'flex' || portraitGate.app !== 'hidden') throw new Error('Portrait orientation must be gated with a rotate-device prompt: ' + JSON.stringify(portraitGate));
+  await page.setViewportSize({ width: 844, height: 390 });
   await page.evaluate(() => window.scrollTo(0, 0));
   const supportClick = await page.evaluate(() => {
     const button = document.querySelector('[data-tank="support"]');
@@ -124,9 +127,9 @@ try {
   await page.locator('#overlay').waitFor({ state: 'visible' });
   await page.locator('#resumeBtn').click();
   await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
-  await page.setViewportSize({ width: 320, height: 640 });
+  await page.setViewportSize({ width: 640, height: 320 });
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and mobile layout.');
+  console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
 }
