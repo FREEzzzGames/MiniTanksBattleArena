@@ -37,7 +37,7 @@ try {
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
   const renderEngineSource = await readFile('js/mtba-render-engine.js', 'utf8');
-  if (!renderEngineSource.includes('window.MTBARenderEngine={create,version:') || !renderEngineSource.includes('function drawGround(ctx,camera,viewWidth,viewHeight)') || !renderEngineSource.includes('function recordFrame(ms)') || !gameSource.includes('renderEngine.drawGround(ctx,camera,vw,vh)') || !htmlSource.includes('src="./js/mtba-render-engine.js?v=1"')) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
+  if (!/window\.MTBARenderEngine\s*=\s*\{\s*create\s*,\s*version\s*:\s*['"]1\.0\.0['"]\s*\}/.test(renderEngineSource) || !/function\s+drawGround\s*\(\s*ctx\s*,\s*camera\s*,\s*viewWidth\s*,\s*viewHeight\s*\)/.test(renderEngineSource) || !/function\s+recordFrame\s*\(\s*ms\s*\)/.test(renderEngineSource) || !/renderEngine\.drawGround\(\s*ctx\s*,\s*camera\s*,\s*vw\s*,\s*vh\s*\)/.test(gameSource) || !/src=["']\.\/js\/mtba-render-engine\.js\?v=1["']/.test(htmlSource)) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
   const spriteFiles = ['assets/tanks/tank-scout.svg','assets/tanks/tank-heavy.svg','assets/tanks/tank-sniper.svg','assets/tanks/tank-support.svg','assets/environment/tree-conifer.svg','assets/environment/tree-autumn.svg','assets/environment/bush.svg','assets/environment/ruin.svg','assets/units/infantry.svg','assets/effects/explosion.svg','assets/effects/smoke.svg'];
   const spriteContents = await Promise.all(spriteFiles.map(path => readFile(path, 'utf8')));
   if (spriteContents.some(svg => !svg.includes('<svg') || !svg.includes('</svg>'))) throw new Error('A standalone SVG game asset is invalid');
@@ -48,6 +48,7 @@ try {
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('Fog-of-war / visibility system missing');
+  if (!gameSource.includes('function bakeStaticTerrain()') || !gameSource.includes('function drawStaticTerrain(camera)') || !gameSource.includes('drawStaticTerrain(camera);drawGrassBase()')) throw new Error('Static terrain details are not baked and viewport-clipped');
   if (!fogSource.includes('function drawGrassBase()') || !fogSource.includes('function drawGrassCanopy()') || !fogSource.includes('function isConcealed(') || !fogSource.includes('t.grassRevealUntil=gameClock+2')) throw new Error('Grass concealment / 2-second firing reveal mechanic missing');
   if (!fogSource.includes("const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy target acquisition does not respect grass concealment');
   if (!fogSource.includes('function spawnIntelBox()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('mapRevealUntil=Math.max(mapRevealUntil,gameClock+3)') || !fogSource.includes('function drawFog(){if(gameClock<mapRevealUntil)return;')) throw new Error('Three-second tactical intel reveal mechanic missing');
