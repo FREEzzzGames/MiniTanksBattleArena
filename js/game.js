@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r8.
+/* MTBA layered tank renderer r9.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -133,11 +133,13 @@ for(const side of [-1,1]){
  belt.addColorStop(0,'#667067');belt.addColorStop(.24,'#242d2b');belt.addColorStop(.72,'#101718');belt.addColorStop(1,'#566057');
  ctx.fillStyle=belt;ctx.beginPath();ctx.roundRect(-s*.81,y-s*.17,s*1.62,s*.34,s*.12);ctx.fill();
  ctx.strokeStyle='#9ba393';ctx.lineWidth=Math.max(.7,s*.026);ctx.stroke();
- for(let i=0;i<4;i++){
-  const x=-s*.55+i*s*.36;
+ for(let i=0;i<5;i++){
+  const x=-s*.58+i*s*.29;
   ctx.fillStyle='#121a1b';ctx.beginPath();ctx.arc(x,y,s*.115,0,TAU);ctx.fill();
-  ctx.fillStyle=i===0||i===4?'#737c6c':'#89917d';ctx.beginPath();ctx.arc(x,y,s*.078,0,TAU);ctx.fill();
+  const wheelTone=(i===0||i===4)?'#737c6c':'#89917d';
+  ctx.fillStyle=wheelTone;ctx.beginPath();ctx.arc(x,y,s*.078,0,TAU);ctx.fill();
   ctx.fillStyle='#303a35';ctx.beginPath();ctx.arc(x,y,s*.035,0,TAU);ctx.fill();
+  ctx.fillStyle='#c0c7ad';ctx.globalAlpha=.55;ctx.beginPath();ctx.arc(x-s*.018,y-s*.018,s*.018,0,TAU);ctx.fill();ctx.globalAlpha=1;
  }
  /* A handful of broad track shoes, not a noisy row of tiny bolts. */
  ctx.strokeStyle='#b0b7a3';ctx.lineWidth=Math.max(.6,s*.018);
@@ -166,6 +168,21 @@ ctx.lineTo(-s*.52,s*hullH*.82);ctx.lineTo(-s*.72,s*hullH*.55);ctx.closePath();ct
 ctx.globalAlpha=.3;ctx.strokeStyle='#f0f3d2';ctx.lineWidth=Math.max(.7,s*.027);ctx.beginPath();
 ctx.moveTo(-s*.5,-s*hullH*.8);ctx.lineTo(s*.4,-s*hullH*.74);ctx.lineTo(s*.61,-s*hullH*.36);ctx.stroke();
 ctx.restore();
+/* Armor-panel pass: broad overlapping plates, shallow seams and a rear engine deck.
+   Keep marks large enough to survive phone-scale rendering; avoid noisy micro-detail. */
+ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ctx.fillStyle='#1a2421';ctx.beginPath();ctx.roundRect(-s*.61,-s*hullH*.37,s*.28,s*hullH*.74,s*.045);ctx.fill();
+ctx.fillStyle='#080e0f';ctx.beginPath();ctx.roundRect(-s*.57,-s*hullH*.29,s*.2,s*hullH*.58,s*.025);ctx.fill();
+ctx.strokeStyle='#a9b39a';ctx.globalAlpha=.55;ctx.lineWidth=Math.max(.65,s*.018);
+for(let vent=0;vent<4;vent++){const vx=-s*.55+vent*s*.045;ctx.beginPath();ctx.moveTo(vx,-s*hullH*.23);ctx.lineTo(vx,-s*hullH*.04);ctx.stroke();}ctx.globalAlpha=1;
+const skirt=ctx.createLinearGradient(0,-s*hullH*.5,0,s*hullH*.5);
+skirt.addColorStop(0,'#9aa58a');skirt.addColorStop(.22,mid);skirt.addColorStop(.78,base);skirt.addColorStop(1,dark);
+ctx.fillStyle=skirt;ctx.beginPath();ctx.moveTo(-s*.48,-s*hullH*.7);ctx.lineTo(s*.39,-s*hullH*.68);ctx.lineTo(s*.59,-s*hullH*.42);ctx.lineTo(s*.54,-s*hullH*.22);ctx.lineTo(-s*.48,-s*hullH*.22);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#d9e0c2';ctx.globalAlpha=.46;ctx.lineWidth=Math.max(.7,s*.022);ctx.stroke();ctx.globalAlpha=1;
+ctx.beginPath();ctx.moveTo(-s*.48,s*hullH*.7);ctx.lineTo(s*.39,s*hullH*.68);ctx.lineTo(s*.59,s*hullH*.42);ctx.lineTo(s*.54,s*hullH*.22);ctx.lineTo(-s*.48,s*hullH*.22);ctx.closePath();ctx.fill();ctx.stroke();ctx.globalAlpha=1;
+ctx.strokeStyle='#111a18';ctx.globalAlpha=.62;ctx.lineWidth=Math.max(.8,s*.026);
+for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.24,side*s*hullH*.23);ctx.lineTo(-s*.2,side*s*hullH*.67);ctx.stroke();ctx.beginPath();ctx.moveTo(s*.18,side*s*hullH*.23);ctx.lineTo(s*.22,side*s*hullH*.64);ctx.stroke();}ctx.globalAlpha=1;
+ctx.strokeStyle='#f0f2d6';ctx.globalAlpha=.23;ctx.lineWidth=Math.max(.8,s*.035);ctx.beginPath();ctx.moveTo(-s*.49,-s*hullH*.72);ctx.lineTo(s*.34,-s*hullH*.7);ctx.stroke();ctx.restore();
 /* Large front glacis and rear engine deck distinguish the vehicle at gameplay scale. */
 ctx.fillStyle=light;ctx.globalAlpha=.72;ctx.beginPath();ctx.moveTo(s*.18,-s*hullH*.72);ctx.lineTo(s*.49,-s*hullH*.66);ctx.lineTo(s*.65,-s*hullH*.34);ctx.lineTo(s*.58,s*hullH*.3);ctx.lineTo(s*.43,s*hullH*.58);ctx.lineTo(s*.17,s*hullH*.63);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
 ctx.fillStyle='#1a2523';ctx.beginPath();ctx.roundRect(-s*.61,-s*hullH*.44,s*.31,s*hullH*.88,s*.04);ctx.fill();
