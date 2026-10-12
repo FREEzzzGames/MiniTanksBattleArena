@@ -107,8 +107,9 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA silhouette-first tank renderer r7.
-   Large hull planes, readable track belts and class-specific proportions take priority over micro-detail. */
+/* MTBA layered tank renderer r8.
+   Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
+   Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
 const base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':t.team==='enemy'?'#8b514a':'#7a8068';
 const dark=heavy?'#29332d':scout?'#303d2c':laser?'#29343a':support?'#2e3d3b':'#303a30';
@@ -162,6 +163,13 @@ const turretW=heavy?1.08:scout?.68:laser?.86:support?.86:.88;
 const turretH=heavy?.72:scout?.48:laser?.43:support?.56:.55;
 const tx=heavy?.02:laser?-.05:.0,ty=0;
 const turretTop=-s*turretH*.5,turretLeft=s*tx-s*turretW*.5;
+/* Turret body is rendered above the hull before the gun assembly. */
+/* Turret silhouette has broad angled faces, a heavy mantlet and one dominant hatch. */
+ctx.fillStyle='#11191b';ctx.beginPath();ctx.moveTo(turretLeft+s*.1,turretTop+s*.08);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();ctx.fill();
+const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
+ctx.fillStyle=tm;ctx.beginPath();ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#d8e1c8';ctx.lineWidth=Math.max(.8,s*.03);ctx.stroke();
+/* Gun barrel layer: above hull and turret, then covered at the joint by the mantlet. */
 /* Long gun silhouette first; sniper has a visibly extended barrel. */
 const barrelLen=s*(laser?1.78:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(laser?.115:heavy?.19:scout?.105:.135);
 ctx.fillStyle='#0a1113';ctx.beginPath();ctx.roundRect(s*(tx+.16),-barrelH*.7,barrelLen,barrelH*1.4,barrelH*.2);ctx.fill();
@@ -170,11 +178,6 @@ ctx.fillStyle=barrel;ctx.beginPath();ctx.roundRect(s*(tx+.18),-barrelH*.43,barre
 ctx.fillStyle='#1b2628';ctx.beginPath();ctx.roundRect(s*(tx+.35),-barrelH*.62,s*(laser?.12:.16),barrelH*1.24,s*.025);ctx.fill();
 ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(s*(tx+.18)+barrelLen-s*.12,-barrelH*.66,s*.14,barrelH*1.32,s*.025);ctx.fill();
 ctx.fillStyle='#020607';ctx.beginPath();ctx.ellipse(s*(tx+.18)+barrelLen+s*.015,0,s*.035,barrelH*.31,0,0,TAU);ctx.fill();
-/* Turret silhouette has broad angled faces, a heavy mantlet and one dominant hatch. */
-ctx.fillStyle='#11191b';ctx.beginPath();ctx.moveTo(turretLeft+s*.1,turretTop+s*.08);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();ctx.fill();
-const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
-ctx.fillStyle=tm;ctx.beginPath();ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#d8e1c8';ctx.lineWidth=Math.max(.8,s*.03);ctx.stroke();
 /* Distinct reinforced gun mantlet. */
 ctx.fillStyle='#151f21';ctx.beginPath();ctx.roundRect(s*(tx+.19),-s*(heavy?.23:.17),s*(heavy?.3:.24),s*(heavy?.46:.34),s*.07);ctx.fill();
 ctx.fillStyle=light;ctx.globalAlpha=.82;ctx.beginPath();ctx.roundRect(s*(tx+.21),-s*(heavy?.18:.135),s*(heavy?.24:.19),s*(heavy?.36:.27),s*.05);ctx.fill();ctx.globalAlpha=1;
