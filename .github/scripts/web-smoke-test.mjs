@@ -69,7 +69,7 @@ try {
   if (!gameSource.includes('function updateTankMachineGuns(dt)') || !gameSource.includes('function drawTankMGTracers()') || !gameSource.includes('hostileFaction=t.team===\'enemy\'?\'alpha\':\'bravo\'') || !gameSource.includes('target.hp-=8') || !gameSource.includes('mgTracers.push(')) throw new Error('Autonomous tank machine guns, hostile infantry targeting or upgraded vehicle fittings are missing');
   const layerTracks = gameSource.indexOf('Paired side tracks: wide, dark continuous belts');
   const layerHull = gameSource.indexOf('Hull: reference-driven silhouettes');
-  const layerTurret = gameSource.indexOf('Turret silhouette has broad angled faces');
+  const layerTurret = gameSource.indexOf('Turret silhouette: distinct reference-driven plans');
   const layerBarrel = gameSource.indexOf('Long gun silhouette first');
   const layerMantlet = gameSource.indexOf('Distinct reinforced gun mantlet');
   if (!(layerTracks >= 0 && layerTracks < layerHull && layerHull < layerTurret && layerTurret < layerBarrel && layerBarrel < layerMantlet)) throw new Error('Tank render layer order must be tracks -> hull -> turret -> barrel -> mantlet');
