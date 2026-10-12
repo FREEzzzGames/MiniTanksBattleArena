@@ -38,14 +38,14 @@ try {
       });
       return { canvasWidth: canvas.width, canvasHeight: canvas.height, viewportWidth: window.innerWidth,
         overflow: document.documentElement.scrollWidth > innerWidth,
-        messageBottom: message.bottom, arenaTop: arena.top, arenaBottom: arena.bottom, controls };
+        messageBottom: message.bottom, messageLeft: message.left, messageRight: message.right, arenaTop: arena.top, arenaBottom: arena.bottom, controls };
     });
     if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.overflow)
       throw new Error('Mobile layout failed at ' + width + 'px: ' + JSON.stringify(layout));
     for (const control of layout.controls) {
       if (control.top < layout.arenaTop || control.bottom > layout.arenaBottom || control.left < 0 || control.right > layout.viewportWidth)
         throw new Error('Control outside mobile viewport: ' + JSON.stringify({ control, layout }));
-      if (control.id !== 'fireBtn' && control.top < layout.messageBottom + 6)
+      if (control.id !== 'fireBtn' && control.top < layout.messageBottom + 6 && control.right > layout.messageLeft - 6 && control.left < layout.messageRight + 6)
         throw new Error('Control overlaps mission message: ' + JSON.stringify({ control, layout }));
     }
   };
