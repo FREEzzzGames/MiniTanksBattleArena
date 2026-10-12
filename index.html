@@ -34,7 +34,7 @@
     <div class="stat"><label>УБИЙСТВА</label><b id="killsText">0</b></div>
     <div class="stat"><label>БОЕЗАПАС</label><b id="ammoText">5 / 5</b></div>
   </div>
-  <div id="top-actions"><button id="pauseBtn" aria-label="Пауза">Ⅱ</button><button id="menuBtn" aria-label="Открыть меню">МЕНЮ</button></div>
+  <div id="top-actions"><button id="pauseBtn" aria-label="Пауза">Ⅱ</button><button id="menuBtn" aria-label="Открыть меню">МЕНЮ</button><button id="settingsBtn" aria-label="Настройки интерфейса">⚙</button></div>
 </header>
 <main id="arena-wrap">
   <canvas id="game" aria-label="Поле танкового боя"></canvas>
@@ -67,6 +67,20 @@
   <button class="touch-control squad-control" id="orderBtn" aria-label="Приказ отряду">♟<small>ОТРЯД</small></button>
   <button class="touch-control cover-control" id="coverBtn" aria-label="Найти укрытие">⬡<small>УКРЫТЬСЯ</small></button>
 </section>
+<aside id="settingsPanel" aria-label="Настройки интерфейса" hidden>
+<div class="settings-head"><strong>НАСТРОЙКА ИНТЕРФЕЙСА</strong><button id="closeSettings" aria-label="Закрыть настройки">×</button></div>
+<div class="settings-tabs"><button class="settings-tab active" data-settings-tab="layout">РАСКЛАДКА</button><button class="settings-tab" data-settings-tab="backgrounds">ФОНЫ</button></div>
+<div id="layoutSettings"><p>Включите редактор, затем перетаскивайте кнопки и панели. Размер меняется ползунком.</p>
+<label class="editor-toggle"><input id="editLayoutToggle" type="checkbox"> Редактировать расположение</label>
+<label>Элемент для настройки<select id="layoutElement"></select></label>
+<label>Размер <output id="layoutSizeValue">100%</output><input id="layoutSize" type="range" min="70" max="150" value="100"></label>
+<div class="settings-actions"><button id="resetLayout">Сбросить раскладку</button><button id="saveLayout">Сохранить</button></div></div>
+<div id="backgroundSettings" hidden><p>Меняйте фон каждой кнопки отдельно или примените единый фон ко всем.</p>
+<label>Кнопка или панель<select id="backgroundElement"></select></label>
+<label>Цвет фона<input id="backgroundColor" type="color" value="#172630"></label>
+<div class="settings-actions"><button id="applyOneBackground">Применить к выбранному</button><button id="applyAllBackground">Применить ко всем</button></div>
+<label>Прозрачность <output id="backgroundOpacityValue">92%</output><input id="backgroundOpacity" type="range" min="35" max="100" value="92"></label><button id="resetBackgrounds">Сбросить фоны</button></div>
+</aside>
 </main>
 
 </div>
