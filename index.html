@@ -51,9 +51,62 @@
   .fire-control{width:78px;height:78px;right:8px;bottom:10px}
 }
 
+
+/* IRON FRONT — landscape-first combat layout */
+#orientationGate{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:28px;text-align:center;background:radial-gradient(ellipse at center,#172a31 0%,#070c11 72%);color:#eaf5f7}
+#orientationGate .rotate-icon{font-size:54px;line-height:1;color:var(--cyan);animation:rotateHint 1.8s ease-in-out infinite}
+#orientationGate strong{font-size:17px;letter-spacing:.12em;color:var(--cyan)}
+#orientationGate span{max-width:300px;color:#9fb4bc;line-height:1.6;font-size:12px}
+@keyframes rotateHint{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
+@media (orientation:portrait) and (max-width:900px){
+  #orientationGate{display:flex}
+  #app{visibility:hidden}
+}
+@media (orientation:landscape){
+  #app{max-width:none;width:100%;height:100dvh}
+  header{height:40px;flex-basis:40px;padding:0 12px;gap:14px}
+  header>div:first-child{flex:0 0 auto}
+  header strong{font-size:12px}
+  header small{display:inline;color:var(--muted)}
+  #hud{gap:14px;flex:1;justify-content:center}
+  .stat{min-width:46px}
+  .stat label{display:block}
+  .bar{width:62px}
+  #top-actions{gap:7px}
+  #top-actions button{min-height:30px;padding:4px 10px;font-size:10px}
+  #message{top:9px;left:50%;right:auto;transform:translateX(-50%);max-width:55vw;white-space:nowrap;font-size:10px}
+  .touch-control{width:clamp(48px,12vh,64px);height:clamp(48px,12vh,64px);font-size:20px}
+  .touch-control small{font-size:8px}
+  .smoke-control{right:calc(12px + clamp(64px,15vh,84px));top:10px}
+  .target-control{right:12px;top:10px}
+  .cover-control{right:calc(12px + clamp(64px,15vh,84px));top:auto;bottom:10px}
+  .squad-control{right:calc(12px + clamp(0px,7.5vh,42px));top:auto;bottom:10px}
+  .fire-control{right:12px;top:auto;bottom:10px;width:clamp(66px,17vh,88px);height:clamp(66px,17vh,88px);font-size:28px}
+  .fire-control small{font-size:10px}
+  #controls{pointer-events:none}
+  #overlay{align-items:center}
+  .modal{max-height:calc(100dvh - 50px);overflow-y:auto}
+}
+@media (orientation:landscape) and (max-height:420px){
+  header{height:34px;flex-basis:34px;padding:0 8px}
+  header small{display:none}
+  #hud{gap:8px}
+  .stat{min-width:38px}
+  .bar{width:44px}
+  .touch-control{width:46px;height:46px;font-size:18px}
+  .touch-control small{font-size:7px}
+  .smoke-control{right:68px;top:7px}
+  .target-control{right:7px;top:7px}
+  .cover-control{right:68px;bottom:7px}
+  .squad-control{right:7px;bottom:61px}
+  .fire-control{width:56px;height:56px;right:7px;bottom:7px}
+  #message{top:6px;font-size:9px;padding:5px 8px}
+}
+
 </style>
 </head>
 <body>
+<div id="orientationGate" role="status" aria-live="polite"><div class="rotate-icon" aria-hidden="true">▱</div><strong>ПОВЕРНИТЕ УСТРОЙСТВО</strong><span>IRON FRONT перестроен для горизонтального режима. Поверните телефон боком, чтобы открыть поле боя и сенсорное управление.</span></div>
 <div id="app">
 <header>
   <div><strong>IRON FRONT</strong><br><small>ТАНКОВЫЕ БОЕВЫЕ СИСТЕМЫ</small></div>
