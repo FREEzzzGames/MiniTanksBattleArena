@@ -18,6 +18,9 @@ try {
   if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
   const [htmlSource, gameSource] = await Promise.all([readFile('index.html', 'utf8'), readFile('js/game.js', 'utf8')]);
   const fogSource = gameSource;
+  const stylesheetSource = await readFile('css/game.css', 'utf8');
+  if (!htmlSource.includes('href="./css/game.css"') || !htmlSource.includes('src="./js/game.js"')) throw new Error('External runtime assets are not linked from the HTML shell');
+  if (stylesheetSource.includes('repair r3') || stylesheetSource.includes('legacy portrait rules')) throw new Error('Temporary CSS repair layer remains');
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
@@ -89,6 +92,15 @@ try {
     ammo: document.querySelector('#ammoText').textContent
   }));
   if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden || state.ammo !== '4 / 4') throw new Error('Game did not initialize selected tank/ammo correctly: ' + JSON.stringify(state));
+  const renderCheck = await page.evaluate(() => {
+    const canvas = document.querySelector('#game');
+    const ctx = canvas.getContext('2d');
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colors = new Set();
+    for (let i = 0; i < pixels.length; i += Math.max(4, Math.floor(pixels.length / 5000 / 4) * 4)) colors.add(`${pixels[i]},${pixels[i+1]},${pixels[i+2]}`);
+    return { width: canvas.width, height: canvas.height, cssWidth: canvas.getBoundingClientRect().width, cssHeight: canvas.getBoundingClientRect().height, distinctColors: colors.size };
+  });
+  if (renderCheck.width < 300 || renderCheck.height < 250 || renderCheck.distinctColors < 8 || Math.abs(renderCheck.width - renderCheck.cssWidth) > 2 || Math.abs(renderCheck.height - renderCheck.cssHeight) > 2) throw new Error('Canvas render / backing-store scaling check failed: ' + JSON.stringify(renderCheck));
   await page.locator('#orderBtn').click();
   if (!/ОТРЯД/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad control missing');
   await page.locator('#targetBtn').click();
@@ -130,7 +142,9 @@ try {
   await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
   await page.setViewportSize({ width: 640, height: 320 });
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  console.log('MTBA browser smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
+  const assetFailures = await page.evaluate(() => performance.getEntriesByType('resource').filter(e => (e.name.endsWith('/css/game.css') || e.name.endsWith('/js/game.js')) && e.responseStatus >= 400).map(e => ({name:e.name,status:e.responseStatus}))).catch(() => []);
+  if (assetFailures.length) throw new Error('Runtime assets failed to load: ' + JSON.stringify(assetFailures));
+  console.log('MTBA browser smoke tests passed: external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
 }

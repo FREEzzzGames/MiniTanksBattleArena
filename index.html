@@ -4,29 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#081018">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="mtba-build" content="2026-10-12-architecture-r1">
-<script>
-(function(){
-  function applyOrientation(){
-    var gate=document.getElementById('orientationGate');
-    var app=document.getElementById('app');
-    if(!gate||!app)return;
-    var portrait=window.matchMedia ? window.matchMedia('(orientation: portrait)').matches : window.innerHeight>window.innerWidth;
-    var mobile=Math.min(window.innerWidth||0,window.innerHeight||0)<901;
-    var show=portrait&&mobile;
-    gate.style.display=show?'flex':'none';
-    app.style.visibility=show?'hidden':'visible';
-    document.documentElement.dataset.ironOrientation=show?'portrait-blocked':'landscape-ready';
-  }
-  document.addEventListener('DOMContentLoaded',applyOrientation,{once:true});
-  window.addEventListener('resize',applyOrientation,{passive:true});
-  window.addEventListener('orientationchange',function(){setTimeout(applyOrientation,80);},{passive:true});
-  if(window.visualViewport)window.visualViewport.addEventListener('resize',applyOrientation,{passive:true});
-})();
-</script>
 <meta name="description" content="MiniTanksBattleArena (MTBA) — танковая battle arena с волнами противников, отрядом, укрытиями и бронёй.">
 <title>MiniTanksBattleArena — Battle Arena</title>
 <link rel="stylesheet" href="./css/game.css">
