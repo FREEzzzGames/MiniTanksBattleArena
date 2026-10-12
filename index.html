@@ -19,7 +19,6 @@
   document.addEventListener('DOMContentLoaded', updateOrientation, { once: true });
   window.addEventListener('resize', updateOrientation, { passive: true });
   window.addEventListener('orientationchange', updateOrientation, { passive: true });
-  window.addEventListener('resize', updateOrientation, { passive: true });
   window.visualViewport?.addEventListener('resize', updateOrientation, { passive: true });
 })();
 </script>
@@ -61,6 +60,7 @@
   </div>
   <div id="toast">СИСТЕМА ГОТОВА</div>
 <section id="controls" aria-label="Сенсорное управление">
+  <button class="touch-control intel-control" id="intelBtn" aria-label="Подобрать разведданные">⌖<small>РАЗВЕДКА</small></button>
   <button class="touch-control smoke-control" id="smokeBtn" aria-label="Дымовая завеса">☁<small>ДЫМ <b>×3</b></small></button>
   <button class="touch-control target-control" id="targetBtn" aria-label="Сменить противника">↻<small>ЦЕЛЬ</small></button>
   <button class="touch-control fire fire-control" id="fireBtn" aria-label="Стрелять">➤<small>ОГОНЬ</small></button>
