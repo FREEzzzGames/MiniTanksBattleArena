@@ -4,7 +4,7 @@
 const canvas=document.getElementById('game'),mainCtx=canvas.getContext('2d',{alpha:false});let ctx=mainCtx;
 const $=id=>document.getElementById(id);
 const ui={health:$('healthText'),healthBar:$('healthBar'),wave:$('waveText'),kills:$('killsText'),ammo:$('ammoText'),message:$('message'),toast:$('toast'),intel:$('intelBtn'),overlay:$('overlay'),modal:$('modal'),start:$('startBtn'),resume:$('resumeBtn'),pause:$('pauseBtn'),menu:$('menuBtn'),order:$('orderBtn'),fire:$('fireBtn'),smoke:$('smokeBtn'),target:$('targetBtn'),cover:$('coverBtn')};
-const MAP_SCALE=2,WORLD={w:3600,h:3600},TAU=Math.PI*2;
+const MAP_SCALE=2546/1800,WORLD={w:2546,h:2546},TAU=Math.PI*2;
 const renderEngine=window.MTBARenderEngine?window.MTBARenderEngine.create(WORLD):null;
 let selectedTankRole='heavy';let selectedArena='iron-yard';let mainMenuMarkup='';
 const spriteAssets={};
@@ -612,9 +612,9 @@ function drawArenaGroundBase(){
  if(selectedArena==='iron-yard'){
   /* Sparse, broken industrial paint and isolated loading-bay remnants; no repeating grid. */
   ctx.strokeStyle='#e4bc4b20';ctx.lineWidth=4;ctx.setLineDash([22,38]);
-  for(const [x,y,len] of [[120,610,170],[960,520,115],[2460,1880,190],[3020,2650,125],[720,3010,150]]){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+3);ctx.stroke()}
+  for(const [x,y,len] of [[120,610,170],[960,520,115],[1860,1580,190],[2200,2050,125],[720,2300,150]]){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+3);ctx.stroke()}
   ctx.setLineDash([]);
-  for(const [x,y,w,h] of [[180,250,90,38],[920,760,72,30],[2200,1230,86,34],[3000,3080,68,28],[1420,2800,74,32]]){ctx.fillStyle='#b5c3b50b';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#c2cdbd12';ctx.strokeRect(x,y,w,h)}
+  for(const [x,y,w,h] of [[180,250,90,38],[920,760,72,30],[2200,1230,86,34],[2300,2380,68,28],[1420,2200,74,32]]){ctx.fillStyle='#b5c3b50b';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#c2cdbd12';ctx.strokeRect(x,y,w,h)}
  }else if(selectedArena==='dust-front'){
   /* Wind-carved dune bands and long tire ruts establish an open desert range. */
   for(let i=0;i<17;i++){const y=55+i*103,phase=i*67%180;ctx.beginPath();ctx.moveTo(0,y+phase*.15);ctx.bezierCurveTo(WORLD.w*.25,y-48+phase*.1,WORLD.w*.65,y+52-phase*.2,WORLD.w,y-20+phase*.12);ctx.lineWidth=18+i%4*5;ctx.strokeStyle=i%2?'#c7ad7950':'#4b3a2848';ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#e0c48a30';ctx.stroke()}
