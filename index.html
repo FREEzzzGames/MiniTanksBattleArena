@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#081018">
-<meta name="mtba-build" content="2026-10-12-tank-lighting-r11">
+<meta name="mtba-build" content="2026-10-13-nine-tanks-three-arenas-r17">
 <meta name="description" content="MiniTanksBattleArena (MTBA) — танковая battle arena с волнами противников, отрядом, укрытиями и бронёй.">
 <title>MiniTanksBattleArena — Battle Arena</title>
-<link rel="stylesheet" href="./css/game.css?v=mtba-20261012-15">
+<link rel="stylesheet" href="./css/game.css?v=mtba-20261012-16"><style>.tank-select{grid-template-columns:repeat(3,minmax(0,1fr));max-height:31vh;overflow-y:auto}.tank-card{min-width:0}.tank-card small{font-size:9px}.arena-select{width:100%;margin:6px 0 12px;padding:10px;background:#111e24;color:#d9e7df;border:1px solid #49606a;border-radius:4px;font:inherit}</style>
 <script>
 (() => {
   const updateOrientation = () => {
@@ -44,13 +44,17 @@
       <div class="eyebrow">FREEzzzGAMES / MTBA · BATTLE ARENA</div>
       <h1> BATTLE<br>ARENA </h1>
       <p>Выберите боевую машину, займите позицию на арене и переживите волны вражеских танков. Используйте укрытия, командуйте отрядом и улучшайте тактику боя.</p>
-      <div class="eyebrow">ВЫБЕРИТЕ ТАНК</div>
+      <div class="eyebrow">ВЫБЕРИТЕ АРЕНУ</div><select id="arenaSelect" aria-label="Выбрать арену" class="arena-select"><option value="iron-yard">IRON YARD · промышленная зона</option><option value="dust-front">DUST FRONT · пустынный полигон</option><option value="blackwood">BLACKWOOD · лесная база</option></select><div class="eyebrow">ВЫБЕРИТЕ ТАНК</div>
       <div class="tank-select" id="tankSelect">
-        <button class="tank-card selected" data-tank="player" aria-label="T-01 КРАКЕН · универсальный"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="player" width="220" height="132" aria-label="T-01 КРАКЕН · универсальный"></canvas><span class="preview-label">FIELD MODEL / T-01</span></span><b>T-01</b><small>КРАКЕН · универсальный</small></button>
-        <button class="tank-card" data-tank="heavy" aria-label="T-02 КРАКЕН · тяжёлый"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="heavy" width="220" height="132" aria-label="T-02 КРАКЕН · тяжёлый"></canvas><span class="preview-label">FIELD MODEL / T-02</span></span><b>T-02</b><small>КРАКЕН · тяжёлый</small></button>
-        <button class="tank-card" data-tank="scout" aria-label="L-03 ТЕНЬ · разведчик"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="scout" width="220" height="132" aria-label="L-03 ТЕНЬ · разведчик"></canvas><span class="preview-label">FIELD MODEL / L-03</span></span><b>L-03</b><small>ТЕНЬ · разведчик</small></button>
-        <button class="tank-card" data-tank="sniper" aria-label="S-04 НОВА · дальний бой"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="sniper" width="220" height="132" aria-label="S-04 НОВА · дальний бой"></canvas><span class="preview-label">FIELD MODEL / S-04</span></span><b>S-04</b><small>НОВА · дальний бой</small></button>
-        <button class="tank-card" data-tank="support" aria-label="R-05 БАСТИОН · поддержка"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="support" width="220" height="132" aria-label="R-05 БАСТИОН · поддержка"></canvas><span class="preview-label">FIELD MODEL / R-05</span></span><b>R-05</b><small>БАСТИОН · поддержка</small></button>
+        <button class="tank-card selected" data-tank="heavy" aria-label="BASTION · ТЯЖЁЛЫЙ ШТУРМ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="heavy" width="220" height="132" aria-label="BASTION"></canvas><span class="preview-label">FIELD MODEL / BASTION</span></span><b>BASTION</b><small>ТЯЖЁЛЫЙ ШТУРМ</small></button>
+        <button class="tank-card" data-tank="ironclad" aria-label="IRONCLAD · ТЯЖЁЛАЯ БРОНЯ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="ironclad" width="220" height="132" aria-label="IRONCLAD"></canvas><span class="preview-label">FIELD MODEL / IRONCLAD</span></span><b>IRONCLAD</b><small>ТЯЖЁЛАЯ БРОНЯ</small></button>
+        <button class="tank-card" data-tank="demolisher" aria-label="DEMOLISHER · ОСАДНЫЙ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="demolisher" width="220" height="132" aria-label="DEMOLISHER"></canvas><span class="preview-label">FIELD MODEL / DEMOLISHER</span></span><b>DEMOLISHER</b><small>ОСАДНЫЙ</small></button>
+        <button class="tank-card" data-tank="scout" aria-label="SHADE · РАЗВЕДЧИК"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="scout" width="220" height="132" aria-label="SHADE"></canvas><span class="preview-label">FIELD MODEL / SHADE</span></span><b>SHADE</b><small>РАЗВЕДЧИК</small></button>
+        <button class="tank-card" data-tank="viper" aria-label="VIPER · РЕЙДЕР"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="viper" width="220" height="132" aria-label="VIPER"></canvas><span class="preview-label">FIELD MODEL / VIPER</span></span><b>VIPER</b><small>РЕЙДЕР</small></button>
+        <button class="tank-card" data-tank="wraith" aria-label="WRAITH · МОБИЛЬНАЯ ПОДДЕРЖКА"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="wraith" width="220" height="132" aria-label="WRAITH"></canvas><span class="preview-label">FIELD MODEL / WRAITH</span></span><b>WRAITH</b><small>МОБИЛЬНАЯ ПОДДЕРЖКА</small></button>
+        <button class="tank-card" data-tank="sniper" aria-label="JÄGER · ТАНК-УНИЧТОЖИТЕЛЬ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="sniper" width="220" height="132" aria-label="JÄGER"></canvas><span class="preview-label">FIELD MODEL / JÄGER</span></span><b>JÄGER</b><small>ТАНК-УНИЧТОЖИТЕЛЬ</small></button>
+        <button class="tank-card" data-tank="thunder" aria-label="THUNDER · СКОРОСТРЕЛЬНЫЙ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="thunder" width="220" height="132" aria-label="THUNDER"></canvas><span class="preview-label">FIELD MODEL / THUNDER</span></span><b>THUNDER</b><small>СКОРОСТРЕЛЬНЫЙ</small></button>
+        <button class="tank-card" data-tank="support" aria-label="SENTINEL · СБАЛАНСИРОВАННЫЙ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="support" width="220" height="132" aria-label="SENTINEL"></canvas><span class="preview-label">FIELD MODEL / SENTINEL</span></span><b>SENTINEL</b><small>СБАЛАНСИРОВАННЫЙ</small></button>
       </div>
       <div class="tank-stats"><div class="tank-stat"><span>БРОНЯ</span><b id="selArmor">100</b></div><div class="tank-stat"><span>СКОРОСТЬ</span><b id="selSpeed">112</b></div><div class="tank-stat"><span>УРОН ОРУДИЯ</span><b id="selDamage">26</b></div></div>
       <ul><li>Коснитесь любой точки поля боя и удерживайте палец, чтобы двигаться к ней.</li><li>Орудие автоматически наводится на выбранную видимую цель. Нажмите «ЦЕЛЬ», чтобы переключить противника.</li><li>Удерживайте «ОГОНЬ» для стрельбы. «ДЫМ» скрывает танк от противника. «УКРЫТЬСЯ» отправляет танк к ближайшему укрытию.</li></ul>
@@ -86,4 +90,4 @@
 
 </div>
 <script src="./js/mtba-render-engine.js?v=15" defer></script>
-<script src="./js/game.js?v=mtba-20261012-15" defer></script>
+<script src="./js/game.js?v=mtba-20261012-16" defer></script>
