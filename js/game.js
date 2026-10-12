@@ -27,7 +27,7 @@ function soundImpact(strong=false){if(!audioCtx)return;noiseBurst(strong?.2:.1,s
 function soundTreads(intensity=1){if(!audioCtx)return;tone(64+Math.random()*12,48,.11,.018*intensity,'triangle');noiseBurst(.075,.012*intensity,380)}
 function soundReload(){if(!audioCtx)return;tone(520,360,.07,.035,'square');tone(360,620,.09,.025,'triangle')}
 window.addEventListener('resize',resize,{passive:true});
-function clearTreeSpot(x,y){for(const o of obstacles)if(x+28>o.x&&x-28<o.x+o.w&&y+28>o.y&&y-28<o.y+o.h)return false;return true}
+function clearTreeSpot(x,y){const crown=52;for(const o of obstacles)if(x+crown>o.x&&x-crown<o.x+o.w&&y+crown>o.y&&y-crown<o.y+o.h)return false;return true}
 function buildArena(){obstacles.length=0;grassPatches.length=0;
 /* Standardized world scale: containers are elongated industrial modules, never arbitrary cubes. */
 const blocks=[
@@ -36,7 +36,7 @@ const blocks=[
 [280,980,230,96],[640,950,96,220],[930,1010,230,96],[1300,960,100,220],
 [170,1370,100,190],[520,1370,230,96],[900,1360,100,200],[1210,1370,230,96],[1510,1300,96,210]
 ];
-for(const [x,y,w,h] of blocks){const container=Math.max(w,h)/Math.min(w,h)>=2.05;obstacles.push({x,y,w,h,type:container?'container':'concrete',orientation:w>=h?'horizontal':'vertical',hp:Infinity});}
+for(let i=0;i<blocks.length;i++){const [x,y,w,h]=blocks[i];const container=i%3!==1;obstacles.push({x,y,w,h,type:container?'container':'concrete',orientation:w>=h?'horizontal':'vertical',hp:Infinity});}
 /* Vegetation forms irregular cover patches and buffers the industrial structures. */
 for(const [x,y,w,h] of [[350,365,155,105],[730,410,135,105],[1120,390,160,110],[230,825,145,105],[745,815,150,105],[1100,1150,165,110],[385,1195,155,100],[1440,835,130,105],[80,1090,100,180],[1600,420,105,160]]){if(!blocks.some(([bx,by,bw,bh])=>x<bx+bw+24&&x+w>bx-24&&y<by+bh+24&&y+h>by-24))grassPatches.push({x,y,w,h,seed:Math.floor(x*3+y*7)});}
 trees.length=0;for(let i=0;i<42;i++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearTreeSpot(x,y))trees.push({x,y,r:rand(25,37),tone:Math.floor(rand(0,4)),seed:rand(0,TAU)})}
@@ -263,9 +263,9 @@ if(q>37&&q<57){ctx.strokeStyle='#c0c6ad22';ctx.lineWidth=1;ctx.beginPath();ctx.m
 if(q>67&&q<80){ctx.save();ctx.translate(x,y);ctx.rotate(q*.11);ctx.fillStyle='#141d1a66';ctx.fillRect(-3,-2,7,4);ctx.fillStyle='#9ba18b33';ctx.fillRect(-2,-2,3,1);ctx.restore()}
 if(q>88){ctx.strokeStyle='#a7b09b1c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx+q%24,gy+q%17);ctx.lineTo(gx+q%24+7,gy+q%17+3);ctx.lineTo(gx+q%24+9,gy+q%17+1);ctx.stroke()}
 }}
-/* Faded lane markings and repair seams. */
-ctx.save();ctx.setLineDash([17,23]);ctx.strokeStyle='#c6c6a51a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0, WORLD.h*.47);ctx.lineTo(WORLD.w,WORLD.h*.47);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#111a1630';ctx.lineWidth=1;
-for(let x=70;x<WORLD.w;x+=180){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}
+/* Faded lane markings at a believable interval; they no longer tile the entire terrain. */
+ctx.save();ctx.setLineDash([27,34]);ctx.strokeStyle='#c6c6a510';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,WORLD.h*.5);ctx.lineTo(WORLD.w,WORLD.h*.5);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#111a1618';ctx.lineWidth=1;
+for(let x=70;x<WORLD.w;x+=260){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}
 ctx.restore();
  /* Cached procedural micro-grain adds concrete/soil variation without per-frame noise generation. */
  const grain=getGroundGrainPattern();
