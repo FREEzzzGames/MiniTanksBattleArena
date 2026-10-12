@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r12.
+/* MTBA layered tank renderer r13.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -166,7 +166,7 @@ ctx.fillStyle=hull;ctx.beginPath();
 ctx.moveTo(-s*.72,-s*hullH*.57);ctx.lineTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);
 ctx.lineTo(s*.68,-s*hullH*.38);ctx.lineTo(s*.66,s*hullH*.39);ctx.lineTo(s*.43,s*hullH*.74);
 ctx.lineTo(-s*.52,s*hullH*.82);ctx.lineTo(-s*.72,s*hullH*.55);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#e0e4c56e';ctx.lineWidth=Math.max(.7,s*.024);ctx.stroke();
+ctx.strokeStyle='#d2d9bd55';ctx.lineWidth=Math.max(.65,s*.021);ctx.stroke();
 /* Directional top-left key light and subtle edge occlusion make the hull read as thick armor. */
 ctx.save();
 const edgeShade=ctx.createLinearGradient(-s*.7,0,s*.72,0);
@@ -228,7 +228,23 @@ ctx.ellipse(s*tx+s*.09,s*.12,s*turretW*.56,s*turretH*.56,.04,0,TAU);ctx.fill();c
 ctx.fillStyle='#11191b';ctx.beginPath();ctx.moveTo(turretLeft+s*.1,turretTop+s*.08);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();ctx.fill();
 const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
 ctx.fillStyle=tm;ctx.beginPath();ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#d8e1c88a';ctx.lineWidth=Math.max(.7,s*.024);ctx.stroke();
+ctx.strokeStyle='#d8e1c85e';ctx.lineWidth=Math.max(.65,s*.021);ctx.stroke();
+/* Turret facet pass r13: top plane, bevel break and recessed side face.
+   Low-contrast edges preserve a painted-steel look instead of a bright cartoon outline. */
+ctx.save();
+ctx.globalAlpha=.2;ctx.fillStyle='#e0e5c9';ctx.beginPath();
+ctx.moveTo(turretLeft+s*.18,turretTop+s*turretH*.14);
+ctx.lineTo(turretLeft+s*turretW*.65,turretTop+s*turretH*.12);
+ctx.lineTo(turretLeft+s*turretW*.79,turretTop+s*turretH*.27);
+ctx.lineTo(turretLeft+s*.28,turretTop+s*turretH*.3);ctx.closePath();ctx.fill();
+ctx.globalAlpha=.22;ctx.fillStyle='#081011';ctx.beginPath();
+ctx.moveTo(turretLeft+s*turretW*.79,turretTop+s*turretH*.3);
+ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.34);
+ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.69);
+ctx.lineTo(turretLeft+s*turretW*.67,turretTop+s*turretH*.76);ctx.closePath();ctx.fill();
+ctx.globalAlpha=.38;ctx.strokeStyle='#111a18';ctx.lineWidth=Math.max(.7,s*.022);
+ctx.beginPath();ctx.moveTo(turretLeft+s*.27,turretTop+s*turretH*.3);ctx.lineTo(turretLeft+s*turretW*.79,turretTop+s*turretH*.27);ctx.stroke();
+ctx.restore();
 /* A restrained upper-face highlight and lower-face shade add volume without extra micro-detail. */
 ctx.save();ctx.globalAlpha=.28;ctx.strokeStyle='#f4f5d8';ctx.lineWidth=Math.max(.8,s*.03);ctx.beginPath();
 ctx.moveTo(turretLeft+s*.16,turretTop+s*.12);ctx.lineTo(turretLeft+s*turretW*.67,turretTop+s*.1);ctx.stroke();
