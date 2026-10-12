@@ -151,5 +151,5 @@ function endTouchMove(e){if(e.pointerId===touchMovePointer){touchMovePointer=nul
 $('arena-wrap').addEventListener('pointerdown',beginTouchMove);$('arena-wrap').addEventListener('pointermove',updateTouchMove);['pointerup','pointercancel','lostpointercapture'].forEach(ev=>$('arena-wrap').addEventListener(ev,endTouchMove));
 canvas.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){const r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true}});canvas.addEventListener('pointerdown',e=>{initAudio();if(e.pointerType==='mouse'){mouse.down=true;canvas.setPointerCapture?.(e.pointerId);const r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true}});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>canvas.addEventListener(ev,()=>mouse.down=false));canvas.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('blur',()=>{mouse.down=false;input.fire=false;touchMoveTarget=null;touchMovePointer=null});document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!paused)togglePause()});
-buildArena();resize();requestAnimationFrame(loop);
+buildArena();resize();renderTankPreviews();setInterval(renderTankPreviews,33);requestAnimationFrame(loop);
 })();
