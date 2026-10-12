@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><radialGradient id="g"><stop stop-color="#fff4b2"/><stop offset=".22" stop-color="#ffcf56"/><stop offset=".56" stop-color="#ff6b24"/><stop offset="1" stop-color="#8c2015" stop-opacity="0"/></radialGradient></defs><path d="M48 2 56 25 76 9 70 33 94 29 76 46 94 62 68 62 73 89 51 72 38 95 34 69 9 78 23 57 1 44 27 38 18 15 39 29Z" fill="url(#g)"/><circle cx="48" cy="47" r="25" fill="url(#g)"/><g fill="#ffd47a"><circle cx="24" cy="27" r="3"/><circle cx="73" cy="24" r="2"/><circle cx="80" cy="57" r="3"/><circle cx="30" cy="72" r="2"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<defs>
+ <radialGradient id="heat"><stop stop-color="#fff9d0"/><stop offset=".13" stop-color="#ffe58a"/><stop offset=".32" stop-color="#ff9b39" stop-opacity=".96"/><stop offset=".58" stop-color="#e64a20" stop-opacity=".72"/><stop offset="1" stop-color="#7d2515" stop-opacity="0"/></radialGradient>
+ <radialGradient id="core"><stop stop-color="#fffbdc"/><stop offset=".55" stop-color="#ffbd4d"/><stop offset="1" stop-color="#f04c20" stop-opacity="0"/></radialGradient>
+</defs>
+<path d="M63 5 73 26 91 13 88 36 113 30 99 49 122 61 99 70 111 91 87 88 82 115 65 96 48 119 43 94 19 102 30 79 7 69 28 55 14 37 39 39 43 14 57 30Z" fill="url(#heat)" opacity=".9"/>
+<circle cx="64" cy="63" r="48" fill="url(#heat)"/>
+<circle cx="64" cy="63" r="27" fill="url(#core)"/>
+<g fill="#ffd980"><circle cx="27" cy="31" r="2.8"/><circle cx="96" cy="28" r="2.2"/><circle cx="107" cy="69" r="3"/><circle cx="34" cy="91" r="2.5"/><circle cx="82" cy="104" r="2"/></g>
+<g fill="#f5a34b" opacity=".75"><path d="m20 61 8-4 4 3-6 6Z"/><path d="m92 83 8-3 3 4-7 4Z"/><path d="m58 13 5 7-3 4-4-6Z"/></g>
+</svg>
