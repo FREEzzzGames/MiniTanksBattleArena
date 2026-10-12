@@ -1,4 +1,4 @@
-name: Deploy Tetris Console Web
+name: Deploy IRON FRONT Web Game
 on:
   push:
     branches: [main]
@@ -6,7 +6,7 @@ on:
       - 'index.html'
       - '.github/workflows/pages.yml'
       - '.github/scripts/**'
-      - 'city-world/**'
+      - 'README.md'
   workflow_dispatch:
 permissions:
   contents: read

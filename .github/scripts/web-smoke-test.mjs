@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { readFile } from 'node:fs/promises';
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, hasTouch: true });
@@ -15,8 +16,13 @@ try {
   }
   if (await page.locator('#joystick').count() !== 0) throw new Error('Legacy joystick still present');
   if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
-  const fogSource = await page.content();
-  if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('RPG-style fog of war / visibility system missing');
+  const fogSource = await readFile('index.html', 'utf8');
+  const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
+  const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+  if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
+  if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('Fog-of-war / visibility system missing');
+  if (!fogSource.includes("function nearestThreat(t){let best=null,bd=Infinity;for(const e of enemies()")) throw new Error('Cover targeting must select enemies, not friendly tanks');
+  if (fogSource.includes('Your tank has been disabled') || fogSource.includes("'REDEPLOY'")) throw new Error('Russian game-over text contains English fallback');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
   const supportClick = await page.evaluate(() => {
     const button = document.querySelector('[data-tank="support"]');
@@ -91,11 +97,24 @@ try {
   await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
   await page.setViewportSize({ width: 320, height: 640 });
   const layout = await page.evaluate(() => {
-    const c = document.querySelector('#game').getBoundingClientRect();
-    const j = document.querySelector('#controls').getBoundingClientRect();
-    return { canvasWidth: c.width, canvasHeight: c.height, joy: j.width, overflow: document.documentElement.scrollWidth > innerWidth };
+    const canvas = document.querySelector('#game').getBoundingClientRect();
+    const arena = document.querySelector('#arena-wrap').getBoundingClientRect();
+    const message = document.querySelector('#message').getBoundingClientRect();
+    const controls = [...document.querySelectorAll('#controls button')].map(button => {
+      const r = button.getBoundingClientRect();
+      return { id: button.id, top: r.top, bottom: r.bottom, left: r.left, right: r.right, width: r.width, height: r.height };
+    });
+    return { canvasWidth: canvas.width, canvasHeight: canvas.height,
+      overflow: document.documentElement.scrollWidth > innerWidth,
+      messageBottom: message.bottom, arenaTop: arena.top, arenaBottom: arena.bottom, controls };
   });
-  if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 300 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
+  if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
+  for (const control of layout.controls) {
+    if (control.top < layout.arenaTop || control.bottom > layout.arenaBottom || control.left < 0 || control.right > innerWidth)
+      throw new Error('Control outside mobile viewport: ' + JSON.stringify({ control, layout }));
+    if (control.id !== 'fireBtn' && control.top < layout.messageBottom + 6)
+      throw new Error('Control overlaps mission message: ' + JSON.stringify({ control, layout }));
+  }
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
   console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and mobile layout.');
 } finally {
