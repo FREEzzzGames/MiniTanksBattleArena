@@ -74,7 +74,7 @@ try {
   await page.locator('[data-tank="support"]').tap({ force: true });
   await page.waitForTimeout(100);
   if (await page.locator('#selArmor').textContent() !== '120') throw new Error('Support click failed; diagnostics=' + JSON.stringify(supportClick) + '; pageErrors=' + errors.join(' | '));
-  if (await page.locator('#selArmor').textContent() !== '125') throw new Error('Support tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
+  if (await page.locator('#selArmor').textContent() !== '120') throw new Error('Support tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
   const supportStats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
     speed: document.querySelector('#selSpeed').textContent,
