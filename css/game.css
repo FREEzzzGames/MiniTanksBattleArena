@@ -186,3 +186,15 @@ header small,.stat label,.eyebrow{color:#84979e}
 #controls #joystick{border-radius:50%!important}
 #app.layout-editing #joystick{outline:2px dashed #7ce8d0;outline-offset:3px}
 @media(max-height:420px) and (orientation:landscape){#joystick{width:clamp(94px,24vh,116px);height:clamp(94px,24vh,116px);left:max(10px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom))}.joystick-ring{max-height:104px}}
+
+
+/* Default HUD layout aligned to the approved battle screenshot. */
+@media (orientation: landscape) {
+  #joystick{left:max(16px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));}
+  #controls .intel-control{left:auto;right:clamp(390px,34vw,540px);top:auto;bottom:12px}
+  #controls .smoke-control{left:auto;right:clamp(300px,25vw,410px);top:auto;bottom:12px}
+  #controls .cover-control{left:auto;right:clamp(210px,17vw,280px);top:auto;bottom:12px}
+  #controls .squad-control{left:auto;right:clamp(120px,9vw,165px);top:auto;bottom:12px}
+  #controls .target-control{right:clamp(12px,1.5vw,24px);top:38%;bottom:auto}
+  #controls .fire-control{right:clamp(12px,1.5vw,24px);bottom:12px;top:auto;width:clamp(96px,10vw,154px);height:clamp(96px,10vw,154px);border-radius:28px!important}
+}
