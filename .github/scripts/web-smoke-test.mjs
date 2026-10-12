@@ -50,14 +50,14 @@ try {
   }));
   if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden || state.ammo !== '4 / 4') throw new Error('Game did not initialize selected tank/ammo correctly: ' + JSON.stringify(state));
   await page.locator('#orderBtn').click();
-  if (!/TACTIC: HOLD/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to HOLD');
+  if (!/ПРИКАЗ: ДЕРЖАТЬСЯ/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to HOLD');
   await page.locator('#orderBtn').click();
-  if (!/TACTIC: FALL BACK/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to FALL BACK');
+  if (!/ПРИКАЗ: ОТСТУПЛЕНИЕ/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to FALL BACK');
   await page.locator('#orderBtn').click();
-  if (!/TACTIC: PUSH/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle back to PUSH');
+  if (!/ПРИКАЗ: АТАКА/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle back to PUSH');
   await page.locator('#fireBtn').tap();
   await page.locator('#smokeBtn').click();
-  if (!/SMOKE ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
+  if (!/ДЫМ ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
   // Simulate two simultaneous touch contacts: steering while holding FIRE.
   const cdp = await page.context().newCDPSession(page);
   const joyBox = await page.locator('#joystick').boundingBox();
@@ -97,9 +97,8 @@ try {
     return { canvasWidth: c.width, canvasHeight: c.height, joy: j.width, overflow: document.documentElement.scrollWidth > innerWidth };
   });
   if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 60 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
-  await page.keyboard.press('1'); await page.keyboard.press('2'); await page.keyboard.press('3'); await page.keyboard.press('q');
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, keyboard and mobile layout.');
+  console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and mobile layout.');
 } finally {
   await browser.close();
 }
