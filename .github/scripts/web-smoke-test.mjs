@@ -10,9 +10,10 @@ try {
   if (errors.length) throw new Error('Browser JavaScript errors before interaction: ' + errors.join(' | '));
   if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
   if (await page.locator('#cityFrame').count() !== 0) throw new Error('Legacy iframe still present');
-  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','joystick','ammoText']) {
+  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','targetBtn','coverBtn','ammoText']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
+  if (await page.locator('#joystick').count() !== 0) throw new Error('Legacy joystick still present');
   if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
   const fogSource = await page.content();
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('RPG-style fog of war / visibility system missing');
@@ -50,19 +51,17 @@ try {
   }));
   if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden || state.ammo !== '4 / 4') throw new Error('Game did not initialize selected tank/ammo correctly: ' + JSON.stringify(state));
   await page.locator('#orderBtn').click();
-  if (!/ПРИКАЗ: ДЕРЖАТЬСЯ/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to HOLD');
-  await page.locator('#orderBtn').click();
-  if (!/ПРИКАЗ: ОТСТУПЛЕНИЕ/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle to FALL BACK');
-  await page.locator('#orderBtn').click();
-  if (!/ПРИКАЗ: АТАКА/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad order did not cycle back to PUSH');
+  if (!/ОТРЯД/.test(await page.locator('#orderBtn').innerText())) throw new Error('Squad control missing');
+  await page.locator('#targetBtn').click();
+  await page.locator('#coverBtn').click();
   await page.locator('#fireBtn').tap();
   await page.locator('#smokeBtn').click();
   if (!/ДЫМ ×2/.test(await page.locator('#smokeBtn').innerText())) throw new Error('Smoke screen charge was not consumed');
   // Simulate two simultaneous touch contacts: steering while holding FIRE.
   const cdp = await page.context().newCDPSession(page);
-  const joyBox = await page.locator('#joystick').boundingBox();
+  const arenaBox = await page.locator('#arena-wrap').boundingBox();
   const fireBox = await page.locator('#fireBtn').boundingBox();
-  const jx = joyBox.x + joyBox.width / 2, jy = joyBox.y + joyBox.height / 2;
+  const jx = arenaBox.x + arenaBox.width * .25, jy = arenaBox.y + arenaBox.height * .58;
   const fx = fireBox.x + fireBox.width / 2, fy = fireBox.y + fireBox.height / 2;
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [
     { id: 1, x: jx, y: jy, radiusX: 8, radiusY: 8, force: 1 },
@@ -93,10 +92,10 @@ try {
   await page.setViewportSize({ width: 320, height: 640 });
   const layout = await page.evaluate(() => {
     const c = document.querySelector('#game').getBoundingClientRect();
-    const j = document.querySelector('#joystick').getBoundingClientRect();
+    const j = document.querySelector('#controls').getBoundingClientRect();
     return { canvasWidth: c.width, canvasHeight: c.height, joy: j.width, overflow: document.documentElement.scrollWidth > innerWidth };
   });
-  if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 60 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
+  if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.joy < 300 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
   console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and mobile layout.');
 } finally {
