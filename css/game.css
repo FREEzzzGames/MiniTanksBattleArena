@@ -198,3 +198,15 @@ header small,.stat label,.eyebrow{color:#84979e}
   #controls .target-control{right:clamp(12px,1.5vw,24px);top:38%;bottom:auto}
   #controls .fire-control{right:clamp(12px,1.5vw,24px);bottom:12px;top:auto;width:clamp(96px,10vw,154px);height:clamp(96px,10vw,154px);border-radius:28px!important}
 }
+
+
+/* Landscape readability pass r5: notifications stay clear of the action row. */
+#toast{top:48px;bottom:auto;z-index:4;max-width:min(560px,calc(100% - 28px));background:rgba(5,12,16,.94);border-color:#66808a;color:#e0ecee;box-shadow:0 5px 18px #0009}
+@media (orientation:landscape){
+  #controls .intel-control{right:clamp(400px,35vw,560px)}
+  #controls .smoke-control{right:clamp(310px,26vw,420px)}
+  #controls .cover-control{right:clamp(220px,18vw,292px)}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #toast{top:42px;max-width:min(460px,calc(100% - 24px));font-size:9px;padding:5px 8px}
+}
