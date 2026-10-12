@@ -8,6 +8,20 @@
 <meta name="description" content="MiniTanksBattleArena (MTBA) — танковая battle arena с волнами противников, отрядом, укрытиями и бронёй.">
 <title>MiniTanksBattleArena — Battle Arena</title>
 <link rel="stylesheet" href="./css/game.css">
+<script>
+(() => {
+  const updateOrientation = () => {
+    const portrait = window.matchMedia('(orientation: portrait)').matches;
+    const mobile = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 901;
+    document.documentElement.classList.toggle('is-portrait', portrait && mobile);
+    document.documentElement.classList.toggle('is-landscape', !(portrait && mobile));
+  };
+  document.addEventListener('DOMContentLoaded', updateOrientation, { once: true });
+  window.addEventListener('resize', updateOrientation, { passive: true });
+  window.addEventListener('orientationchange', updateOrientation, { passive: true });
+  window.visualViewport?.addEventListener('resize', updateOrientation, { passive: true });
+})();
+</script>
 </head>
 <body>
 <div id="orientationGate" role="status" aria-live="polite"><div class="rotate-icon" aria-hidden="true">▱</div><strong>ПОВЕРНИТЕ УСТРОЙСТВО</strong><span>MiniTanksBattleArena работает в горизонтальном режиме. Поверните телефон боком, чтобы открыть арену и сенсорное управление.</span></div>

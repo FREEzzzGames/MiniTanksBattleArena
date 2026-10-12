@@ -39,13 +39,11 @@
 .squad-control{right:calc(12px + clamp(0px,7.5vh,42px));top:auto;bottom:10px}
 .fire-control{right:12px;top:auto;bottom:10px;width:clamp(66px,17vh,88px);height:clamp(66px,17vh,88px);font-size:28px}
 .fire-control small{font-size:10px}
-@media (orientation:portrait) and (max-width:900px){
-  #orientationGate{display:flex}
-  #app{visibility:hidden;pointer-events:none}
-}
+html.is-portrait #orientationGate{display:flex}
+html.is-portrait #app{visibility:hidden;pointer-events:none}
+html.is-landscape #orientationGate{display:none}
+html.is-landscape #app{visibility:visible;pointer-events:auto}
 @media (orientation:landscape){
-  #orientationGate{display:none}
-  #app{visibility:visible;pointer-events:auto}
   header{height:40px;flex-basis:40px;padding:0 12px;gap:14px}
   header>div:first-child{flex:0 0 auto}
   header strong{font-size:12px}header small{display:inline;color:var(--muted)}
