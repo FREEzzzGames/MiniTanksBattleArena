@@ -110,23 +110,58 @@ function drawTankModel(ctx,t,scale=1,rotation=0){
 const s=(t.size||22)*scale,role=t.role||'player',base=t.hitFlash>0?'#fff':t.team==='player'?'#53dca3':t.team==='ally'?'#4dbacb':({brawler:'#b64e45',scout:'#b4c65a',sniper:'#9182d5',assault:'#df754f',support:'#d0a4f4',heavy:'#b9a56b'}[role]||'#53dca3'),heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
 ctx.save();ctx.rotate(rotation);ctx.scale(scale,scale);
 
-const hw=heavy?2.28:scout?1.82:2.02,hh=heavy?1.68:scout?1.36:1.52;
-for(const side of [-1,1]){const ty=side<0?-s*hh*.51:s*hh*.35;ctx.fillStyle='#151d21';ctx.beginPath();ctx.roundRect(-s*hw/2-2,ty-1,s*hw+4,s*.25,3);ctx.fill();ctx.fillStyle=heavy?'#48514b':'#354247';ctx.fillRect(-s*hw/2,ty+2,s*hw,s*.14);for(let k=0;k<8;k++){const wx=-s*hw/2+s*hw*(k+.5)/8;ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(wx,ty+s*.105,s*.078,0,TAU);ctx.fill();ctx.fillStyle='#7f8b83';ctx.beginPath();ctx.arc(wx,ty+s*.105,s*.064,0,TAU);ctx.fill();ctx.fillStyle='#34413e';ctx.beginPath();ctx.arc(wx,ty+s*.105,s*.041,0,TAU);ctx.fill();ctx.fillStyle='#b9c1b0';ctx.beginPath();ctx.arc(wx-s*.012,ty+s*.085,s*.016,0,TAU);ctx.fill()}}
-/* Moving track cleats follow actual accumulated travel distance. */
-const treadPhase=((t.trackDistance||0)*.32)% (s*.34||1);
+/* Proportions pass: long, low hull; paired side tracks; consistent bilateral geometry. */
+const hw=heavy?2.34:scout?1.94:2.16,trackY=heavy?.47:scout?.405:.445,trackH=heavy?.31:scout?.255:.285;
+const trackTop=-s*trackY-trackH*s*.5;
+const trackBottom=s*trackY-trackH*s*.5;
+/* Continuous track belts with visible end wheels and road wheels, not floating dots. */
 for(const side of [-1,1]){
- const ty=side<0?-s*hh*.51:s*hh*.35;
- ctx.save();ctx.beginPath();ctx.roundRect(-s*hw/2-2,ty-1,s*hw+4,s*.25,3);ctx.clip();
- ctx.strokeStyle='#b6c2b588';ctx.lineWidth=Math.max(.7,s*.035);
- for(let k=-1;k<10;k++){const tx=-s*hw/2+(k*s*hw/8)+treadPhase;ctx.fillStyle=(k%2?'#0c1416':'#8a9890');ctx.fillRect(tx-s*.025,ty+s*.025,s*.055,s*.18);ctx.strokeStyle='#c0c8bc55';ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(tx-s*.04,ty+s*.22);ctx.stroke();ctx.fillStyle='#172124';ctx.beginPath();ctx.arc(tx,ty+s*.11,s*.018,0,TAU);ctx.fill()}
+ const ty=side*s*trackY;
+ ctx.fillStyle='#080f12';ctx.beginPath();ctx.roundRect(-s*hw*.5,ty-s*trackH*s*.5,s*hw,trackH*s,Math.max(1,s*.075));ctx.fill();
+ ctx.fillStyle=heavy?'#505a51':'#394640';ctx.beginPath();ctx.roundRect(-s*hw*.5+s*.025,ty-trackH*s*.5+s*.025,s*hw-s*.05,trackH*s-s*.05,Math.max(1,s*.05));ctx.fill();
+ ctx.strokeStyle='#aeb9ac99';ctx.lineWidth=Math.max(.55,s*.022);ctx.stroke();
+ /* Individual steel shoes across the belt width. */
+ for(let k=0;k<11;k++){
+  const wx=-s*hw*.5+s*.075+k*(s*hw-.15*s)/10;
+  ctx.fillStyle=k%2?'#202b2b':'#77847a';ctx.fillRect(wx,ty-trackH*s*.5+s*.025,s*.045,trackH*s-.05*s);
+  ctx.strokeStyle='#c4cebd55';ctx.lineWidth=Math.max(.4,s*.012);ctx.beginPath();ctx.moveTo(wx+s*.012,ty-trackH*s*.43);ctx.lineTo(wx+s*.033,ty+trackH*s*.43);ctx.stroke();
+ }
+ /* Outer sprocket/idler and six recessed road wheels. */
+ const wheelY=ty, wheelR=s*(heavy?.108:scout?.082:.096);
+ for(let k=0;k<8;k++){
+  const wx=-s*hw*.5+s*.13+k*(s*hw-s*.26)/7;
+  const rr=(k===0||k===7)?wheelR*1.12:wheelR;
+  ctx.fillStyle='#0b1215';ctx.beginPath();ctx.arc(wx,wheelY,rr*1.13,0,TAU);ctx.fill();
+  ctx.fillStyle=(k===0||k===7)?'#68766b':'#879187';ctx.beginPath();ctx.arc(wx,wheelY,rr,0,TAU);ctx.fill();
+  ctx.fillStyle='#293632';ctx.beginPath();ctx.arc(wx,wheelY,rr*.68,0,TAU);ctx.fill();
+  ctx.fillStyle='#b9c4b5';ctx.beginPath();ctx.arc(wx-s*.012,wheelY-s*.014,rr*.23,0,TAU);ctx.fill();
+  ctx.strokeStyle='#101719';ctx.lineWidth=Math.max(.5,s*.018);ctx.beginPath();ctx.arc(wx,wheelY,rr*.46,0,TAU);ctx.stroke();
+ }
+}
+/* Animated cleats travel along the track belt according to accumulated movement. */
+const treadPhase=((t.trackDistance||0)*.32)%(s*.34||1);
+for(const side of [-1,1]){
+ const ty=side*s*trackY;
+ ctx.save();ctx.beginPath();ctx.roundRect(-s*hw*.5,ty-trackH*s*.5,s*hw,trackH*s,Math.max(1,s*.075));ctx.clip();
+ for(let k=-1;k<13;k++){
+  const tx=-s*hw*.5+k*s*hw/11+treadPhase;
+  ctx.fillStyle=k%2?'#0c1416':'#a1aca0';ctx.fillRect(tx,ty-trackH*s*.5+s*.018,s*.025,trackH*s-.036*s);
+ }
  ctx.restore();
 }
-/* Hull silhouette helper: reused for the cast side wall and the upper armor deck. */
+/* Hull silhouette: broad shoulders, sloped glacis and tapered rear; all roles share the same tank-like base. */
 const hullPath=()=>{
  ctx.beginPath();
- if(scout){ctx.moveTo(-s*.58,-s*.49);ctx.lineTo(s*.5,-s*.49);ctx.lineTo(s*.8,-s*.12);ctx.lineTo(s*.72,s*.38);ctx.lineTo(-s*.65,s*.38);ctx.lineTo(-s*.8,-s*.12)}
- else{ctx.moveTo(-s*.78,-s*.5);ctx.lineTo(s*.66,-s*.5);ctx.lineTo(s*.84,-s*.24);ctx.lineTo(s*.84,s*.24);ctx.lineTo(s*.62,s*.5);ctx.lineTo(-s*.72,s*.5);ctx.lineTo(-s*.86,s*.2);ctx.lineTo(-s*.86,-s*.2)}
- ctx.closePath();
+ if(scout){
+  ctx.moveTo(-s*.69,-s*.32);ctx.lineTo(s*.48,-s*.32);ctx.lineTo(s*.72,-s*.19);
+  ctx.lineTo(s*.78,-s*.07);ctx.lineTo(s*.78,s*.17);ctx.lineTo(s*.61,s*.32);
+  ctx.lineTo(-s*.57,s*.32);ctx.lineTo(-s*.76,s*.16);ctx.lineTo(-s*.76,-s*.13);ctx.closePath();
+ }else{
+  ctx.moveTo(-s*.78,-s*.35);ctx.lineTo(s*.52,-s*.35);ctx.lineTo(s*.72,-s*.27);
+  ctx.lineTo(s*.86,-s*.12);ctx.lineTo(s*.86,s*.12);ctx.lineTo(s*.68,s*.29);
+  ctx.lineTo(s*.52,s*.35);ctx.lineTo(-s*.67,s*.35);ctx.lineTo(-s*.84,s*.22);
+  ctx.lineTo(-s*.88,s*.06);ctx.lineTo(-s*.88,-s*.15);ctx.closePath();
+ }
 };
 /* Directional cast shadow follows the actual hull silhouette instead of a generic oval. */
 ctx.save();ctx.translate(s*.27,s*.43);ctx.shadowColor='#020503b8';ctx.shadowBlur=Math.max(2,s*.22);ctx.fillStyle='#0205039c';hullPath();ctx.fill();ctx.fillRect(-s*.99,-s*.48,s*.2,s*.98);ctx.fillRect(s*.79,-s*.48,s*.2,s*.98);ctx.shadowBlur=0;ctx.save();ctx.rotate((t.turret||t.a||0)-(t.a||0));ctx.fillStyle='#0205039c';ctx.fillRect(s*.04,-s*.13,s*(heavy?1.03:.84),s*.26);ctx.beginPath();ctx.roundRect(-s*.36,-s*.29,s*.72,s*.58,4);ctx.fill();ctx.restore();ctx.translate(-s*.1,-s*.12);ctx.globalAlpha=.34;hullPath();ctx.fill();ctx.restore();
