@@ -121,7 +121,7 @@ try {
     speed: document.querySelector('#selSpeed').textContent,
     damage: document.querySelector('#selDamage').textContent
   }));
-  if (supportStats.armor !== '120' || supportStats.speed !== '92' || supportStats.damage !== '22') throw new Error('Support tank stats incorrect: ' + JSON.stringify(supportStats));
+  if (supportStats.armor !== '120' || supportStats.speed !== '122' || supportStats.damage !== '22') throw new Error('Support tank stats incorrect: ' + JSON.stringify(supportStats));
   await page.locator('[data-tank="heavy"]').click({ force: true });
   if (await page.locator('#selArmor').textContent() !== '155') throw new Error('Heavy tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
   const stats = await page.evaluate(() => ({
@@ -129,9 +129,9 @@ try {
     speed: document.querySelector('#selSpeed').textContent,
     damage: document.querySelector('#selDamage').textContent
   }));
-  if (stats.armor !== '155' || stats.speed !== '80' || stats.damage !== '34') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
+  if (stats.armor !== '155' || stats.speed !== '104' || stats.damage !== '34') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
   const balanceSource = gameSource;
-  if (!balanceSource.includes("scout:{name:'L-03 SHADE',hp:74,speed:142,damage:18,reload:.84") || !balanceSource.includes("sniper:{name:'S-04 NOVA',hp:82,speed:86,damage:38,reload:1.72")) throw new Error('Tank balance profile changes missing');
+  if (!balanceSource.includes("scout:{name:'L-03 SHADE',hp:74,speed:176,damage:18,reload:.84") || !balanceSource.includes("sniper:{name:'S-04 NOVA',hp:82,speed:112,damage:38,reload:1.72")) throw new Error('Tank balance profile changes missing');
   await page.locator('#startBtn').click();
   await page.waitForTimeout(300);
   const state = await page.evaluate(() => ({
