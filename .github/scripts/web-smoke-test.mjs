@@ -34,6 +34,7 @@ try {
   if (!fogSource.includes('function scoutDroneSpots(e)') || !fogSource.includes('reveal(scout.x,scout.y,scout.reveal,.32)')) throw new Error('Scout drone does not reveal nearby terrain and enemies');
   if (!fogSource.includes("if(targetHeal&&missing>0&&dist(d,targetHeal)<70)") || !fogSource.includes("say('МЕДДРОН: +'") || !fogSource.includes('targetHeal.hp+=amount')) throw new Error('Medic drone must fly to and heal wounded player/allies');
   if (!fogSource.includes('const count=Math.min(3+Math.ceil(wave*.72),9)') || !fogSource.includes("damage:(t.team==='enemy'?t.damage*.68:t.damage)") || !fogSource.includes("t.team==='enemy'?rand(.8,1.8):rand(.2,1)")) throw new Error('Enemy damage, wave size or firing cadence was not rebalanced');
+  if (!fogSource.includes("if(t.team==='player'&&t.role==='support')damage*=.82")) throw new Error('Support tank damage resistance missing');
   if (!fogSource.includes("function nearestThreat(t){let best=null,bd=Infinity;const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy threat selection must use player/allies and respect concealment');
   if (fogSource.includes('Your tank has been disabled') || fogSource.includes("'REDEPLOY'")) throw new Error('Russian game-over text contains English fallback');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
