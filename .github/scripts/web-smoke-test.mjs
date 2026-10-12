@@ -1,12 +1,27 @@
 import { chromium } from 'playwright';
 import { readFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import { extname, resolve, sep } from 'node:path';
 
+const root = process.cwd();
+const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.jpg':'image/jpeg', '.json':'application/json' };
+const server = createServer(async (req, res) => {
+  try {
+    const pathname = decodeURIComponent(new URL(req.url, 'http://127.0.0.1').pathname);
+    const file = resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
+    if (file !== root && !file.startsWith(root + sep)) { res.writeHead(403); res.end('Forbidden'); return; }
+    const body = await readFile(file);
+    res.writeHead(200, { 'Content-Type': mime[extname(file)] || 'application/octet-stream', 'Cache-Control':'no-store' }); res.end(body);
+  } catch { res.writeHead(404); res.end('Not found'); }
+});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const baseUrl = 'http://127.0.0.1:' + server.address().port;
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 1, hasTouch: true });
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 try {
-  await page.goto('file://' + process.cwd() + '/index.html', { waitUntil: 'domcontentloaded' });
+  await page.goto(baseUrl + '/', { waitUntil: 'domcontentloaded' });
   await page.locator('#game').waitFor({ state: 'visible' });
   if (errors.length) throw new Error('Browser JavaScript errors before interaction: ' + errors.join(' | '));
   if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
@@ -171,4 +186,5 @@ try {
   console.log('MTBA browser smoke tests passed: shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
+  await new Promise(resolve => server.close(resolve));
 }
