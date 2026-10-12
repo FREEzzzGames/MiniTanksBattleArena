@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r13.
+/* MTBA layered tank renderer r14.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -155,17 +155,48 @@ for(const side of [-1,1]){
  ctx.strokeStyle='#b0b7a3';ctx.lineWidth=Math.max(.6,s*.018);
  for(let i=0;i<3;i++){const x=-s*.58+i*s*.55;ctx.beginPath();ctx.moveTo(x,y-side*s*.135);ctx.lineTo(x+s*.11,y-side*s*.135);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y+side*s*.135);ctx.lineTo(x+s*.11,y+side*s*.135);ctx.stroke()}
 }
-/* Hull: tapered front, raised armor shoulders and a strong top-light bevel. */
+/* Hull: reference-driven silhouettes. Heavy = Abrams-like wide angular hull;
+   scout = compact Scorpion-like hull; sniper = low elongated Jagdpanzer-like hull. */
 const hull=ctx.createLinearGradient(-s*.3,-s*.55,s*.25,s*.58);
 hull.addColorStop(0,light);hull.addColorStop(.18,mid);hull.addColorStop(.56,base);hull.addColorStop(1,dark);
 ctx.fillStyle='#101819';ctx.beginPath();
-ctx.moveTo(-s*.78,-s*hullH*.63);ctx.lineTo(-s*.57,-s*hullH);ctx.lineTo(s*.49,-s*hullH*.92);
-ctx.lineTo(s*.79,-s*hullH*.47);ctx.lineTo(s*.77,s*hullH*.52);ctx.lineTo(s*.49,s*hullH*.91);
-ctx.lineTo(-s*.57,s*hullH);ctx.lineTo(-s*.78,s*hullH*.62);ctx.closePath();ctx.fill();
+if(heavy){
+ ctx.moveTo(-s*.82,-s*.56);ctx.lineTo(-s*.62,-s*.78);ctx.lineTo(s*.45,-s*.78);ctx.lineTo(s*.79,-s*.49);
+ ctx.lineTo(s*.83,-s*.32);ctx.lineTo(s*.83,s*.32);ctx.lineTo(s*.79,s*.49);ctx.lineTo(s*.45,s*.78);
+ ctx.lineTo(-s*.62,s*.78);ctx.lineTo(-s*.82,s*.56);ctx.closePath();
+}else if(scout){
+ ctx.moveTo(-s*.75,-s*.42);ctx.lineTo(-s*.56,-s*.57);ctx.lineTo(s*.48,-s*.53);ctx.lineTo(s*.72,-s*.3);
+ ctx.lineTo(s*.77,-s*.17);ctx.lineTo(s*.77,s*.17);ctx.lineTo(s*.72,s*.3);ctx.lineTo(s*.48,s*.53);
+ ctx.lineTo(-s*.56,s*.57);ctx.lineTo(-s*.75,s*.42);ctx.closePath();
+}else if(laser){
+ ctx.moveTo(-s*.88,-s*.46);ctx.lineTo(-s*.72,-s*.56);ctx.lineTo(s*.54,-s*.56);ctx.lineTo(s*.8,-s*.34);
+ ctx.lineTo(s*.84,-s*.2);ctx.lineTo(s*.84,s*.2);ctx.lineTo(s*.8,s*.34);ctx.lineTo(s*.54,s*.56);
+ ctx.lineTo(-s*.72,s*.56);ctx.lineTo(-s*.88,s*.46);ctx.closePath();
+}else{
+ ctx.moveTo(-s*.8,-s*.49);ctx.lineTo(-s*.58,-s*.62);ctx.lineTo(s*.45,-s*.6);ctx.lineTo(s*.77,-s*.4);
+ ctx.lineTo(s*.8,-s*.24);ctx.lineTo(s*.8,s*.24);ctx.lineTo(s*.77,s*.4);ctx.lineTo(s*.45,s*.6);
+ ctx.lineTo(-s*.58,s*.62);ctx.lineTo(-s*.8,s*.49);ctx.closePath();
+}
+ctx.fill();
 ctx.fillStyle=hull;ctx.beginPath();
-ctx.moveTo(-s*.72,-s*hullH*.57);ctx.lineTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);
-ctx.lineTo(s*.68,-s*hullH*.38);ctx.lineTo(s*.66,s*hullH*.39);ctx.lineTo(s*.43,s*hullH*.74);
-ctx.lineTo(-s*.52,s*hullH*.82);ctx.lineTo(-s*.72,s*hullH*.55);ctx.closePath();ctx.fill();
+if(heavy){
+ ctx.moveTo(-s*.73,-s*.49);ctx.lineTo(-s*.55,-s*.67);ctx.lineTo(s*.4,-s*.67);ctx.lineTo(s*.68,-s*.43);
+ ctx.lineTo(s*.71,-s*.27);ctx.lineTo(s*.71,s*.27);ctx.lineTo(s*.68,s*.43);ctx.lineTo(s*.4,s*.67);
+ ctx.lineTo(-s*.55,s*.67);ctx.lineTo(-s*.73,s*.49);ctx.closePath();
+}else if(scout){
+ ctx.moveTo(-s*.67,-s*.35);ctx.lineTo(-s*.5,-s*.48);ctx.lineTo(s*.43,-s*.45);ctx.lineTo(s*.64,-s*.25);
+ ctx.lineTo(s*.68,-s*.12);ctx.lineTo(s*.68,s*.12);ctx.lineTo(s*.64,s*.25);ctx.lineTo(s*.43,s*.45);
+ ctx.lineTo(-s*.5,s*.48);ctx.lineTo(-s*.67,s*.35);ctx.closePath();
+}else if(laser){
+ ctx.moveTo(-s*.8,-s*.38);ctx.lineTo(-s*.66,-s*.46);ctx.lineTo(s*.49,-s*.46);ctx.lineTo(s*.69,-s*.28);
+ ctx.lineTo(s*.73,-s*.15);ctx.lineTo(s*.73,s*.15);ctx.lineTo(s*.69,s*.28);ctx.lineTo(s*.49,s*.46);
+ ctx.lineTo(-s*.66,s*.46);ctx.lineTo(-s*.8,s*.38);ctx.closePath();
+}else{
+ ctx.moveTo(-s*.71,-s*.42);ctx.lineTo(-s*.52,-s*.53);ctx.lineTo(s*.4,-s*.51);ctx.lineTo(s*.66,-s*.34);
+ ctx.lineTo(s*.69,-s*.2);ctx.lineTo(s*.69,s*.2);ctx.lineTo(s*.66,s*.34);ctx.lineTo(s*.4,s*.51);
+ ctx.lineTo(-s*.52,s*.53);ctx.lineTo(-s*.71,s*.42);ctx.closePath();
+}
+ctx.fill();
 ctx.strokeStyle='#d2d9bd55';ctx.lineWidth=Math.max(.65,s*.021);ctx.stroke();
 /* Directional top-left key light and subtle edge occlusion make the hull read as thick armor. */
 ctx.save();
