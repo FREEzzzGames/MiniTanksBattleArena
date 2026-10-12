@@ -115,6 +115,21 @@ try {
   if (portraitGate.gate !== 'flex' || portraitGate.app !== 'hidden') throw new Error('Portrait orientation must be gated with a rotate-device prompt: ' + JSON.stringify(portraitGate));
   await page.setViewportSize({ width: 844, height: 390 });
   await page.evaluate(() => window.scrollTo(0, 0));
+  // Real touch swipe over a tank preview must scroll the selector, not the page.
+  await page.locator('#tankSelect').evaluate(el => { el.scrollTop = 0; });
+  const selectorBox = await page.locator('#tankSelect .tank-preview').first().boundingBox();
+  if (!selectorBox) throw new Error('Tank preview canvas is not visible for scroll test');
+  const swipeX = selectorBox.x + selectorBox.width / 2;
+  const swipeY = selectorBox.y + selectorBox.height * .78;
+  const scrollCdp = await page.context().newCDPSession(page);
+  await scrollCdp.send('Input.dispatchTouchEvent', {type:'touchStart', touchPoints:[{id:7,x:swipeX,y:swipeY,radiusX:8,radiusY:8,force:1}]});
+  await scrollCdp.send('Input.dispatchTouchEvent', {type:'touchMove', touchPoints:[{id:7,x:swipeX,y:swipeY-105,radiusX:8,radiusY:8,force:1}]});
+  await page.waitForTimeout(80);
+  await scrollCdp.send('Input.dispatchTouchEvent', {type:'touchEnd', touchPoints:[]});
+  await page.waitForTimeout(100);
+  const selectorScroll = await page.locator('#tankSelect').evaluate(el => ({top:el.scrollTop, max:el.scrollHeight-el.clientHeight, touchAction:getComputedStyle(el.querySelector('.tank-preview')).touchAction, pointerEvents:getComputedStyle(el.querySelector('.tank-preview')).pointerEvents}));
+  await scrollCdp.detach();
+  if (selectorScroll.max <= 0 || selectorScroll.top <= 0) throw new Error('Real touch swipe does not scroll tank selector: '+JSON.stringify(selectorScroll));
   const supportClick = await page.evaluate(() => {
     const button = document.querySelector('[data-tank="support"]');
     return { disabled: button.disabled, tag: button.tagName, connected: button.isConnected, overlay: getComputedStyle(document.querySelector('#overlay')).display, scriptCount: document.scripts.length };
