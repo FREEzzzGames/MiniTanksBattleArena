@@ -407,7 +407,7 @@ function updateInfantry(dt){
  for(let i=infantryShots.length-1;i>=0;i--){const b=infantryShots[i];b.life-=dt;b.px=b.x;b.py=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;let gone=b.life<=0||b.x<0||b.y<0||b.x>WORLD.w||b.y>WORLD.h;
   for(const o of obstacles)if(!gone&&segmentIntersectsRect(b.px,b.py,b.x,b.y,o)){gone=true;break}
   if(!gone)for(const s of soldiers){if(!s.alive||s.faction===b.faction||s===b.owner)continue;if(segmentCircle(b.px,b.py,b.x,b.y,s.x,s.y,6)){s.hp-=b.damage;s.suppression=Math.min(2.5,s.suppression+.7);s.state='suppressed';s.revealUntil=gameClock+1.8;if(s.hp<=0){s.alive=false;burst(s.x,s.y,b.faction==='alpha'?'#58dfff':'#ff6b61',8)}else burst(s.x,s.y,b.faction==='alpha'?'#58dfff':'#ff6b61',3);gone=true;break}}
-  if(!gone)for(const t of tanks){if(!t.alive||t===b.owner||((b.faction==='alpha')===(t.team!=='enemy')))continue;if(segmentCircle(b.px,b.py,b.x,b.y,t.x,t.y,t.size*.62)){hit(t,b.damage*.16,b.x,b.y,false);gone=true;break}}
+  if(!gone)for(const t of tanks){if(!t.alive||t===b.owner||((b.faction==='alpha')===(t.team!=='enemy')))continue;if(segmentCircle(b.px,b.py,b.x,b.y,t.x,t.y,t.size*.62)){hit(t,b.damage*.035,b.x,b.y,false);gone=true;break}}
   if(gone)infantryShots.splice(i,1);
  }
 }
