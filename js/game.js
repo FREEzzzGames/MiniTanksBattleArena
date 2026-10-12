@@ -107,344 +107,93 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-const s=(t.size||22)*scale,role=t.role||'player',base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':({brawler:'#b64e45',scout:'#b4c65a',sniper:'#9182d5',assault:'#df754f',support:'#d0a4f4',heavy:'#b9a56b'}[role]||'#53dca3'),heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
-ctx.save();ctx.rotate(rotation);ctx.scale(scale,scale);
-
-/* Proportions pass: long, low hull; paired side tracks; consistent bilateral geometry. */
-const hw=heavy?2.34:scout?1.94:2.16,trackY=heavy?.47:scout?.405:.445,trackH=heavy?.31:scout?.255:.285;
-const trackTop=-s*trackY-trackH*s*.5;
-const trackBottom=s*trackY-trackH*s*.5;
-/* Paired side tracks: continuous belts with visible end wheels and road wheels, not floating dots. */
-for(const side of [-1,1]){
- const ty=side*s*trackY;
- ctx.fillStyle='#080f12';ctx.beginPath();ctx.roundRect(-s*hw*.5,ty-s*trackH*s*.5,s*hw,trackH*s,Math.max(1,s*.075));ctx.fill();
- ctx.fillStyle=heavy?'#505a51':'#394640';ctx.beginPath();ctx.roundRect(-s*hw*.5+s*.025,ty-trackH*s*.5+s*.025,s*hw-s*.05,trackH*s-s*.05,Math.max(1,s*.05));ctx.fill();
- ctx.strokeStyle='#aeb9ac99';ctx.lineWidth=Math.max(.55,s*.022);ctx.stroke();
- /* Individual steel shoes across the belt width. */
- for(let k=0;k<11;k++){
-  const wx=-s*hw*.5+s*.075+k*(s*hw-.15*s)/10;
-  ctx.fillStyle=k%2?'#202b2b':'#77847a';ctx.fillRect(wx,ty-trackH*s*.5+s*.025,s*.045,trackH*s-.05*s);
-  ctx.strokeStyle='#c4cebd55';ctx.lineWidth=Math.max(.4,s*.012);ctx.beginPath();ctx.moveTo(wx+s*.012,ty-trackH*s*.43);ctx.lineTo(wx+s*.033,ty+trackH*s*.43);ctx.stroke();
- }
- /* Outer sprocket/idler and six recessed road wheels. */
- const wheelY=ty, wheelR=s*(heavy?.108:scout?.082:.096);
- for(let k=0;k<8;k++){
-  const wx=-s*hw*.5+s*.13+k*(s*hw-s*.26)/7;
-  const rr=(k===0||k===7)?wheelR*1.12:wheelR;
-  ctx.fillStyle='#0b1215';ctx.beginPath();ctx.arc(wx,wheelY,rr*1.13,0,TAU);ctx.fill();
-  ctx.fillStyle=(k===0||k===7)?'#68766b':'#879187';ctx.beginPath();ctx.arc(wx,wheelY,rr,0,TAU);ctx.fill();
-  ctx.fillStyle='#293632';ctx.beginPath();ctx.arc(wx,wheelY,rr*.68,0,TAU);ctx.fill();
-  ctx.fillStyle='#b9c4b5';ctx.beginPath();ctx.arc(wx-s*.012,wheelY-s*.014,rr*.23,0,TAU);ctx.fill();
-  ctx.strokeStyle='#101719';ctx.lineWidth=Math.max(.5,s*.018);ctx.beginPath();ctx.arc(wx,wheelY,rr*.46,0,TAU);ctx.stroke();
- }
-}
-/* Animated cleats travel along the track belt according to accumulated movement. */
-const treadPhase=((t.trackDistance||0)*.32)%(s*.34||1);
-for(const side of [-1,1]){
- const ty=side*s*trackY;
- ctx.save();ctx.beginPath();ctx.roundRect(-s*hw*.5,ty-trackH*s*.5,s*hw,trackH*s,Math.max(1,s*.075));ctx.clip();
- for(let k=-1;k<13;k++){
-  const tx=-s*hw*.5+k*s*hw/11+treadPhase;
-  ctx.fillStyle=k%2?'#0c1416':'#a1aca0';ctx.fillRect(tx,ty-trackH*s*.5+s*.018,s*.025,trackH*s-.036*s);
- }
- ctx.restore();
-}
-/* Hull silhouette: broad shoulders, sloped glacis and tapered rear; all roles share the same tank-like base. */
-const hullPath=()=>{
- ctx.beginPath();
- if(scout){
-  ctx.moveTo(-s*.69,-s*.32);ctx.lineTo(s*.48,-s*.32);ctx.lineTo(s*.72,-s*.19);
-  ctx.lineTo(s*.78,-s*.07);ctx.lineTo(s*.78,s*.17);ctx.lineTo(s*.61,s*.32);
-  ctx.lineTo(-s*.57,s*.32);ctx.lineTo(-s*.76,s*.16);ctx.lineTo(-s*.76,-s*.13);ctx.closePath();
- }else{
-  ctx.moveTo(-s*.78,-s*.35);ctx.lineTo(s*.52,-s*.35);ctx.lineTo(s*.72,-s*.27);
-  ctx.lineTo(s*.86,-s*.12);ctx.lineTo(s*.86,s*.12);ctx.lineTo(s*.68,s*.29);
-  ctx.lineTo(s*.52,s*.35);ctx.lineTo(-s*.67,s*.35);ctx.lineTo(-s*.84,s*.22);
-  ctx.lineTo(-s*.88,s*.06);ctx.lineTo(-s*.88,-s*.15);ctx.closePath();
- }
-};
-/* Directional cast shadow follows the actual hull silhouette instead of a generic oval. */
-ctx.save();ctx.translate(s*.27,s*.43);ctx.shadowColor='#020503b8';ctx.shadowBlur=Math.max(2,s*.22);ctx.fillStyle='#0205039c';hullPath();ctx.fill();ctx.fillRect(-s*.99,-s*.48,s*.2,s*.98);ctx.fillRect(s*.79,-s*.48,s*.2,s*.98);ctx.shadowBlur=0;ctx.save();ctx.rotate((t.turret||t.a||0)-(t.a||0));ctx.fillStyle='#0205039c';ctx.fillRect(s*.04,-s*.13,s*(heavy?1.03:.84),s*.26);ctx.beginPath();ctx.roundRect(-s*.36,-s*.29,s*.72,s*.58,4);ctx.fill();ctx.restore();ctx.translate(-s*.1,-s*.12);ctx.globalAlpha=.34;hullPath();ctx.fill();ctx.restore();
-/* Pseudo-3D cast hull: dark lower sidewall, bevel lip and a lit upper plate. */
-ctx.save();ctx.translate(0,s*.13);hullPath();
-const sideMetal=ctx.createLinearGradient(-s*.8,0,s*.8,s*.3);
-sideMetal.addColorStop(0,'#101719');sideMetal.addColorStop(.24,heavy?'#333e39':'#273630');sideMetal.addColorStop(.62,'#182421');sideMetal.addColorStop(1,'#090f12');
-ctx.fillStyle=sideMetal;ctx.fill();ctx.strokeStyle='#080e10';ctx.lineWidth=Math.max(1,s*.055);ctx.stroke();ctx.restore();
-hullPath();
-const hullPaint=ctx.createLinearGradient(-s*.55,-s*.52,s*.55,s*.52);
-hullPaint.addColorStop(0,heavy?'#a6a38b':scout?'#a6b77b':laser?'#9aa5ae':support?'#8eb1b1':'#9daf9f');
-hullPaint.addColorStop(.18,base);hullPaint.addColorStop(.54,base);hullPaint.addColorStop(.82,heavy?'#4b574e':'#35443e');hullPaint.addColorStop(1,'#172326');
-ctx.fillStyle=hullPaint;ctx.fill();ctx.strokeStyle='#d9e5e6b0';ctx.lineWidth=Math.max(.8,s*.035);ctx.stroke();
-/* Raised armor shoulders and inset service panels break up the toy-like flat silhouette. */
-ctx.save();ctx.beginPath();ctx.moveTo(-s*.62,-s*.34);ctx.lineTo(-s*.43,-s*.43);ctx.lineTo(-s*.19,-s*.4);ctx.lineTo(-s*.23,-s*.29);ctx.lineTo(-s*.54,-s*.27);ctx.closePath();
-const shoulder=ctx.createLinearGradient(-s*.5,-s*.43,-s*.2,-s*.25);shoulder.addColorStop(0,'#dce4d35c');shoulder.addColorStop(1,'#0b14153a');ctx.fillStyle=shoulder;ctx.fill();ctx.strokeStyle='#e1ead04a';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke();
-ctx.beginPath();ctx.moveTo(s*.28,-s*.34);ctx.lineTo(s*.54,-s*.3);ctx.lineTo(s*.68,-s*.16);ctx.lineTo(s*.58,-s*.08);ctx.lineTo(s*.3,-s*.17);ctx.closePath();ctx.fillStyle='#10191b55';ctx.fill();ctx.strokeStyle='#c5d2c04a';ctx.stroke();
-ctx.beginPath();ctx.moveTo(-s*.55,s*.25);ctx.lineTo(-s*.3,s*.33);ctx.lineTo(-s*.1,s*.32);ctx.lineTo(-s*.12,s*.4);ctx.lineTo(-s*.43,s*.38);ctx.closePath();ctx.fillStyle='#10171950';ctx.fill();ctx.strokeStyle='#c4d0c044';ctx.stroke();ctx.restore();
-const shade=ctx.createLinearGradient(-s, -s, s, s);shade.addColorStop(0,'#ffffff38');shade.addColorStop(.45,'#ffffff00');shade.addColorStop(1,'#0000004d');ctx.fillStyle=shade;ctx.fill();
-ctx.save();ctx.strokeStyle='#dce8df55';ctx.lineWidth=Math.max(.65,s*.022);
-ctx.beginPath();ctx.moveTo(-s*.59,-s*.28);ctx.lineTo(-s*.42,-s*.39);ctx.lineTo(-s*.19,-s*.38);ctx.moveTo(s*.2,-s*.38);ctx.lineTo(s*.47,-s*.35);ctx.lineTo(s*.61,-s*.2);ctx.moveTo(-s*.6,s*.24);ctx.lineTo(-s*.43,s*.38);ctx.lineTo(-s*.2,s*.39);ctx.moveTo(s*.2,s*.39);ctx.lineTo(s*.46,s*.36);ctx.lineTo(s*.62,s*.2);ctx.stroke();
-ctx.fillStyle='#111b1d';ctx.beginPath();ctx.roundRect(-s*.18,-s*.29,s*.36,s*.16,2);ctx.fill();ctx.fillStyle=laser?'#68eaff':support?'#91eaff':scout?'#d6a8ff':'#b5d8c5';ctx.fillRect(-s*.11,-s*.26,s*.22,s*.045);
-for(const [hx,hy] of [[-.51,-.12],[.51,-.12],[-.51,.12],[.51,.12]]){ctx.fillStyle='#182124';ctx.beginPath();ctx.arc(s*hx,s*hy,s*.055,0,TAU);ctx.fill();ctx.fillStyle='#91a49c';ctx.beginPath();ctx.arc(s*hx,s*hy,s*.025,0,TAU);ctx.fill()}
-ctx.restore();
-/* Layered steel deck with bevels, welds, hatch and realistic value breakup. */
-ctx.fillStyle='#101719';ctx.fillRect(-s*.49,-s*.34,s*.98,s*.68);
-const deck=ctx.createLinearGradient(-s*.42,-s*.32,s*.42,s*.32);
-deck.addColorStop(0,heavy?'#8a8b79':scout?'#8e9b70':laser?'#7d8490':support?'#75949a':'#8a9b8b');
-deck.addColorStop(.32,base);deck.addColorStop(.72,heavy?'#4c554e':'#3a4a43');deck.addColorStop(1,'#172226');
-ctx.fillStyle=deck;ctx.beginPath();ctx.moveTo(-s*.42,-s*.29);ctx.lineTo(s*.35,-s*.29);ctx.lineTo(s*.47,-s*.16);ctx.lineTo(s*.47,s*.19);ctx.lineTo(s*.34,s*.3);ctx.lineTo(-s*.37,s*.3);ctx.lineTo(-s*.48,s*.16);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#d8e0cf8a';ctx.lineWidth=Math.max(.6,s*.025);ctx.stroke();
-ctx.strokeStyle='#0c1518a8';ctx.lineWidth=Math.max(.7,s*.035);ctx.beginPath();ctx.moveTo(-s*.34,-s*.2);ctx.lineTo(s*.31,-s*.2);ctx.moveTo(-s*.35,s*.21);ctx.lineTo(s*.31,s*.21);ctx.stroke();
-/* Raised center spine and non-emissive maintenance hatch. */
-ctx.fillStyle='#172327';ctx.beginPath();ctx.roundRect(-s*.14,-s*.25,s*.28,s*.5,2);ctx.fill();
-ctx.fillStyle='#66776e';ctx.beginPath();ctx.roundRect(-s*.105,-s*.21,s*.21,s*.42,2);ctx.fill();
-ctx.strokeStyle='#c0c9b777';ctx.lineWidth=.7;ctx.strokeRect(-s*.085,-s*.17,s*.17,s*.34);
-ctx.fillStyle='#1b2829';ctx.fillRect(-s*.045,-s*.125,s*.09,s*.25);
-ctx.fillStyle='#b5c1b2';ctx.fillRect(-s*.02,-s*.09,s*.04,s*.18);
-/* Bolted corner armor and recessed lifting points. */
-for(const [bx,by] of [[-.38,-.23],[.38,-.23],[-.38,.23],[.38,.23]]){ctx.fillStyle='#182224';ctx.beginPath();ctx.arc(s*bx,s*by,s*.045,0,TAU);ctx.fill();ctx.fillStyle='#a6b1a2';ctx.beginPath();ctx.arc(s*bx,s*by,s*.022,0,TAU);ctx.fill();ctx.fillStyle='#34433e';ctx.fillRect(s*bx-s*.013,s*by-s*.006,s*.026,s*.012)}
-/* Field-service details: recessed deck plates, weld beads, serial stencils and chipped edges. */
+/* MTBA silhouette-first tank renderer r7.
+   Large hull planes, readable track belts and class-specific proportions take priority over micro-detail. */
+const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
+const base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':t.team==='enemy'?'#8b514a':'#7a8068';
+const dark=heavy?'#29332d':scout?'#303d2c':laser?'#29343a':support?'#2e3d3b':'#303a30';
+const mid=heavy?'#77816b':scout?'#718650':laser?'#75848b':support?'#6e9187':'#71836c';
+const light=heavy?'#c4bd96':scout?'#c0d28f':laser?'#b9c9ce':support?'#b4d4ca':'#bdc9b4';
+const hullL=heavy?-.82:scout?-.73:laser?-.88:-.8,hullR=heavy?.78:scout?.72:laser?.76:.78;
+const hullH=heavy?.58:scout?.43:laser?.48:support?.53:.5;
 ctx.save();
-ctx.strokeStyle='#0b1416b8';ctx.lineWidth=Math.max(.7,s*.026);
-ctx.beginPath();ctx.moveTo(-s*.57,-s*.16);ctx.lineTo(-s*.45,-s*.25);ctx.lineTo(-s*.23,-s*.24);ctx.moveTo(s*.24,-s*.25);ctx.lineTo(s*.47,-s*.24);ctx.lineTo(s*.57,-s*.12);ctx.moveTo(-s*.55,s*.17);ctx.lineTo(-s*.43,s*.25);ctx.lineTo(-s*.22,s*.25);ctx.stroke();
-ctx.strokeStyle='#d7e0cc65';ctx.lineWidth=Math.max(.55,s*.018);
-ctx.beginPath();ctx.moveTo(-s*.57,-s*.16);ctx.lineTo(-s*.45,-s*.25);ctx.lineTo(-s*.23,-s*.24);ctx.moveTo(s*.24,-s*.25);ctx.lineTo(s*.47,-s*.24);ctx.moveTo(-s*.55,s*.17);ctx.lineTo(-s*.43,s*.25);ctx.stroke();
-/* Low-profile access hatches and raised handles. */
-for(const [hx,hy,hw,hh] of [[-.31,-.12,.16,.12],[.32,.13,.13,.1],[-.29,.18,.1,.065]]){
- ctx.fillStyle='#182326';ctx.beginPath();ctx.roundRect(s*hx-s*hw/2,s*hy-s*hh/2,s*hw,s*hh,Math.max(.5,s*.018));ctx.fill();
- ctx.strokeStyle='#aebdb077';ctx.lineWidth=Math.max(.45,s*.015);ctx.stroke();
- ctx.strokeStyle='#d9e0ce88';ctx.beginPath();ctx.moveTo(s*(hx-hw*.25),s*hy);ctx.lineTo(s*(hx+hw*.25),s*hy);ctx.stroke();
-}
-if(!scout){
- /* Modular side skirts with visible fasteners and abrasion on the lower lip. */
- for(const side of [-1,1]){
-  const sy=side*s*.405;
-  for(let panel=0;panel<3;panel++){
-   const px=-s*.39+panel*s*.27;
-   ctx.fillStyle=panel===1?'#25332f':'#1b2827';
-   ctx.beginPath();ctx.moveTo(px,sy-s*.035);ctx.lineTo(px+s*.22,sy-s*.025);ctx.lineTo(px+s*.2,sy+s*.055);ctx.lineTo(px+s*.015,sy+s*.06);ctx.closePath();ctx.fill();
-   ctx.strokeStyle='#a9b7a45b';ctx.lineWidth=Math.max(.45,s*.015);ctx.stroke();
-   ctx.fillStyle='#a7b4a0';ctx.beginPath();ctx.arc(px+s*.04,sy+s*.012,s*.018,0,TAU);ctx.fill();
-  }
- }
-}
-/* Matte chassis stencil; readable without competing with tactical HUD. */
-ctx.fillStyle=heavy?'#e0c18b':scout?'#d5e4a0':laser?'#b7c3d0':support?'#b9e4d9':'#d7e1d3';
-ctx.globalAlpha=.78;ctx.font='bold '+Math.max(3.8,s*.12)+'px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
-ctx.fillText(heavy?'H-04':scout?'L-03':laser?'S-04':support?'R-05':'T-01',s*.39,-s*.305);
-ctx.globalAlpha=1;
-/* Fine paint chips concentrated on exposed leading edges. */
-ctx.fillStyle='#dfe5d19a';
-for(const [cx,cy] of [[-.62,-.32],[-.48,-.39],[.57,-.29],[.66,.19],[-.58,.26],[.42,.34]])ctx.fillRect(s*cx,s*cy,Math.max(.45,s*.025),Math.max(.4,s*.018));
-ctx.fillStyle='#101716a8';ctx.fillRect(-s*.08,-s*.31,s*.16,s*.025);
-ctx.restore();
-/* Exhaust vents and grime staining differ by chassis class. */
-ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(-s*.34,-s*.12,s*.13,s*.24,1);ctx.fill();
-for(let vent=0;vent<3;vent++){ctx.strokeStyle='#89988a88';ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(-s*.32,-s*.075+vent*s*.07);ctx.lineTo(-s*.23,-s*.075+vent*s*.07);ctx.stroke()}
-ctx.fillStyle='#161d1b70';ctx.beginPath();ctx.ellipse(s*.29,0,s*.09,s*.2,.1,0,TAU);ctx.fill();
-
-for(const [bx,by] of [[-.67,-.35],[.65,-.35],[-.67,.35],[.65,.35]]){ctx.fillStyle='#d7dfd0a0';ctx.beginPath();ctx.arc(s*bx,s*by,s*.04,0,TAU);ctx.fill()}
-/* Rebuilt turret: a single readable armored assembly with a distinct mantlet and cannon. */
-ctx.save();
-ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
-const turretW=heavy?1.16:scout?.78:laser?1.02:support?.96:.94;
-const turretH=heavy?.82:scout?.62:laser?.68:support?.72:.68;
-const turretX=heavy?.04:.02;
-const turretTop=-s*turretH*.5,turretLeft=s*turretX-s*turretW*.5;
-/* Turret's cast shadow separates it from the hull. */
-ctx.save();ctx.translate(s*.055,s*.075);
-ctx.fillStyle='#030809a8';ctx.beginPath();
-ctx.moveTo(turretLeft+s*.13,turretTop+s*.06);
-ctx.lineTo(turretLeft+s*turretW*.79,turretTop+s*.06);
-ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.31);
-ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.82);
-ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*turretH);
-ctx.lineTo(turretLeft+s*.09,turretTop+s*turretH*.91);
-ctx.lineTo(turretLeft,turretTop+s*turretH*.65);
-ctx.lineTo(turretLeft+s*.025,turretTop+s*turretH*.25);
-ctx.closePath();ctx.fill();ctx.restore();
-/* Barrel sits beneath the mantlet so the connection reads as a real gun assembly. */
-const barrelLen=s*(laser?1.32:heavy?1.15:scout?.91:support?.72:.99);
-const barrelH=s*(heavy?.19:laser?.105:scout?.115:.14);
-ctx.save();ctx.translate(s*(turretX+.13),0);
-/* Barrel shadow and lower steel edge. */
-ctx.fillStyle='#050b0d';ctx.beginPath();ctx.roundRect(0,-barrelH*.52,barrelLen+s*.08,barrelH*1.2,barrelH*.18);ctx.fill();
-const barrelMetal=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);
-barrelMetal.addColorStop(0,'#d5dfd1');barrelMetal.addColorStop(.18,laser?'#8299a3':heavy?'#89968a':'#91a296');
-barrelMetal.addColorStop(.48,'#45564f');barrelMetal.addColorStop(.78,'#273530');barrelMetal.addColorStop(1,'#10191c');
-ctx.fillStyle=barrelMetal;ctx.beginPath();ctx.roundRect(0,-barrelH*.43,barrelLen,barrelH*.86,barrelH*.16);ctx.fill();
-ctx.strokeStyle='#d7e1d477';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
-/* Breech collar and muzzle brake are deliberately wider than the barrel. */
-ctx.fillStyle='#182326';ctx.beginPath();ctx.roundRect(barrelLen*.17,-barrelH*.62,barrelH*.72,barrelH*1.24,barrelH*.12);ctx.fill();
-ctx.fillStyle='#87978b';ctx.fillRect(barrelLen*.17,-barrelH*.47,barrelH*.25,barrelH*.94);
-ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(barrelLen-s*.015,-barrelH*.65,s*(heavy?.17:.13),barrelH*1.3,barrelH*.12);ctx.fill();
-ctx.strokeStyle='#a9b7a9';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
-ctx.fillStyle='#03080a';ctx.beginPath();ctx.ellipse(barrelLen+s*(heavy?.065:.05),0,s*(heavy?.035:.027),barrelH*.34,0,0,TAU);ctx.fill();
-ctx.strokeStyle='#c7d1c5';ctx.lineWidth=Math.max(.4,s*.012);ctx.beginPath();ctx.ellipse(barrelLen+s*(heavy?.065:.05),0,s*(heavy?.035:.027),barrelH*.34,0,0,TAU);ctx.stroke();
-ctx.restore();
-/* Low angular turret shell with sloped front cheeks and bevel-lit edges. */
-const turretMetal=ctx.createLinearGradient(-s*.48,-s*.42,s*.48,s*.42);
-turretMetal.addColorStop(0,heavy?'#c3b991':scout?'#b4c987':laser?'#b0c0c8':support?'#b2d1c8':'#b8c7b8');
-turretMetal.addColorStop(.2,base);turretMetal.addColorStop(.52,heavy?'#667266':'#56675e');
-turretMetal.addColorStop(.82,'#303e39');turretMetal.addColorStop(1,'#111a1d');
-ctx.fillStyle='#11191c';ctx.beginPath();
-ctx.moveTo(turretLeft+s*.12,turretTop+s*.02);
-ctx.lineTo(turretLeft+s*turretW*.77,turretTop+s*.02);
-ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.27);
-ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.78);
-ctx.lineTo(turretLeft+s*turretW*.73,turretTop+s*turretH);
-ctx.lineTo(turretLeft+s*.1,turretTop+s*turretH*.91);
-ctx.lineTo(turretLeft,turretTop+s*turretH*.62);
-ctx.lineTo(turretLeft+s*.025,turretTop+s*turretH*.25);
-ctx.closePath();ctx.fill();
-ctx.fillStyle=turretMetal;ctx.beginPath();
-ctx.moveTo(turretLeft+s*.14,turretTop+s*.07);
-ctx.lineTo(turretLeft+s*turretW*.75,turretTop+s*.07);
-ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.3);
-ctx.lineTo(turretLeft+s*turretW*.83,turretTop+s*turretH*.72);
-ctx.lineTo(turretLeft+s*turretW*.68,turretTop+s*turretH*.87);
-ctx.lineTo(turretLeft+s*.14,turretTop+s*turretH*.8);
-ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.59);
-ctx.lineTo(turretLeft+s*.08,turretTop+s*turretH*.27);
-ctx.closePath();ctx.fill();
-ctx.strokeStyle='#dbe5d69a';ctx.lineWidth=Math.max(.7,s*.026);ctx.stroke();
-/* Armored gun mantlet: the cannon visibly emerges from this reinforced block. */
-ctx.fillStyle='#131d20';ctx.beginPath();ctx.roundRect(s*(turretX+.23),-s*(heavy?.25:.2),s*(heavy?.32:.25),s*(heavy?.5:.4),s*.06);ctx.fill();
-const mantlet=ctx.createLinearGradient(0,-s*.2,0,s*.2);
-mantlet.addColorStop(0,'#b9c6b8');mantlet.addColorStop(.25,base);mantlet.addColorStop(.72,'#4b5c53');mantlet.addColorStop(1,'#172225');
-ctx.fillStyle=mantlet;ctx.beginPath();ctx.roundRect(s*(turretX+.22),-s*(heavy?.22:.17),s*(heavy?.29:.22),s*(heavy?.44:.34),s*.05);ctx.fill();
-ctx.strokeStyle='#dce6d4a0';ctx.lineWidth=Math.max(.55,s*.02);ctx.stroke();
-/* Crew hatch and per-class optics: a few large readable forms, not scattered micro-detail. */
-ctx.fillStyle='#11191c';ctx.beginPath();ctx.ellipse(s*(turretX-.12),0,s*(heavy?.17:.135),s*(heavy?.22:.17),-.18,0,TAU);ctx.fill();
-ctx.fillStyle=heavy?'#849080':scout?'#8caa66':laser?'#71838d':support?'#789d96':'#7c9180';ctx.beginPath();ctx.ellipse(s*(turretX-.12),-s*.012,s*(heavy?.13:.1),s*(heavy?.16:.12),-.18,0,TAU);ctx.fill();
-ctx.strokeStyle='#d1dccb';ctx.lineWidth=Math.max(.55,s*.018);ctx.stroke();
-ctx.strokeStyle='#1a2627';ctx.lineWidth=Math.max(.65,s*.022);ctx.beginPath();ctx.moveTo(s*(turretX-.2),s*.015);ctx.lineTo(s*(turretX-.04),-s*.02);ctx.stroke();
-if(scout||laser||support){
- const ox=s*(turretX-.23),oy=-s*turretH*.31;
- ctx.fillStyle='#101719';ctx.beginPath();ctx.roundRect(ox-s*.07,oy-s*.055,s*.14,s*.11,s*.025);ctx.fill();
- ctx.fillStyle=scout?'#b8ed83':laser?'#8eeeff':'#9ff3df';ctx.beginPath();ctx.arc(ox,oy,s*.045,0,TAU);ctx.fill();
- ctx.fillStyle='#e8f8f0';ctx.beginPath();ctx.arc(ox-s*.012,oy-s*.012,s*.014,0,TAU);ctx.fill();
-}
-if(heavy){for(const side of [-1,1]){ctx.fillStyle='#151e20';ctx.beginPath();ctx.roundRect(turretLeft+s*.22,side*s*.19,s*.13,s*.1,s*.02);ctx.fill();for(let tube=0;tube<3;tube++){ctx.fillStyle='#8d9b88';ctx.beginPath();ctx.arc(turretLeft+s*(.25+tube*.035),side*s*.24,s*.014,0,TAU);ctx.fill()}}}
-if(support){ctx.fillStyle='#1b292b';ctx.beginPath();ctx.roundRect(turretLeft+s*.55,-s*.13,s*.13,s*.26,s*.025);ctx.fill();ctx.strokeStyle='#a6e6d8';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke()}
-ctx.restore();
-/* Independent remote weapon station: it traverses toward infantry without affecting cannon aim. */
-ctx.save();ctx.rotate((Number.isFinite(t.mgAngle)?t.mgAngle:(t.turret||t.a||0))-(t.a||0));const mgScale=s;ctx.fillStyle='#101719';ctx.beginPath();ctx.roundRect(-mgScale*.13,-mgScale*.19,mgScale*.32,mgScale*.38,mgScale*.06);ctx.fill();ctx.strokeStyle='#b8c7b5';ctx.lineWidth=Math.max(.6,mgScale*.025);ctx.stroke();ctx.fillStyle='#4d5b53';ctx.beginPath();ctx.roundRect(mgScale*.02,-mgScale*.07,mgScale*.51,mgScale*.14,mgScale*.035);ctx.fill();ctx.fillStyle='#151e21';ctx.fillRect(mgScale*.35,-mgScale*.09,mgScale*.22,mgScale*.18);ctx.fillStyle='#a9b7a9';ctx.fillRect(mgScale*.42,-mgScale*.055,mgScale*.16,mgScale*.11);ctx.fillStyle='#11191b';ctx.fillRect(-mgScale*.06,-mgScale*.27,mgScale*.09,mgScale*.11);ctx.fillStyle='#d2dccc';ctx.fillRect(-mgScale*.045,-mgScale*.25,mgScale*.06,mgScale*.07);ctx.restore();
-/* Antenna base, radio aerial, rear tow hooks and external stowage. */
-ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(-s*.58,s*.31,s*.075,0,TAU);ctx.fill();ctx.strokeStyle='#d4ddce';ctx.lineWidth=Math.max(.45,s*.014);ctx.beginPath();ctx.moveTo(-s*.58,s*.31);ctx.lineTo(-s*.69,s*.68);ctx.stroke();ctx.fillStyle='#202b2a';ctx.beginPath();ctx.roundRect(s*.53,s*.27,s*.19,s*.12,1.5);ctx.fill();ctx.strokeStyle='#b5c1ad77';ctx.stroke();ctx.fillStyle='#b9c6b7';ctx.fillRect(s*.58,s*.3,s*.09,s*.018);ctx.strokeStyle='#c4cfbf';ctx.lineWidth=Math.max(.5,s*.018);ctx.beginPath();ctx.moveTo(-s*.61,s*.44);ctx.lineTo(-s*.78,s*.48);ctx.lineTo(-s*.78,s*.55);ctx.moveTo(s*.61,s*.44);ctx.lineTo(s*.78,s*.48);ctx.lineTo(s*.78,s*.55);ctx.stroke();
-/* Model-specific field equipment: spare track links, intake grilles, optics and lamps.
-   Kept inside the shared renderer so previews and battlefield vehicles stay identical. */
-if(heavy){
-  /* Bolt-on reactive armour cassettes across the turret cheeks. */
-  for(const side of [-1,1])for(let k=0;k<2;k++){
-    const ex=s*(side*.39),ey=s*(-.13+k*.25);
-    ctx.fillStyle='#182321';ctx.beginPath();ctx.roundRect(ex-s*.075,ey-s*.07,s*.15,s*.14,Math.max(.8,s*.025));ctx.fill();
-    ctx.fillStyle='#68766a';ctx.beginPath();ctx.moveTo(ex-s*.065,ey-s*.052);ctx.lineTo(ex+s*.055,ey-s*.045);ctx.lineTo(ex+s*.065,ey+s*.045);ctx.lineTo(ex-s*.055,ey+s*.05);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='#d4c59a77';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
-    ctx.fillStyle='#b6c0aa';ctx.fillRect(ex-s*.045,ey-s*.01,s*.09,s*.018);
-  }
-}else if(scout){
-  /* Recon sensor mast and twin low-light optics. */
-  ctx.fillStyle='#111b20';ctx.beginPath();ctx.roundRect(-s*.49,-s*.18,s*.13,s*.25,1);ctx.fill();
-  ctx.strokeStyle='#c4d0b9';ctx.lineWidth=Math.max(.5,s*.018);ctx.beginPath();ctx.moveTo(-s*.43,-s*.12);ctx.lineTo(-s*.5,-s*.42);ctx.stroke();
-  ctx.fillStyle='#8fe9f4';ctx.beginPath();ctx.arc(-s*.5,-s*.43,s*.035,0,TAU);ctx.fill();
-}else if(laser){
-  /* Long-range optic hood and heat-resistant barrel support. */
-  ctx.fillStyle='#15252b';ctx.beginPath();ctx.roundRect(-s*.4,-s*.42,s*.26,s*.12,1.5);ctx.fill();
-  ctx.fillStyle='#7de8f5';ctx.fillRect(-s*.35,-s*.395,s*.14,s*.045);
-  ctx.strokeStyle='#c2d2ce';ctx.lineWidth=Math.max(.55,s*.02);ctx.beginPath();ctx.moveTo(s*.56,-s*.09);ctx.lineTo(s*.76,-s*.09);ctx.moveTo(s*.56,s*.09);ctx.lineTo(s*.76,s*.09);ctx.stroke();
-}else if(support){
-  /* Support vehicle: protected equipment cases and status indicators. */
-  for(let k=0;k<2;k++){const ey=-s*.19+k*s*.38;ctx.fillStyle='#182526';ctx.beginPath();ctx.roundRect(-s*.49,ey-s*.065,s*.2,s*.13,1.5);ctx.fill();ctx.strokeStyle='#9ddfd6';ctx.lineWidth=.6;ctx.stroke();ctx.fillStyle=k?'#d8bd69':'#7be5d0';ctx.fillRect(-s*.44,ey-s*.018,s*.1,s*.036)}
-}
-/* Visible cooling louvers and a small service stencil on the rear deck. */
-ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(-s*.36,s*.29,s*.22,s*.09,1.5);ctx.fill();
-for(let k=0;k<4;k++){ctx.strokeStyle='#9eab9d';ctx.lineWidth=Math.max(.45,s*.014);ctx.beginPath();ctx.moveTo(-s*.33+k*s*.045,s*.305);ctx.lineTo(-s*.33+k*s*.045,s*.365);ctx.stroke()}
-ctx.fillStyle='#d6dfcc';ctx.globalAlpha=.7;ctx.font='bold '+Math.max(3.2,s*.075)+'px monospace';ctx.textAlign='center';ctx.fillText(heavy?'ARMOR':scout?'RECON':laser?'RANGE':support?'SUPPLY':'MT-01',s*.16,s*.385);ctx.globalAlpha=1;
-/* Front lamps sit on the leading corners and catch the top-left light. */
+/* Ground shadow and broad undercarriage. */
+ctx.fillStyle='#030605a8';ctx.beginPath();ctx.ellipse(s*.04,s*.13,s*1.04,s*.66,0,0,TAU);ctx.fill();
+ctx.fillStyle='#0b1112';ctx.beginPath();ctx.roundRect(-s*.83,-s*.54,s*1.68,s*1.08,s*.15);ctx.fill();
+/* Paired side tracks: wide, dark continuous belts with only a few large readable road wheels. */
 for(const side of [-1,1]){
- const lx=s*.69,ly=side*s*.27;
- ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(lx,ly,s*.065,0,TAU);ctx.fill();
- ctx.fillStyle=side===-1?'#f2e8b2':'#b9d7d2';ctx.beginPath();ctx.arc(lx,ly,s*.041,0,TAU);ctx.fill();
- ctx.fillStyle='#ffffff';ctx.globalAlpha=.75;ctx.fillRect(lx-s*.018,ly-s*.027,s*.022,s*.022);ctx.globalAlpha=1;
-}
-/* Weld beads and tiny fasteners along the side skirt edge. */
-if(!scout)for(const side of [-1,1])for(let k=0;k<5;k++){
- const fx=-s*.39+k*s*.19,fy=side*s*.44;
- ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(fx,fy,s*.021,0,TAU);ctx.fill();
- ctx.fillStyle='#c4cebd';ctx.beginPath();ctx.arc(fx-s*.006,fy-s*.006,s*.009,0,TAU);ctx.fill();
-}
-/* Second detailing pass: layered field-service hardware and breakup of broad paint areas.
-   All marks are drawn in local hull coordinates, so they rotate with the vehicle. */
-/* Subtle irregular camouflage plates, clipped to the hull silhouette. */
-ctx.save();hullPath();ctx.clip();ctx.globalAlpha=.19;
-ctx.fillStyle=heavy?'#202d27':scout?'#4a5a35':laser?'#293e48':support?'#334b4a':'#26382c';
-ctx.beginPath();ctx.moveTo(-s*.8,-s*.28);ctx.lineTo(-s*.47,-s*.48);ctx.lineTo(-s*.25,-s*.38);ctx.lineTo(-s*.35,-s*.17);ctx.lineTo(-s*.66,-s*.08);ctx.closePath();ctx.fill();
-ctx.beginPath();ctx.moveTo(s*.18,-s*.49);ctx.lineTo(s*.48,-s*.4);ctx.lineTo(s*.8,-s*.19);ctx.lineTo(s*.62,s*.02);ctx.lineTo(s*.38,-s*.12);ctx.closePath();ctx.fill();
-ctx.beginPath();ctx.moveTo(-s*.47,s*.25);ctx.lineTo(-s*.16,s*.32);ctx.lineTo(s*.03,s*.48);ctx.lineTo(-s*.4,s*.46);ctx.closePath();ctx.fill();ctx.globalAlpha=1;ctx.restore();
-/* Track end caps, guide teeth and small suspension access points. */
-for(let side=-1;side<=1;side+=2){
- const ty=side*s*.47;
- ctx.fillStyle='#0b1215';ctx.beginPath();ctx.roundRect(-s*.67,ty-s*.045,s*1.32,s*.09,s*.025);ctx.fill();
- for(let k=0;k<7;k++){
-  const px=-s*.58+k*s*.19;
-  ctx.fillStyle=k%2?'#647169':'#283531';ctx.fillRect(px,ty-s*.028,s*.105,s*.055);
-  ctx.fillStyle='#c0c9ba';ctx.beginPath();ctx.arc(px+s*.052,ty,s*.012,0,TAU);ctx.fill();
+ const y=side*s*(hullH*.78);
+ const belt=ctx.createLinearGradient(0,y-s*.16,0,y+s*.16);
+ belt.addColorStop(0,'#667067');belt.addColorStop(.24,'#242d2b');belt.addColorStop(.72,'#101718');belt.addColorStop(1,'#566057');
+ ctx.fillStyle=belt;ctx.beginPath();ctx.roundRect(-s*.81,y-s*.17,s*1.62,s*.34,s*.12);ctx.fill();
+ ctx.strokeStyle='#9ba393';ctx.lineWidth=Math.max(.7,s*.026);ctx.stroke();
+ for(let i=0;i<5;i++){
+  const x=-s*.62+i*s*.31;
+  ctx.fillStyle='#121a1b';ctx.beginPath();ctx.arc(x,y,s*.115,0,TAU);ctx.fill();
+  ctx.fillStyle=i===0||i===4?'#737c6c':'#89917d';ctx.beginPath();ctx.arc(x,y,s*.078,0,TAU);ctx.fill();
+  ctx.fillStyle='#303a35';ctx.beginPath();ctx.arc(x,y,s*.035,0,TAU);ctx.fill();
  }
- ctx.fillStyle='#131d20';ctx.beginPath();ctx.roundRect(-s*.44,ty-s*.09,s*.15,s*.18,s*.025);ctx.fill();
- ctx.strokeStyle='#829187';ctx.lineWidth=Math.max(.45,s*.015);ctx.stroke();
+ /* A handful of broad track shoes, not a noisy row of tiny bolts. */
+ ctx.strokeStyle='#b0b7a3';ctx.lineWidth=Math.max(.6,s*.018);
+ for(let i=0;i<6;i++){const x=-s*.66+i*s*.26;ctx.beginPath();ctx.moveTo(x,y-side*s*.135);ctx.lineTo(x+s*.11,y-side*s*.135);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y+side*s*.135);ctx.lineTo(x+s*.11,y+side*s*.135);ctx.stroke()}
 }
-/* Raised crew hatches with hinges, handles and non-emissive glass blocks. */
-for(let hatch=0;hatch<2;hatch++){
- const hx=s*(hatch?-.17:.18),hy=s*(hatch?-.13:.13),r=s*(hatch?.09:.105);
- ctx.fillStyle='#10191c';ctx.beginPath();ctx.ellipse(hx,hy,r*1.08,r*.82,-.28,0,TAU);ctx.fill();
- ctx.fillStyle=heavy?'#747d6b':scout?'#7d9264':laser?'#697b83':support?'#6e8c88':'#738574';
- ctx.beginPath();ctx.ellipse(hx,hy,r*.88,r*.63,-.28,0,TAU);ctx.fill();
- ctx.strokeStyle='#d1dccb';ctx.lineWidth=Math.max(.6,s*.02);ctx.stroke();
- ctx.strokeStyle='#172326';ctx.lineWidth=Math.max(.7,s*.025);ctx.beginPath();ctx.moveTo(hx-r*.4,hy);ctx.lineTo(hx+r*.4,hy);ctx.stroke();
- ctx.fillStyle='#d8e0cf';ctx.beginPath();ctx.arc(hx-r*.48,hy-r*.28,s*.018,0,TAU);ctx.fill();
- ctx.fillStyle='#202c2d';ctx.beginPath();ctx.roundRect(hx-r*.22,hy+r*.53,r*.44,s*.035,1);ctx.fill();
-}
-/* External fuel/tool canisters and tie-down straps. */
-for(let side=-1;side<=1;side+=2){
- const bx=-s*.49,by=side*s*.22;
- ctx.fillStyle='#111a1d';ctx.beginPath();ctx.roundRect(bx-s*.07,by-s*.105,s*.14,s*.21,s*.045);ctx.fill();
- ctx.fillStyle=heavy?'#756a4d':support?'#627c73':'#58695a';ctx.beginPath();ctx.roundRect(bx-s*.052,by-s*.085,s*.104,s*.17,s*.035);ctx.fill();
- ctx.strokeStyle='#c3cbb5';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
- ctx.fillStyle='#1a2526';ctx.fillRect(bx-s*.057,by-s*.018,s*.114,s*.036);
- ctx.fillStyle='#d5ddca';ctx.fillRect(bx-s*.013,by-s*.012,s*.026,s*.024);
-}
-/* Tow cable is a dark braided loop with metallic attachment eyes. */
-ctx.strokeStyle='#101719';ctx.lineWidth=Math.max(1,s*.045);ctx.beginPath();ctx.moveTo(-s*.68,s*.31);ctx.quadraticCurveTo(-s*.87,s*.42,-s*.75,s*.54);ctx.lineTo(-s*.55,s*.57);ctx.stroke();
-ctx.strokeStyle='#a2afa1';ctx.lineWidth=Math.max(.45,s*.014);ctx.beginPath();ctx.moveTo(-s*.68,s*.31);ctx.quadraticCurveTo(-s*.87,s*.42,-s*.75,s*.54);ctx.lineTo(-s*.55,s*.57);ctx.stroke();
-for(let eye=0;eye<2;eye++){const ex=eye?-s*.55:-s*.68,ey=eye?s*.57:s*.31;ctx.fillStyle='#101719';ctx.beginPath();ctx.arc(ex,ey,s*.045,0,TAU);ctx.fill();ctx.strokeStyle='#b9c4b5';ctx.lineWidth=Math.max(.5,s*.016);ctx.beginPath();ctx.arc(ex,ey,s*.025,0,TAU);ctx.stroke()}
-/* Per-role silhouettes: smoke launchers, spare track, reconnaissance optics, or support kit. */
-if(heavy||role==='brawler'){
- for(let side=-1;side<=1;side+=2){
-  ctx.fillStyle='#141e21';ctx.beginPath();ctx.roundRect(s*.19,side*s*.28,s*.17,s*.105,s*.025);ctx.fill();
-  for(let tube=0;tube<3;tube++){ctx.fillStyle='#68766a';ctx.beginPath();ctx.arc(s*(.22+tube*.045),side*s*.31,s*.022,0,TAU);ctx.fill()}
- }
-}else if(scout){
- ctx.fillStyle='#10191c';ctx.beginPath();ctx.roundRect(-s*.23,-s*.39,s*.27,s*.13,s*.025);ctx.fill();
- ctx.fillStyle='#7ee6ef';ctx.beginPath();ctx.arc(-s*.12,-s*.325,s*.035,0,TAU);ctx.fill();
- ctx.fillStyle='#263b3e';ctx.fillRect(-s*.18,-s*.365,s*.1,s*.018);
-}else if(laser){
- ctx.fillStyle='#111b20';ctx.beginPath();ctx.roundRect(-s*.1,-s*.4,s*.27,s*.12,s*.025);ctx.fill();
- ctx.strokeStyle='#8ddce9';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke();
- ctx.fillStyle='#a2eaf2';ctx.fillRect(-s*.055,-s*.37,s*.18,s*.035);
-}else if(support){
- ctx.fillStyle='#152123';ctx.beginPath();ctx.roundRect(-s*.45,s*.12,s*.18,s*.17,s*.025);ctx.fill();
- ctx.strokeStyle='#8edbd1';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke();
- ctx.fillStyle='#7be3d1';ctx.fillRect(-s*.415,s*.17,s*.11,s*.025);
-}
-/* Small warning chevrons and serial plates, kept matte so they don't read as UI. */
-ctx.fillStyle=heavy?'#d2b67a':scout?'#d2e49a':laser?'#8fdbe9':support?'#9ce0d2':'#c8d4bd';
-ctx.globalAlpha=.8;
-for(let mark=0;mark<2;mark++){const mx=s*(.43+mark*.065),my=-s*.27;ctx.beginPath();ctx.moveTo(mx-s*.02,my-s*.025);ctx.lineTo(mx+s*.02,my);ctx.lineTo(mx-s*.02,my+s*.025);ctx.closePath();ctx.fill()}
-ctx.globalAlpha=1;
-/* Paint chips and soot near the exhaust, deterministic per model. */
-ctx.fillStyle='#10171588';ctx.beginPath();ctx.ellipse(-s*.34,s*.27,s*.12,s*.045,-.25,0,TAU);ctx.fill();
-ctx.fillStyle='#d8dfcb55';ctx.fillRect(s*.39,-s*.07,s*.035,s*.14);
+/* Hull: tapered front, raised armor shoulders and a strong top-light bevel. */
+const hull=ctx.createLinearGradient(-s*.3,-s*.55,s*.25,s*.58);
+hull.addColorStop(0,light);hull.addColorStop(.18,mid);hull.addColorStop(.56,base);hull.addColorStop(1,dark);
+ctx.fillStyle='#101819';ctx.beginPath();
+ctx.moveTo(-s*.78,-s*hullH*.63);ctx.lineTo(-s*.57,-s*hullH);ctx.lineTo(s*.49,-s*hullH*.92);
+ctx.lineTo(s*.79,-s*hullH*.47);ctx.lineTo(s*.77,s*hullH*.52);ctx.lineTo(s*.49,s*hullH*.91);
+ctx.lineTo(-s*.57,s*hullH);ctx.lineTo(-s*.78,s*hullH*.62);ctx.closePath();ctx.fill();
+ctx.fillStyle=hull;ctx.beginPath();
+ctx.moveTo(-s*.72,-s*hullH*.57);ctx.lineTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);
+ctx.lineTo(s*.68,-s*hullH*.38);ctx.lineTo(s*.66,s*hullH*.39);ctx.lineTo(s*.43,s*hullH*.74);
+ctx.lineTo(-s*.52,s*hullH*.82);ctx.lineTo(-s*.72,s*hullH*.55);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#e0e4c5a8';ctx.lineWidth=Math.max(.8,s*.035);ctx.stroke();
+/* Large front glacis and rear engine deck distinguish the vehicle at gameplay scale. */
+ctx.fillStyle=light;ctx.globalAlpha=.72;ctx.beginPath();ctx.moveTo(s*.18,-s*hullH*.72);ctx.lineTo(s*.49,-s*hullH*.66);ctx.lineTo(s*.65,-s*hullH*.34);ctx.lineTo(s*.58,s*hullH*.3);ctx.lineTo(s*.43,s*hullH*.58);ctx.lineTo(s*.17,s*hullH*.63);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
+ctx.fillStyle='#1a2523';ctx.beginPath();ctx.roundRect(-s*.61,-s*hullH*.44,s*.31,s*hullH*.88,s*.04);ctx.fill();
+for(let i=0;i<3;i++){ctx.fillStyle='#9da68e';ctx.fillRect(-s*.56+i*s*.075,-s*hullH*.3,s*.035,s*hullH*.6)}
+/* Role-specific upper hull: heavy gets broad shoulder armor; scout stays compact; sniper is long and low. */
+if(heavy){ctx.fillStyle='#303a31';ctx.beginPath();ctx.moveTo(-s*.45,-s*.44);ctx.lineTo(-s*.25,-s*.62);ctx.lineTo(s*.48,-s*.58);ctx.lineTo(s*.62,-s*.35);ctx.lineTo(s*.58,s*.35);ctx.lineTo(s*.4,s*.56);ctx.lineTo(-s*.3,s*.56);ctx.lineTo(-s*.48,s*.34);ctx.closePath();ctx.fill();ctx.strokeStyle='#a7ad91';ctx.lineWidth=Math.max(.8,s*.025);ctx.stroke()}
+if(laser){ctx.fillStyle='#172329';ctx.beginPath();ctx.moveTo(-s*.61,-s*.35);ctx.lineTo(s*.35,-s*.4);ctx.lineTo(s*.58,-s*.23);ctx.lineTo(s*.56,s*.23);ctx.lineTo(s*.32,s*.4);ctx.lineTo(-s*.61,s*.35);ctx.closePath();ctx.fill();ctx.fillStyle='#84969a';ctx.beginPath();ctx.moveTo(-s*.42,-s*.3);ctx.lineTo(s*.32,-s*.33);ctx.lineTo(s*.46,-s*.16);ctx.lineTo(s*.42,s*.16);ctx.lineTo(s*.28,s*.3);ctx.lineTo(-s*.42,s*.27);ctx.closePath();ctx.fill();ctx.strokeStyle='#d5e0d8';ctx.lineWidth=Math.max(.7,s*.022);ctx.stroke()}
+/* Turret and barrel rotate independently from the hull. */
+ctx.save();ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
+const turretW=heavy?1.08:scout?.68:laser?.86:support?.86:.88;
+const turretH=heavy?.72:scout?.48:laser?.43:support?.56:.55;
+const tx=heavy?.02:laser?-.05:.0,ty=0;
+const turretTop=-s*turretH*.5,turretLeft=s*tx-s*turretW*.5;
+/* Long gun silhouette first; sniper has a visibly extended barrel. */
+const barrelLen=s*(laser?1.78:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(laser?.115:heavy?.19:scout?.105:.135);
+ctx.fillStyle='#0a1113';ctx.beginPath();ctx.roundRect(s*(tx+.16),-barrelH*.7,barrelLen,barrelH*1.4,barrelH*.2);ctx.fill();
+const barrel=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);barrel.addColorStop(0,'#c4cfc0');barrel.addColorStop(.22,laser?'#8ea6b0':'#7d8c7b');barrel.addColorStop(.55,'#43534b');barrel.addColorStop(1,'#172124');
+ctx.fillStyle=barrel;ctx.beginPath();ctx.roundRect(s*(tx+.18),-barrelH*.43,barrelLen-s*.03,barrelH*.86,barrelH*.13);ctx.fill();
+ctx.fillStyle='#1b2628';ctx.beginPath();ctx.roundRect(s*(tx+.35),-barrelH*.62,s*(laser?.12:.16),barrelH*1.24,s*.025);ctx.fill();
+ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(s*(tx+.18)+barrelLen-s*.12,-barrelH*.66,s*.14,barrelH*1.32,s*.025);ctx.fill();
+ctx.fillStyle='#020607';ctx.beginPath();ctx.ellipse(s*(tx+.18)+barrelLen+s*.015,0,s*.035,barrelH*.31,0,0,TAU);ctx.fill();
+/* Turret silhouette has broad angled faces, a heavy mantlet and one dominant hatch. */
+ctx.fillStyle='#11191b';ctx.beginPath();ctx.moveTo(turretLeft+s*.1,turretTop+s*.08);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();ctx.fill();
+const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
+ctx.fillStyle=tm;ctx.beginPath();ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#d8e1c8';ctx.lineWidth=Math.max(.8,s*.03);ctx.stroke();
+/* Distinct reinforced gun mantlet. */
+ctx.fillStyle='#151f21';ctx.beginPath();ctx.roundRect(s*(tx+.19),-s*(heavy?.23:.17),s*(heavy?.3:.24),s*(heavy?.46:.34),s*.07);ctx.fill();
+ctx.fillStyle=light;ctx.globalAlpha=.82;ctx.beginPath();ctx.roundRect(s*(tx+.21),-s*(heavy?.18:.135),s*(heavy?.24:.19),s*(heavy?.36:.27),s*.05);ctx.fill();ctx.globalAlpha=1;
+ctx.strokeStyle='#dce4d0';ctx.lineWidth=Math.max(.7,s*.024);ctx.stroke();
+/* One oversized hatch and one role-identifying optic; small decorative fittings are intentionally omitted. */
+ctx.fillStyle='#101719';ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.015,s*(heavy?.18:.13),s*(heavy?.2:.15),-.2,0,TAU);ctx.fill();
+ctx.fillStyle=mid;ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.03,s*(heavy?.14:.095),s*(heavy?.15:.105),-.2,0,TAU);ctx.fill();ctx.strokeStyle='#d4ddc8';ctx.lineWidth=Math.max(.6,s*.02);ctx.stroke();
+ctx.fillStyle='#172225';ctx.beginPath();ctx.roundRect(s*(tx-.37),-s*turretH*.31,s*.18,s*.13,s*.025);ctx.fill();
+ctx.fillStyle=scout?'#c8ef8e':laser?'#b6efff':support?'#a2e6d4':'#d7d7a1';ctx.beginPath();ctx.roundRect(s*(tx-.34),-s*turretH*.285,s*.12,s*.065,s*.02);ctx.fill();
+if(heavy){for(const side of [-1,1]){ctx.fillStyle='#202b28';ctx.beginPath();ctx.roundRect(turretLeft+s*.22,side*s*.21,s*.16,s*.12,s*.025);ctx.fill();ctx.fillStyle='#9ca78e';ctx.fillRect(turretLeft+s*.25,side*s*.245,s*.1,s*.035)}}
+if(support){ctx.fillStyle='#152225';ctx.beginPath();ctx.roundRect(turretLeft+s*.55,-s*.12,s*.13,s*.24,s*.025);ctx.fill();ctx.fillStyle='#83d7c6';ctx.fillRect(turretLeft+s*.58,-s*.06,s*.07,s*.12)}
 ctx.restore();
+/* Readable role silhouette and paint marks; no dense bolt fields or tiny stencils. */
+if(heavy){ctx.fillStyle='#a6a27a';ctx.beginPath();ctx.roundRect(-s*.36,-s*.5,s*.22,s*.12,s*.025);ctx.fill();ctx.beginPath();ctx.roundRect(-s*.36,s*.38,s*.22,s*.12,s*.025);ctx.fill()}
+if(scout){ctx.strokeStyle='#d7e4b4';ctx.lineWidth=Math.max(.8,s*.025);ctx.beginPath();ctx.moveTo(-s*.47,-s*.3);ctx.lineTo(-s*.58,-s*.62);ctx.stroke();ctx.fillStyle='#9ce7f1';ctx.beginPath();ctx.arc(-s*.58,-s*.62,s*.045,0,TAU);ctx.fill()}
+if(laser){ctx.fillStyle='#a3b5b8';ctx.beginPath();ctx.roundRect(-s*.36,-s*.25,s*.34,s*.12,s*.025);ctx.fill();ctx.fillStyle='#28383d';ctx.fillRect(-s*.31,-s*.22,s*.22,s*.055)}
+if(support){ctx.fillStyle='#172729';ctx.beginPath();ctx.roundRect(-s*.5,s*.19,s*.22,s*.18,s*.025);ctx.fill();ctx.fillStyle='#8ce2d0';ctx.fillRect(-s*.46,s*.25,s*.14,s*.04)}
+/* Small highlights are limited to a few edges so the large silhouette remains readable at phone scale. */
+ctx.strokeStyle='#d5dfc055';ctx.lineWidth=Math.max(.6,s*.018);ctx.beginPath();ctx.moveTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);ctx.moveTo(-s*.52,s*hullH*.82);ctx.lineTo(s*.43,s*hullH*.74);ctx.stroke();
 ctx.restore();
 }
 function renderTankPreviews(){if(document.hidden||ui.overlay.classList.contains('hidden'))return;const now=performance.now()*.00016;for(const cv of document.querySelectorAll('.tank-preview')){const c=cv.getContext('2d');if(!c)continue;const w=cv.width,h=cv.height,role=cv.dataset.previewTank,profile=tankProfiles[role]||tankProfiles.player;c.clearRect(0,0,w,h);const bg=c.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#16242b');bg.addColorStop(.52,'#0a1218');bg.addColorStop(1,'#182027');c.fillStyle=bg;c.fillRect(0,0,w,h);c.strokeStyle='#8cb3bf16';c.lineWidth=1;for(let x=0;x<w;x+=16){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<h;y+=16){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}const glow=c.createRadialGradient(w*.5,h*.57,3,w*.5,h*.57,82);glow.addColorStop(0,role==='support'?'#74ffcc2b':'#7adfff20');glow.addColorStop(1,'#00000000');c.fillStyle=glow;c.fillRect(0,0,w,h);c.save();c.translate(w*.5,h*.53);c.scale(1.5,1.5);const preview={...profile,team:'player',role,x:0,y:0,a:0,turret:0,hitFlash:0};const turn=now+({player:0,heavy:.28,scout:.57,sniper:.84,support:1.12}[role]||0);c.rotate(turn);drawTankModel(c,preview,1,0);c.restore();c.fillStyle='#d6edf1';c.font='bold 8px monospace';c.fillText('MTBA / FIELD MODEL',8,h-7)}}
