@@ -433,9 +433,8 @@ ctx.restore();
 }
 function renderTankPreviews(){if(document.hidden||ui.overlay.classList.contains('hidden'))return;const now=performance.now()*.00016;for(const cv of document.querySelectorAll('.tank-preview')){const c=cv.getContext('2d');if(!c)continue;const w=cv.width,h=cv.height,role=cv.dataset.previewTank,profile=tankProfiles[role]||tankProfiles.player;c.clearRect(0,0,w,h);const bg=c.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#16242b');bg.addColorStop(.52,'#0a1218');bg.addColorStop(1,'#182027');c.fillStyle=bg;c.fillRect(0,0,w,h);c.strokeStyle='#8cb3bf16';c.lineWidth=1;for(let x=0;x<w;x+=16){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<h;y+=16){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}const glow=c.createRadialGradient(w*.5,h*.57,3,w*.5,h*.57,82);glow.addColorStop(0,role==='support'?'#74ffcc2b':'#7adfff20');glow.addColorStop(1,'#00000000');c.fillStyle=glow;c.fillRect(0,0,w,h);c.save();c.translate(w*.5,h*.53);c.scale(1.5,1.5);const preview={...profile,team:'player',role,x:0,y:0,a:0,turret:0,hitFlash:0};const turn=now+(({player:0,heavy:.28,scout:.57,sniper:.84,support:1.12,ironclad:.18,demolisher:.42,viper:.68,wraith:.95,thunder:1.3})[role]||0);c.rotate(turn);drawTankModel(c,preview,1,0);c.restore();c.fillStyle='#d6edf1';c.font='bold 8px monospace';c.fillText('MTBA / FIELD MODEL',8,h-7)}}
 function drawTank(t){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.a);
-/* Combat readability pass r6: scale the shared model itself, not its hitbox. */
-const visualScale=t.role==='heavy'||t.role==='brawler'?1.72:t.role==='scout'?1.48:t.role==='sniper'?1.62:1.58;
-drawTankModel(ctx,t,visualScale,0);ctx.restore();}
+/* Preserve the accepted r14-r16 model proportions. Visual scale must not inflate the vehicle beyond its established silhouette. */
+drawTankModel(ctx,t,1,0);ctx.restore();}
 let groundGrainPattern=null;
 function getGroundGrainPattern(){
  if(groundGrainPattern)return groundGrainPattern;
