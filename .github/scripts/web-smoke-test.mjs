@@ -24,6 +24,35 @@ try {
   if (!fogSource.includes("function nearestThreat(t){let best=null,bd=Infinity;for(const e of enemies()")) throw new Error('Cover targeting must select enemies, not friendly tanks');
   if (fogSource.includes('Your tank has been disabled') || fogSource.includes("'REDEPLOY'")) throw new Error('Russian game-over text contains English fallback');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
+  const checkMobileLayout = async (width, height) => {
+    await page.setViewportSize({ width, height });
+    await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
+    await page.waitForTimeout(50);
+    const layout = await page.evaluate(() => {
+      const canvas = document.querySelector('#game').getBoundingClientRect();
+      const arena = document.querySelector('#arena-wrap').getBoundingClientRect();
+      const message = document.querySelector('#message').getBoundingClientRect();
+      const controls = [...document.querySelectorAll('#controls button')].map(button => {
+        const r = button.getBoundingClientRect();
+        return { id: button.id, top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+      });
+      return { canvasWidth: canvas.width, canvasHeight: canvas.height,
+        overflow: document.documentElement.scrollWidth > innerWidth,
+        messageBottom: message.bottom, arenaTop: arena.top, arenaBottom: arena.bottom, controls };
+    });
+    if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.overflow)
+      throw new Error('Mobile layout failed at ' + width + 'px: ' + JSON.stringify(layout));
+    for (const control of layout.controls) {
+      if (control.top < layout.arenaTop || control.bottom > layout.arenaBottom || control.left < 0 || control.right > innerWidth)
+        throw new Error('Control outside mobile viewport: ' + JSON.stringify({ control, layout }));
+      if (control.id !== 'fireBtn' && control.top < layout.messageBottom + 6)
+        throw new Error('Control overlaps mission message: ' + JSON.stringify({ control, layout }));
+    }
+  };
+  await checkMobileLayout(390, 844);
+  await checkMobileLayout(320, 640);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
   const supportClick = await page.evaluate(() => {
     const button = document.querySelector('[data-tank="support"]');
     return { disabled: button.disabled, tag: button.tagName, connected: button.isConnected, overlay: getComputedStyle(document.querySelector('#overlay')).display, scriptCount: document.scripts.length };
@@ -96,25 +125,6 @@ try {
   await page.locator('#resumeBtn').click();
   await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
   await page.setViewportSize({ width: 320, height: 640 });
-  const layout = await page.evaluate(() => {
-    const canvas = document.querySelector('#game').getBoundingClientRect();
-    const arena = document.querySelector('#arena-wrap').getBoundingClientRect();
-    const message = document.querySelector('#message').getBoundingClientRect();
-    const controls = [...document.querySelectorAll('#controls button')].map(button => {
-      const r = button.getBoundingClientRect();
-      return { id: button.id, top: r.top, bottom: r.bottom, left: r.left, right: r.right, width: r.width, height: r.height };
-    });
-    return { canvasWidth: canvas.width, canvasHeight: canvas.height,
-      overflow: document.documentElement.scrollWidth > innerWidth,
-      messageBottom: message.bottom, arenaTop: arena.top, arenaBottom: arena.bottom, controls };
-  });
-  if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.overflow) throw new Error('Mobile layout failed: ' + JSON.stringify(layout));
-  for (const control of layout.controls) {
-    if (control.top < layout.arenaTop || control.bottom > layout.arenaBottom || control.left < 0 || control.right > innerWidth)
-      throw new Error('Control outside mobile viewport: ' + JSON.stringify({ control, layout }));
-    if (control.id !== 'fireBtn' && control.top < layout.messageBottom + 6)
-      throw new Error('Control overlaps mission message: ' + JSON.stringify({ control, layout }));
-  }
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
   console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and mobile layout.');
 } finally {
