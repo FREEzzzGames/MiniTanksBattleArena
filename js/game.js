@@ -128,7 +128,7 @@ const hullPath=()=>{
  ctx.closePath();
 };
 /* Directional cast shadow follows the actual hull silhouette instead of a generic oval. */
-ctx.save();ctx.translate(s*.27,s*.43);ctx.shadowColor='#020503b8';ctx.shadowBlur=Math.max(2,s*.22);ctx.fillStyle='#0205039c';hullPath();ctx.fill();ctx.shadowBlur=0;ctx.translate(-s*.1,-s*.12);ctx.globalAlpha=.34;hullPath();ctx.fill();ctx.restore();
+ctx.save();ctx.translate(s*.27,s*.43);ctx.shadowColor='#020503b8';ctx.shadowBlur=Math.max(2,s*.22);ctx.fillStyle='#0205039c';hullPath();ctx.fill();ctx.fillRect(-s*.99,-s*.48,s*.2,s*.98);ctx.fillRect(s*.79,-s*.48,s*.2,s*.98);ctx.shadowBlur=0;ctx.save();ctx.rotate((t.turret||t.a||0)-(t.a||0));ctx.fillStyle='#0205039c';ctx.fillRect(s*.04,-s*.13,s*(heavy?1.03:.84),s*.26);ctx.beginPath();ctx.roundRect(-s*.36,-s*.29,s*.72,s*.58,4);ctx.fill();ctx.restore();ctx.translate(-s*.1,-s*.12);ctx.globalAlpha=.34;hullPath();ctx.fill();ctx.restore();
 /* Pseudo-3D cast hull: dark lower sidewall, bevel lip and a lit upper plate. */
 ctx.save();ctx.translate(0,s*.13);hullPath();
 const sideMetal=ctx.createLinearGradient(-s*.8,0,s*.8,s*.3);
@@ -419,7 +419,7 @@ function drawSoldierShadow(s){
 function drawSoldier(s){
  if(!s.alive)return;
  const hidden=soldierHidden(s),alpha=hidden?.52:1,team=s.faction==='alpha',accent=team?'#56dcff':'#ff5a60',armor=team?'#526d76':'#77664a',dark=team?'#172a31':'#30281d',light=team?'#9fb7b7':'#b7a27b',stride=Math.sin(s.phase)*1.25;
- ctx.save();ctx.globalAlpha=alpha;drawSoldierShadow(s);ctx.translate(s.x,s.y+Math.sin(s.phase)*.35);ctx.rotate(s.a-Math.PI/2);
+ ctx.save();ctx.globalAlpha=alpha;drawSoldierShadow(s);ctx.translate(s.x,s.y+Math.sin(s.phase)*.35);ctx.rotate(s.a-Math.PI/2);ctx.scale(.8,.8);
  ctx.fillStyle='#111719';ctx.beginPath();ctx.ellipse(-2.1,3.6+stride,1.8,3.2,-.18,0,TAU);ctx.ellipse(2.1,3.6-stride,1.8,3.2,.18,0,TAU);ctx.fill();
  ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(-2.1,3.5+stride,1.15,2.5,0,0,TAU);ctx.ellipse(2.1,3.5-stride,1.15,2.5,0,0,TAU);ctx.fill();
  ctx.fillStyle='#101618';ctx.beginPath();ctx.roundRect(2.3,-8.8,1.25,8.5,.45);ctx.fill();ctx.fillStyle='#88938a';ctx.fillRect(2.45,-10.6,.75,4.5);ctx.fillStyle='#242b29';ctx.fillRect(2.15,-3.8,1.5,2.5);
