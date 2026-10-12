@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r11.
+/* MTBA layered tank renderer r12.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -133,6 +133,12 @@ for(const side of [-1,1]){
  belt.addColorStop(0,'#667067');belt.addColorStop(.24,'#242d2b');belt.addColorStop(.72,'#101718');belt.addColorStop(1,'#566057');
  ctx.fillStyle=belt;ctx.beginPath();ctx.roundRect(-s*.81,y-s*.17,s*1.62,s*.34,s*.12);ctx.fill();
  ctx.strokeStyle='#9ba393';ctx.lineWidth=Math.max(.7,s*.026);ctx.stroke();
+ /* Recessed belt edges and a contact-darkened lower run anchor the tracks to the terrain. */
+ ctx.strokeStyle='#070d0e';ctx.globalAlpha=.82;ctx.lineWidth=Math.max(1,s*.035);
+ ctx.beginPath();ctx.moveTo(-s*.69,y+side*s*.125);ctx.lineTo(s*.68,y+side*s*.125);ctx.stroke();
+ ctx.strokeStyle='#9ca694';ctx.globalAlpha=.42;ctx.lineWidth=Math.max(.6,s*.015);
+ ctx.beginPath();ctx.moveTo(-s*.68,y-side*s*.13);ctx.lineTo(s*.66,y-side*s*.13);ctx.stroke();
+ ctx.globalAlpha=1;
  for(let i=0;i<5;i++){
   const x=-s*.58+i*s*.29;
   ctx.fillStyle='#121a1b';ctx.beginPath();ctx.arc(x,y,s*.115,0,TAU);ctx.fill();
@@ -246,7 +252,14 @@ const barrelLen=s*(laser?1.78:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(
 ctx.fillStyle='#0a1113';ctx.beginPath();ctx.roundRect(s*(tx+.16),-barrelH*.7,barrelLen,barrelH*1.4,barrelH*.2);ctx.fill();
 const barrel=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);barrel.addColorStop(0,'#c4cfc0');barrel.addColorStop(.22,laser?'#8ea6b0':'#7d8c7b');barrel.addColorStop(.55,'#43534b');barrel.addColorStop(1,'#172124');
 ctx.fillStyle=barrel;ctx.beginPath();ctx.roundRect(s*(tx+.18),-barrelH*.43,barrelLen-s*.03,barrelH*.86,barrelH*.13);ctx.fill();
+/* Heat sleeve and two restrained machined bands catch light across the barrel. */
 ctx.fillStyle='#1b2628';ctx.beginPath();ctx.roundRect(s*(tx+.35),-barrelH*.62,s*(laser?.12:.16),barrelH*1.24,s*.025);ctx.fill();
+ctx.strokeStyle='#b8c4b3';ctx.globalAlpha=.52;ctx.lineWidth=Math.max(.6,s*.018);
+for(const band of [laser?.76:.66,laser?1.08:.94]){
+ const bx=s*(tx+.18)+barrelLen*band;
+ ctx.beginPath();ctx.moveTo(bx,-barrelH*.4);ctx.lineTo(bx,barrelH*.4);ctx.stroke();
+}
+ctx.globalAlpha=1;
 ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(s*(tx+.18)+barrelLen-s*.12,-barrelH*.66,s*.14,barrelH*1.32,s*.025);ctx.fill();
 ctx.fillStyle='#020607';ctx.beginPath();ctx.ellipse(s*(tx+.18)+barrelLen+s*.015,0,s*.035,barrelH*.31,0,0,TAU);ctx.fill();
 /* Distinct reinforced gun mantlet. */
@@ -256,6 +269,9 @@ ctx.strokeStyle='#dce4d0';ctx.lineWidth=Math.max(.7,s*.024);ctx.stroke();
 /* One oversized hatch and one role-identifying optic; small decorative fittings are intentionally omitted. */
 ctx.fillStyle='#101719';ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.015,s*(heavy?.18:.13),s*(heavy?.2:.15),-.2,0,TAU);ctx.fill();
 ctx.fillStyle=mid;ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.03,s*(heavy?.14:.095),s*(heavy?.15:.105),-.2,0,TAU);ctx.fill();ctx.strokeStyle='#d4ddc8';ctx.lineWidth=Math.max(.6,s*.02);ctx.stroke();
+/* Hatch hinge and periscope glass: high-contrast forms readable at small scale. */
+ctx.strokeStyle='#1a2524';ctx.lineWidth=Math.max(.8,s*.025);
+ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.015,s*(heavy?.18:.13),s*(heavy?.2:.15),-.2,Math.PI*1.12,Math.PI*1.82);ctx.stroke();
 ctx.fillStyle='#172225';ctx.beginPath();ctx.roundRect(s*(tx-.37),-s*turretH*.31,s*.18,s*.13,s*.025);ctx.fill();
 ctx.fillStyle=scout?'#c8ef8e':laser?'#b6efff':support?'#a2e6d4':'#d7d7a1';ctx.beginPath();ctx.roundRect(s*(tx-.34),-s*turretH*.285,s*.12,s*.065,s*.02);ctx.fill();
 if(heavy){ctx.fillStyle='#9ca78e';ctx.beginPath();ctx.roundRect(turretLeft+s*.28,-s*.055,s*.14,s*.11,s*.025);ctx.fill();}
