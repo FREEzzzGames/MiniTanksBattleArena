@@ -114,7 +114,7 @@ ctx.save();ctx.rotate(rotation);ctx.scale(scale,scale);
 const hw=heavy?2.34:scout?1.94:2.16,trackY=heavy?.47:scout?.405:.445,trackH=heavy?.31:scout?.255:.285;
 const trackTop=-s*trackY-trackH*s*.5;
 const trackBottom=s*trackY-trackH*s*.5;
-/* Continuous track belts with visible end wheels and road wheels, not floating dots. */
+/* Paired side tracks: continuous belts with visible end wheels and road wheels, not floating dots. */
 for(const side of [-1,1]){
  const ty=side*s*trackY;
  ctx.fillStyle='#080f12';ctx.beginPath();ctx.roundRect(-s*hw*.5,ty-s*trackH*s*.5,s*hw,trackH*s,Math.max(1,s*.075));ctx.fill();
@@ -243,31 +243,89 @@ for(let vent=0;vent<3;vent++){ctx.strokeStyle='#89988a88';ctx.lineWidth=.65;ctx.
 ctx.fillStyle='#161d1b70';ctx.beginPath();ctx.ellipse(s*.29,0,s*.09,s*.2,.1,0,TAU);ctx.fill();
 
 for(const [bx,by] of [[-.67,-.35],[.65,-.35],[-.67,.35],[.65,.35]]){ctx.fillStyle='#d7dfd0a0';ctx.beginPath();ctx.arc(s*bx,s*by,s*.04,0,TAU);ctx.fill()}
-ctx.save();ctx.rotate((t.turret||t.a||0)-(t.a||0));
-/* Role-specific turret geometry and readable silhouettes. */
-if(heavy){ctx.fillStyle='#252e2d';ctx.beginPath();ctx.roundRect(-s*.56,-s*.48,s*1.12,s*.96,5);ctx.fill();ctx.strokeStyle='#d5b77b88';ctx.lineWidth=1.5;ctx.stroke();for(const side of [-1,1]){ctx.fillStyle='#e0a24d';ctx.fillRect(-s*.34,side*s*.34,s*.2,s*.08)}}
-else if(scout){ctx.fillStyle='#151a22';ctx.beginPath();ctx.moveTo(-s*.45,-s*.35);ctx.lineTo(s*.22,-s*.42);ctx.lineTo(s*.5,-s*.12);ctx.lineTo(s*.42,s*.3);ctx.lineTo(-s*.28,s*.36);ctx.closePath();ctx.fill();ctx.strokeStyle='#d6a8ff';ctx.lineWidth=1.2;ctx.stroke()}
-else if(laser){ctx.fillStyle='#172832';ctx.beginPath();ctx.roundRect(-s*.48,-s*.43,s*.96,s*.86,4);ctx.fill();ctx.strokeStyle='#65eaff';ctx.lineWidth=1.3;ctx.stroke()}
-else if(support){ctx.fillStyle='#1d2930';ctx.beginPath();ctx.roundRect(-s*.48,-s*.42,s*.96,s*.84,5);ctx.fill();ctx.strokeStyle='#9defff';ctx.lineWidth=1.3;ctx.stroke();ctx.fillStyle='#65eaff';ctx.beginPath();ctx.arc(-s*.18,0,s*.09,0,TAU);ctx.fill()}
-else{ctx.fillStyle='#10191d';ctx.beginPath();ctx.roundRect(-s*.44,-s*.39,s*.88,s*.78,4);ctx.fill()}
-const turretPaint=ctx.createLinearGradient(-s*.2,-s*.31,s*.24,s*.34);turretPaint.addColorStop(0,'#d5ddcd');turretPaint.addColorStop(.16,'#a4b4a5');turretPaint.addColorStop(.3,base);turretPaint.addColorStop(.7,'#3c4b46');turretPaint.addColorStop(1,'#111b1e');ctx.save();ctx.translate(0,s*.055);ctx.fillStyle='#0a1114a8';ctx.beginPath();ctx.roundRect(-s*.36,-s*.28,s*.72,s*.61,Math.max(2,s*.1));ctx.fill();ctx.restore();ctx.fillStyle=turretPaint;ctx.beginPath();ctx.roundRect(-s*.34,-s*.29,s*.68,s*.58,4);ctx.fill();ctx.strokeStyle='#dce4d2a0';ctx.lineWidth=Math.max(.55,s*.022);ctx.stroke();ctx.strokeStyle='#10191b';ctx.lineWidth=Math.max(.8,s*.035);ctx.beginPath();ctx.moveTo(-s*.27,s*.19);ctx.lineTo(s*.24,s*.19);ctx.stroke();ctx.save();ctx.translate(-s*Math.min(.16,Math.max(0,t.recoil||0))*.55,0);if(laser){const tube=ctx.createLinearGradient(0,-s*.13,0,s*.13);tube.addColorStop(0,'#172d37');tube.addColorStop(.45,'#75969b');tube.addColorStop(1,'#101e26');ctx.fillStyle=tube;ctx.fillRect(s*.08,-s*.13,s*1.02,s*.26);ctx.fillStyle='#69e4ff';ctx.fillRect(s*.15,-s*.045,s*.98,s*.09)}else if(support){ctx.fillStyle='#263b3b';ctx.fillRect(s*.1,-s*.12,s*.64,s*.24);ctx.fillStyle='#bfe8dc';ctx.fillRect(s*.1,-s*.075,s*.62,s*.15);ctx.fillStyle='#6cf1d4';ctx.beginPath();ctx.arc(s*.3,0,s*.13,0,TAU);ctx.fill()}else{const barrel=ctx.createLinearGradient(0,-s*.13,0,s*.13);barrel.addColorStop(0,'#d0d8ca');barrel.addColorStop(.24,scout?'#d8ed9a':'#a9b8ad');barrel.addColorStop(.7,'#52625a');barrel.addColorStop(1,'#202c2a');ctx.fillStyle=barrel;ctx.fillRect(s*.05,-s*.13,s*(heavy?1.03:.84),s*.26);ctx.fillStyle='#e7eee5';ctx.fillRect(s*(heavy?1:.78),-s*.08,s*.2,s*.16);ctx.fillStyle='#182224';ctx.fillRect(s*(heavy?1.15:.92),-s*.052,s*.055,s*.104);ctx.fillStyle='#aeb9ad';ctx.fillRect(s*(heavy?1.04:.82),-s*.15,s*.12,s*.3)}ctx.restore();ctx.fillStyle='#17272b';ctx.beginPath();ctx.arc(0,0,s*.14,0,TAU);ctx.fill();ctx.strokeStyle='#0a1214';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,s*.29,0,TAU);ctx.stroke();
-/* Per-vehicle fittings: bolts, optics, exhausts and armor seams. */
-ctx.strokeStyle='#e3eee044';ctx.lineWidth=Math.max(.7,s*.025);ctx.beginPath();ctx.moveTo(-s*.25,-s*.24);ctx.lineTo(s*.22,-s*.24);ctx.moveTo(-s*.25,s*.24);ctx.lineTo(s*.22,s*.24);ctx.stroke();
-if(heavy){for(const side of [-1,1]){ctx.fillStyle='#f3ad50';ctx.beginPath();ctx.arc(-s*.28,side*s*.42,s*.055,0,TAU);ctx.fill()}ctx.fillStyle='#ffb44b';ctx.fillRect(s*.25,-s*.43,s*.13,s*.07);ctx.fillRect(s*.25,s*.36,s*.13,s*.07)}
-else if(scout){ctx.fillStyle='#d9a3ff';ctx.beginPath();ctx.arc(-s*.28,-s*.32,s*.07,0,TAU);ctx.fill();ctx.fillStyle='#6d4e91';ctx.fillRect(-s*.48,s*.37,s*.2,s*.06)}
-else if(laser){ctx.fillStyle='#6beaff';ctx.beginPath();ctx.arc(-s*.25,-s*.3,s*.065,0,TAU);ctx.fill();ctx.beginPath();ctx.arc(-s*.25,s*.3,s*.065,0,TAU);ctx.fill()}
-else if(support){ctx.strokeStyle='#83e8ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,s*.37,0,TAU);ctx.stroke();ctx.fillStyle='#83e8ff';ctx.fillRect(-s*.07,-s*.07,s*.14,s*.14)}
-else{ctx.fillStyle='#e2f4c8';ctx.fillRect(-s*.42,-s*.4,s*.12,s*.06);ctx.fillRect(-s*.42,s*.34,s*.12,s*.06)}
-/* Turret cast-metal shading, mantlet, barrel collar and muzzle opening. */
+/* Rebuilt turret: a single readable armored assembly with a distinct mantlet and cannon. */
 ctx.save();
-const metal=ctx.createLinearGradient(-s*.35,-s*.3,s*.38,s*.32);
-metal.addColorStop(0,'#c5d0c3');metal.addColorStop(.22,base);metal.addColorStop(.58,'#46544e');metal.addColorStop(1,'#151f22');
-ctx.fillStyle=metal;ctx.beginPath();ctx.roundRect(-s*.32,-s*.27,s*.64,s*.54,Math.max(2,s*.09));ctx.fill();
-ctx.strokeStyle='#d5e0d288';ctx.lineWidth=Math.max(.6,s*.025);ctx.stroke();
-ctx.fillStyle='#182326';ctx.beginPath();ctx.arc(0,0,s*.19,0,TAU);ctx.fill();
-ctx.fillStyle='#7c8e84';ctx.beginPath();ctx.arc(0,0,s*.135,0,TAU);ctx.fill();
-ctx.fillStyle='#25353a';ctx.beginPath();ctx.arc(0,0,s*.085,0,TAU);ctx.fill();
-ctx.fillStyle=laser?'#64dff0':support?'#8be9e0':scout?'#d8b1ff':'#d8e2d2';ctx.beginPath();ctx.arc(0,0,s*.035,0,TAU);ctx.fill();
+ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
+const turretW=heavy?1.16:scout?.78:laser?1.02:support?.96:.94;
+const turretH=heavy?.82:scout?.62:laser?.68:support?.72:.68;
+const turretX=heavy?.04:.02;
+const turretTop=-s*turretH*.5,turretLeft=s*turretX-s*turretW*.5;
+/* Turret's cast shadow separates it from the hull. */
+ctx.save();ctx.translate(s*.055,s*.075);
+ctx.fillStyle='#030809a8';ctx.beginPath();
+ctx.moveTo(turretLeft+s*.13,turretTop+s*.06);
+ctx.lineTo(turretLeft+s*turretW*.79,turretTop+s*.06);
+ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.31);
+ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.82);
+ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*turretH);
+ctx.lineTo(turretLeft+s*.09,turretTop+s*turretH*.91);
+ctx.lineTo(turretLeft,turretTop+s*turretH*.65);
+ctx.lineTo(turretLeft+s*.025,turretTop+s*turretH*.25);
+ctx.closePath();ctx.fill();ctx.restore();
+/* Barrel sits beneath the mantlet so the connection reads as a real gun assembly. */
+const barrelLen=s*(laser?1.32:heavy?1.15:scout?.91:support?.72:.99);
+const barrelH=s*(heavy?.19:laser?.105:scout?.115:.14);
+ctx.save();ctx.translate(s*(turretX+.13),0);
+/* Barrel shadow and lower steel edge. */
+ctx.fillStyle='#050b0d';ctx.beginPath();ctx.roundRect(0,-barrelH*.52,barrelLen+s*.08,barrelH*1.2,barrelH*.18);ctx.fill();
+const barrelMetal=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);
+barrelMetal.addColorStop(0,'#d5dfd1');barrelMetal.addColorStop(.18,laser?'#8299a3':heavy?'#89968a':'#91a296');
+barrelMetal.addColorStop(.48,'#45564f');barrelMetal.addColorStop(.78,'#273530');barrelMetal.addColorStop(1,'#10191c');
+ctx.fillStyle=barrelMetal;ctx.beginPath();ctx.roundRect(0,-barrelH*.43,barrelLen,barrelH*.86,barrelH*.16);ctx.fill();
+ctx.strokeStyle='#d7e1d477';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
+/* Breech collar and muzzle brake are deliberately wider than the barrel. */
+ctx.fillStyle='#182326';ctx.beginPath();ctx.roundRect(barrelLen*.17,-barrelH*.62,barrelH*.72,barrelH*1.24,barrelH*.12);ctx.fill();
+ctx.fillStyle='#87978b';ctx.fillRect(barrelLen*.17,-barrelH*.47,barrelH*.25,barrelH*.94);
+ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(barrelLen-s*.015,-barrelH*.65,s*(heavy?.17:.13),barrelH*1.3,barrelH*.12);ctx.fill();
+ctx.strokeStyle='#a9b7a9';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
+ctx.fillStyle='#03080a';ctx.beginPath();ctx.ellipse(barrelLen+s*(heavy?.065:.05),0,s*(heavy?.035:.027),barrelH*.34,0,0,TAU);ctx.fill();
+ctx.strokeStyle='#c7d1c5';ctx.lineWidth=Math.max(.4,s*.012);ctx.beginPath();ctx.ellipse(barrelLen+s*(heavy?.065:.05),0,s*(heavy?.035:.027),barrelH*.34,0,0,TAU);ctx.stroke();
+ctx.restore();
+/* Low angular turret shell with sloped front cheeks and bevel-lit edges. */
+const turretMetal=ctx.createLinearGradient(-s*.48,-s*.42,s*.48,s*.42);
+turretMetal.addColorStop(0,heavy?'#c3b991':scout?'#b4c987':laser?'#b0c0c8':support?'#b2d1c8':'#b8c7b8');
+turretMetal.addColorStop(.2,base);turretMetal.addColorStop(.52,heavy?'#667266':'#56675e');
+turretMetal.addColorStop(.82,'#303e39');turretMetal.addColorStop(1,'#111a1d');
+ctx.fillStyle='#11191c';ctx.beginPath();
+ctx.moveTo(turretLeft+s*.12,turretTop+s*.02);
+ctx.lineTo(turretLeft+s*turretW*.77,turretTop+s*.02);
+ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.27);
+ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.78);
+ctx.lineTo(turretLeft+s*turretW*.73,turretTop+s*turretH);
+ctx.lineTo(turretLeft+s*.1,turretTop+s*turretH*.91);
+ctx.lineTo(turretLeft,turretTop+s*turretH*.62);
+ctx.lineTo(turretLeft+s*.025,turretTop+s*turretH*.25);
+ctx.closePath();ctx.fill();
+ctx.fillStyle=turretMetal;ctx.beginPath();
+ctx.moveTo(turretLeft+s*.14,turretTop+s*.07);
+ctx.lineTo(turretLeft+s*turretW*.75,turretTop+s*.07);
+ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.3);
+ctx.lineTo(turretLeft+s*turretW*.83,turretTop+s*turretH*.72);
+ctx.lineTo(turretLeft+s*turretW*.68,turretTop+s*turretH*.87);
+ctx.lineTo(turretLeft+s*.14,turretTop+s*turretH*.8);
+ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.59);
+ctx.lineTo(turretLeft+s*.08,turretTop+s*turretH*.27);
+ctx.closePath();ctx.fill();
+ctx.strokeStyle='#dbe5d69a';ctx.lineWidth=Math.max(.7,s*.026);ctx.stroke();
+/* Armored gun mantlet: the cannon visibly emerges from this reinforced block. */
+ctx.fillStyle='#131d20';ctx.beginPath();ctx.roundRect(s*(turretX+.23),-s*(heavy?.25:.2),s*(heavy?.32:.25),s*(heavy?.5:.4),s*.06);ctx.fill();
+const mantlet=ctx.createLinearGradient(0,-s*.2,0,s*.2);
+mantlet.addColorStop(0,'#b9c6b8');mantlet.addColorStop(.25,base);mantlet.addColorStop(.72,'#4b5c53');mantlet.addColorStop(1,'#172225');
+ctx.fillStyle=mantlet;ctx.beginPath();ctx.roundRect(s*(turretX+.22),-s*(heavy?.22:.17),s*(heavy?.29:.22),s*(heavy?.44:.34),s*.05);ctx.fill();
+ctx.strokeStyle='#dce6d4a0';ctx.lineWidth=Math.max(.55,s*.02);ctx.stroke();
+/* Crew hatch and per-class optics: a few large readable forms, not scattered micro-detail. */
+ctx.fillStyle='#11191c';ctx.beginPath();ctx.ellipse(s*(turretX-.12),0,s*(heavy?.17:.135),s*(heavy?.22:.17),-.18,0,TAU);ctx.fill();
+ctx.fillStyle=heavy?'#849080':scout?'#8caa66':laser?'#71838d':support?'#789d96':'#7c9180';ctx.beginPath();ctx.ellipse(s*(turretX-.12),-s*.012,s*(heavy?.13:.1),s*(heavy?.16:.12),-.18,0,TAU);ctx.fill();
+ctx.strokeStyle='#d1dccb';ctx.lineWidth=Math.max(.55,s*.018);ctx.stroke();
+ctx.strokeStyle='#1a2627';ctx.lineWidth=Math.max(.65,s*.022);ctx.beginPath();ctx.moveTo(s*(turretX-.2),s*.015);ctx.lineTo(s*(turretX-.04),-s*.02);ctx.stroke();
+if(scout||laser||support){
+ const ox=s*(turretX-.23),oy=-s*turretH*.31;
+ ctx.fillStyle='#101719';ctx.beginPath();ctx.roundRect(ox-s*.07,oy-s*.055,s*.14,s*.11,s*.025);ctx.fill();
+ ctx.fillStyle=scout?'#b8ed83':laser?'#8eeeff':'#9ff3df';ctx.beginPath();ctx.arc(ox,oy,s*.045,0,TAU);ctx.fill();
+ ctx.fillStyle='#e8f8f0';ctx.beginPath();ctx.arc(ox-s*.012,oy-s*.012,s*.014,0,TAU);ctx.fill();
+}
+if(heavy){for(const side of [-1,1]){ctx.fillStyle='#151e20';ctx.beginPath();ctx.roundRect(turretLeft+s*.22,side*s*.19,s*.13,s*.1,s*.02);ctx.fill();for(let tube=0;tube<3;tube++){ctx.fillStyle='#8d9b88';ctx.beginPath();ctx.arc(turretLeft+s*(.25+tube*.035),side*s*.24,s*.014,0,TAU);ctx.fill()}}}
+if(support){ctx.fillStyle='#1b292b';ctx.beginPath();ctx.roundRect(turretLeft+s*.55,-s*.13,s*.13,s*.26,s*.025);ctx.fill();ctx.strokeStyle='#a6e6d8';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke()}
 ctx.restore();
 /* Independent remote weapon station: it traverses toward infantry without affecting cannon aim. */
 ctx.save();ctx.rotate((Number.isFinite(t.mgAngle)?t.mgAngle:(t.turret||t.a||0))-(t.a||0));const mgScale=s;ctx.fillStyle='#101719';ctx.beginPath();ctx.roundRect(-mgScale*.13,-mgScale*.19,mgScale*.32,mgScale*.38,mgScale*.06);ctx.fill();ctx.strokeStyle='#b8c7b5';ctx.lineWidth=Math.max(.6,mgScale*.025);ctx.stroke();ctx.fillStyle='#4d5b53';ctx.beginPath();ctx.roundRect(mgScale*.02,-mgScale*.07,mgScale*.51,mgScale*.14,mgScale*.035);ctx.fill();ctx.fillStyle='#151e21';ctx.fillRect(mgScale*.35,-mgScale*.09,mgScale*.22,mgScale*.18);ctx.fillStyle='#a9b7a9';ctx.fillRect(mgScale*.42,-mgScale*.055,mgScale*.16,mgScale*.11);ctx.fillStyle='#11191b';ctx.fillRect(-mgScale*.06,-mgScale*.27,mgScale*.09,mgScale*.11);ctx.fillStyle='#d2dccc';ctx.fillRect(-mgScale*.045,-mgScale*.25,mgScale*.06,mgScale*.07);ctx.restore();
