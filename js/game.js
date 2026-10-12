@@ -162,8 +162,8 @@ window.addEventListener('blur',()=>{mouse.down=false;input.fire=false;touchMoveT
 buildArena();resize();renderTankPreviews();setInterval(renderTankPreviews,33);requestAnimationFrame(loop);
 
 function initHudCustomizer(){
-const panel=$('settingsPanel'),ids=['intelBtn','smokeBtn','targetBtn','fireBtn','orderBtn','coverBtn','hud','message','pauseBtn','menuBtn','settingsBtn'];
-const labels={intelBtn:'Разведка',smokeBtn:'Дым',targetBtn:'Цель',fireBtn:'Огонь',orderBtn:'Отряд',coverBtn:'Укрыться',hud:'Панель характеристик',message:'Сообщение арены',pauseBtn:'Пауза',menuBtn:'Меню',settingsBtn:'Настройки'};
+const panel=$('settingsPanel'),ids=['joystick','intelBtn','smokeBtn','targetBtn','fireBtn','orderBtn','coverBtn','hud','message','pauseBtn','menuBtn','settingsBtn'];
+const labels={joystick:'Джойстик движения',intelBtn:'Разведка',smokeBtn:'Дым',targetBtn:'Цель',fireBtn:'Огонь',orderBtn:'Отряд',coverBtn:'Укрыться',hud:'Панель характеристик',message:'Сообщение арены',pauseBtn:'Пауза',menuBtn:'Меню',settingsBtn:'Настройки'};
 const movable=ids.map(id=>$(id)).filter(Boolean),defaults=new Map(),layout={},backgrounds={};let editing=false,drag=null;
 const root=$('app'),wrap=$('arena-wrap');
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback}catch(_){return fallback}};
