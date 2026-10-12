@@ -358,7 +358,7 @@ function infantryTargets(s){
  for(const t of tanks){if(!t.alive)continue;const hostile=s.faction==='alpha'?t.team==='enemy':t.team!=='enemy';if(hostile)list.push(t)}
  return list;
 }
-function nearestInfantryThreat(s){let best=null,bd=Infinity;for(const target of infantryTargets(s)){const d=dist(s,target);if(d<bd&&soldierCanSee(s,target)){best=target;bd=d}}return best}
+function nearestInfantryThreat(s){let best=null,bd=Infinity;for(const target of soldiers){if(!target.alive||target.faction===s.faction||soldierHidden(target))continue;const d=dist(s,target);if(d<bd&&soldierCanSee(s,target)){best=target;bd=d}}if(best)return best;for(const target of tanks){if(!target.alive)continue;const hostile=s.faction==='alpha'?target.team==='enemy':target.team!=='enemy';if(!hostile)continue;const d=dist(s,target);if(d<bd&&soldierCanSee(s,target)){best=target;bd=d}}return best}
 function infantryCover(s,threat){
  let best=null,score=Infinity;
  for(const o of obstacles){const cx=o.x+o.w*.5,cy=o.y+o.h*.5,angle=Math.atan2(cy-threat.y,cx-threat.x),offset=Math.max(o.w,o.h)*.5+13;
@@ -407,7 +407,7 @@ function updateInfantry(dt){
  for(let i=infantryShots.length-1;i>=0;i--){const b=infantryShots[i];b.life-=dt;b.px=b.x;b.py=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;let gone=b.life<=0||b.x<0||b.y<0||b.x>WORLD.w||b.y>WORLD.h;
   for(const o of obstacles)if(!gone&&segmentIntersectsRect(b.px,b.py,b.x,b.y,o)){gone=true;break}
   if(!gone)for(const s of soldiers){if(!s.alive||s.faction===b.faction||s===b.owner)continue;if(segmentCircle(b.px,b.py,b.x,b.y,s.x,s.y,6)){s.hp-=b.damage;s.suppression=Math.min(2.5,s.suppression+.7);s.state='suppressed';s.revealUntil=gameClock+1.8;if(s.hp<=0){s.alive=false;burst(s.x,s.y,b.faction==='alpha'?'#58dfff':'#ff6b61',8)}else burst(s.x,s.y,b.faction==='alpha'?'#58dfff':'#ff6b61',3);gone=true;break}}
-  if(!gone)for(const t of tanks){if(!t.alive||t===b.owner||((b.faction==='alpha')===(t.team!=='enemy')))continue;if(segmentCircle(b.px,b.py,b.x,b.y,t.x,t.y,t.size*.62)){hit(t,b.damage*.38,b.x,b.y,false);gone=true;break}}
+  if(!gone)for(const t of tanks){if(!t.alive||t===b.owner||((b.faction==='alpha')===(t.team!=='enemy')))continue;if(segmentCircle(b.px,b.py,b.x,b.y,t.x,t.y,t.size*.62)){hit(t,b.damage*.16,b.x,b.y,false);gone=true;break}}
   if(gone)infantryShots.splice(i,1);
  }
 }
