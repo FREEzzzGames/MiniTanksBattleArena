@@ -11,7 +11,7 @@ try {
   if (errors.length) throw new Error('Browser JavaScript errors before interaction: ' + errors.join(' | '));
   if (await page.locator('#game').count() !== 1) throw new Error('Standalone canvas missing');
   if (await page.locator('#cityFrame').count() !== 0) throw new Error('Legacy iframe still present');
-  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','targetBtn','coverBtn','ammoText']) {
+  for (const id of ['startBtn','pauseBtn','menuBtn','orderBtn','fireBtn','smokeBtn','targetBtn','coverBtn','intelBtn','ammoText']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing control: ' + id);
   }
   if (await page.locator('#joystick').count() !== 0) throw new Error('Legacy joystick still present');
@@ -27,6 +27,9 @@ try {
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('Fog-of-war / visibility system missing');
   if (!fogSource.includes('function drawGrassBase()') || !fogSource.includes('function drawGrassCanopy()') || !fogSource.includes('function isConcealed(') || !fogSource.includes('t.grassRevealUntil=gameClock+2')) throw new Error('Grass concealment / 2-second firing reveal mechanic missing');
   if (!fogSource.includes("const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy target acquisition does not respect grass concealment');
+  if (!fogSource.includes('function spawnIntelBox()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('mapRevealUntil=Math.max(mapRevealUntil,gameClock+3)') || !fogSource.includes('function drawFog(){if(gameClock<mapRevealUntil)return;')) throw new Error('Three-second tactical intel reveal mechanic missing');
+  if (!fogSource.includes('crit:critical') || !fogSource.includes('b.damage*(b.crit?1.5:1)') || !fogSource.includes('КРИТИЧЕСКОЕ ПОПАДАНИЕ')) throw new Error('Critical-hit damage / feedback mechanic missing');
+  if (!fogSource.includes('function drawDynamicLights()') || !fogSource.includes('function drawIntelBoxes()')) throw new Error('Combat lighting or pickup rendering missing');
   if (!fogSource.includes("function nearestThreat(t){let best=null,bd=Infinity;const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy threat selection must use player/allies and respect concealment');
   if (fogSource.includes('Your tank has been disabled') || fogSource.includes("'REDEPLOY'")) throw new Error('Russian game-over text contains English fallback');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
@@ -77,15 +80,17 @@ try {
     speed: document.querySelector('#selSpeed').textContent,
     damage: document.querySelector('#selDamage').textContent
   }));
-  if (supportStats.armor !== '125' || supportStats.speed !== '88' || supportStats.damage !== '20') throw new Error('Support tank stats incorrect: ' + JSON.stringify(supportStats));
+  if (supportStats.armor !== '120' || supportStats.speed !== '92' || supportStats.damage !== '22') throw new Error('Support tank stats incorrect: ' + JSON.stringify(supportStats));
   await page.locator('[data-tank="heavy"]').click({ force: true });
-  if (await page.locator('#selArmor').textContent() !== '165') throw new Error('Heavy tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
+  if (await page.locator('#selArmor').textContent() !== '155') throw new Error('Heavy tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
   const stats = await page.evaluate(() => ({
     armor: document.querySelector('#selArmor').textContent,
     speed: document.querySelector('#selSpeed').textContent,
     damage: document.querySelector('#selDamage').textContent
   }));
-  if (stats.armor !== '165' || stats.speed !== '76' || stats.damage !== '38') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
+  if (stats.armor !== '155' || stats.speed !== '80' || stats.damage !== '34') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
+  const balanceSource = gameSource;
+  if (!balanceSource.includes("scout:{name:'L-03 SHADE',hp:74,speed:142,damage:18,reload:.84") || !balanceSource.includes("sniper:{name:'S-04 NOVA',hp:82,speed:86,damage:38,reload:1.72")) throw new Error('Tank balance profile changes missing');
   await page.locator('#startBtn').click();
   await page.waitForTimeout(300);
   const state = await page.evaluate(() => ({
