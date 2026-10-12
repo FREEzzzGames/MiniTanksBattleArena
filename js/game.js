@@ -127,15 +127,15 @@ for(const side of [-1,1]){
  belt.addColorStop(0,'#667067');belt.addColorStop(.24,'#242d2b');belt.addColorStop(.72,'#101718');belt.addColorStop(1,'#566057');
  ctx.fillStyle=belt;ctx.beginPath();ctx.roundRect(-s*.81,y-s*.17,s*1.62,s*.34,s*.12);ctx.fill();
  ctx.strokeStyle='#9ba393';ctx.lineWidth=Math.max(.7,s*.026);ctx.stroke();
- for(let i=0;i<5;i++){
-  const x=-s*.62+i*s*.31;
+ for(let i=0;i<4;i++){
+  const x=-s*.55+i*s*.36;
   ctx.fillStyle='#121a1b';ctx.beginPath();ctx.arc(x,y,s*.115,0,TAU);ctx.fill();
   ctx.fillStyle=i===0||i===4?'#737c6c':'#89917d';ctx.beginPath();ctx.arc(x,y,s*.078,0,TAU);ctx.fill();
   ctx.fillStyle='#303a35';ctx.beginPath();ctx.arc(x,y,s*.035,0,TAU);ctx.fill();
  }
  /* A handful of broad track shoes, not a noisy row of tiny bolts. */
  ctx.strokeStyle='#b0b7a3';ctx.lineWidth=Math.max(.6,s*.018);
- for(let i=0;i<6;i++){const x=-s*.66+i*s*.26;ctx.beginPath();ctx.moveTo(x,y-side*s*.135);ctx.lineTo(x+s*.11,y-side*s*.135);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y+side*s*.135);ctx.lineTo(x+s*.11,y+side*s*.135);ctx.stroke()}
+ for(let i=0;i<3;i++){const x=-s*.58+i*s*.55;ctx.beginPath();ctx.moveTo(x,y-side*s*.135);ctx.lineTo(x+s*.11,y-side*s*.135);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y+side*s*.135);ctx.lineTo(x+s*.11,y+side*s*.135);ctx.stroke()}
 }
 /* Hull: tapered front, raised armor shoulders and a strong top-light bevel. */
 const hull=ctx.createLinearGradient(-s*.3,-s*.55,s*.25,s*.58);
@@ -152,7 +152,7 @@ ctx.strokeStyle='#e0e4c5a8';ctx.lineWidth=Math.max(.8,s*.035);ctx.stroke();
 /* Large front glacis and rear engine deck distinguish the vehicle at gameplay scale. */
 ctx.fillStyle=light;ctx.globalAlpha=.72;ctx.beginPath();ctx.moveTo(s*.18,-s*hullH*.72);ctx.lineTo(s*.49,-s*hullH*.66);ctx.lineTo(s*.65,-s*hullH*.34);ctx.lineTo(s*.58,s*hullH*.3);ctx.lineTo(s*.43,s*hullH*.58);ctx.lineTo(s*.17,s*hullH*.63);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
 ctx.fillStyle='#1a2523';ctx.beginPath();ctx.roundRect(-s*.61,-s*hullH*.44,s*.31,s*hullH*.88,s*.04);ctx.fill();
-for(let i=0;i<3;i++){ctx.fillStyle='#9da68e';ctx.fillRect(-s*.56+i*s*.075,-s*hullH*.3,s*.035,s*hullH*.6)}
+ctx.fillStyle='#9da68e';ctx.fillRect(-s*.53,-s*hullH*.25,s*.07,s*hullH*.5);
 /* Role-specific upper hull: heavy gets broad shoulder armor; scout stays compact; sniper is long and low. */
 if(heavy){ctx.fillStyle='#303a31';ctx.beginPath();ctx.moveTo(-s*.45,-s*.44);ctx.lineTo(-s*.25,-s*.62);ctx.lineTo(s*.48,-s*.58);ctx.lineTo(s*.62,-s*.35);ctx.lineTo(s*.58,s*.35);ctx.lineTo(s*.4,s*.56);ctx.lineTo(-s*.3,s*.56);ctx.lineTo(-s*.48,s*.34);ctx.closePath();ctx.fill();ctx.strokeStyle='#a7ad91';ctx.lineWidth=Math.max(.8,s*.025);ctx.stroke()}
 if(laser){ctx.fillStyle='#172329';ctx.beginPath();ctx.moveTo(-s*.61,-s*.35);ctx.lineTo(s*.35,-s*.4);ctx.lineTo(s*.58,-s*.23);ctx.lineTo(s*.56,s*.23);ctx.lineTo(s*.32,s*.4);ctx.lineTo(-s*.61,s*.35);ctx.closePath();ctx.fill();ctx.fillStyle='#84969a';ctx.beginPath();ctx.moveTo(-s*.42,-s*.3);ctx.lineTo(s*.32,-s*.33);ctx.lineTo(s*.46,-s*.16);ctx.lineTo(s*.42,s*.16);ctx.lineTo(s*.28,s*.3);ctx.lineTo(-s*.42,s*.27);ctx.closePath();ctx.fill();ctx.strokeStyle='#d5e0d8';ctx.lineWidth=Math.max(.7,s*.022);ctx.stroke()}
@@ -184,22 +184,22 @@ ctx.fillStyle='#101719';ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.015,s*(heavy?
 ctx.fillStyle=mid;ctx.beginPath();ctx.ellipse(s*(tx-.16),-s*.03,s*(heavy?.14:.095),s*(heavy?.15:.105),-.2,0,TAU);ctx.fill();ctx.strokeStyle='#d4ddc8';ctx.lineWidth=Math.max(.6,s*.02);ctx.stroke();
 ctx.fillStyle='#172225';ctx.beginPath();ctx.roundRect(s*(tx-.37),-s*turretH*.31,s*.18,s*.13,s*.025);ctx.fill();
 ctx.fillStyle=scout?'#c8ef8e':laser?'#b6efff':support?'#a2e6d4':'#d7d7a1';ctx.beginPath();ctx.roundRect(s*(tx-.34),-s*turretH*.285,s*.12,s*.065,s*.02);ctx.fill();
-if(heavy){for(const side of [-1,1]){ctx.fillStyle='#202b28';ctx.beginPath();ctx.roundRect(turretLeft+s*.22,side*s*.21,s*.16,s*.12,s*.025);ctx.fill();ctx.fillStyle='#9ca78e';ctx.fillRect(turretLeft+s*.25,side*s*.245,s*.1,s*.035)}}
+if(heavy){ctx.fillStyle='#9ca78e';ctx.beginPath();ctx.roundRect(turretLeft+s*.28,-s*.055,s*.14,s*.11,s*.025);ctx.fill();}
 if(support){ctx.fillStyle='#152225';ctx.beginPath();ctx.roundRect(turretLeft+s*.55,-s*.12,s*.13,s*.24,s*.025);ctx.fill();ctx.fillStyle='#83d7c6';ctx.fillRect(turretLeft+s*.58,-s*.06,s*.07,s*.12)}
 ctx.restore();
 /* Readable role silhouette and paint marks; no dense bolt fields or tiny stencils. */
 if(heavy){ctx.fillStyle='#a6a27a';ctx.beginPath();ctx.roundRect(-s*.36,-s*.5,s*.22,s*.12,s*.025);ctx.fill();ctx.beginPath();ctx.roundRect(-s*.36,s*.38,s*.22,s*.12,s*.025);ctx.fill()}
-if(scout){ctx.strokeStyle='#d7e4b4';ctx.lineWidth=Math.max(.8,s*.025);ctx.beginPath();ctx.moveTo(-s*.47,-s*.3);ctx.lineTo(-s*.58,-s*.62);ctx.stroke();ctx.fillStyle='#9ce7f1';ctx.beginPath();ctx.arc(-s*.58,-s*.62,s*.045,0,TAU);ctx.fill()}
-if(laser){ctx.fillStyle='#a3b5b8';ctx.beginPath();ctx.roundRect(-s*.36,-s*.25,s*.34,s*.12,s*.025);ctx.fill();ctx.fillStyle='#28383d';ctx.fillRect(-s*.31,-s*.22,s*.22,s*.055)}
-if(support){ctx.fillStyle='#172729';ctx.beginPath();ctx.roundRect(-s*.5,s*.19,s*.22,s*.18,s*.025);ctx.fill();ctx.fillStyle='#8ce2d0';ctx.fillRect(-s*.46,s*.25,s*.14,s*.04)}
+if(scout){ctx.fillStyle='#9ce7f1';ctx.beginPath();ctx.arc(-s*.48,-s*.31,s*.055,0,TAU);ctx.fill();}
+if(laser){ctx.fillStyle='#a3b5b8';ctx.beginPath();ctx.roundRect(-s*.36,-s*.22,s*.28,s*.1,s*.025);ctx.fill();}
+if(support){ctx.fillStyle='#8ce2d0';ctx.beginPath();ctx.roundRect(-s*.48,s*.22,s*.15,s*.09,s*.025);ctx.fill();}
 /* Small highlights are limited to a few edges so the large silhouette remains readable at phone scale. */
-ctx.strokeStyle='#d5dfc055';ctx.lineWidth=Math.max(.6,s*.018);ctx.beginPath();ctx.moveTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);ctx.moveTo(-s*.52,s*hullH*.82);ctx.lineTo(s*.43,s*hullH*.74);ctx.stroke();
+ctx.strokeStyle='#d5dfc044';ctx.lineWidth=Math.max(.7,s*.025);ctx.beginPath();ctx.moveTo(-s*.5,-s*hullH*.8);ctx.lineTo(s*.4,-s*hullH*.74);ctx.stroke();
 ctx.restore();
 }
 function renderTankPreviews(){if(document.hidden||ui.overlay.classList.contains('hidden'))return;const now=performance.now()*.00016;for(const cv of document.querySelectorAll('.tank-preview')){const c=cv.getContext('2d');if(!c)continue;const w=cv.width,h=cv.height,role=cv.dataset.previewTank,profile=tankProfiles[role]||tankProfiles.player;c.clearRect(0,0,w,h);const bg=c.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#16242b');bg.addColorStop(.52,'#0a1218');bg.addColorStop(1,'#182027');c.fillStyle=bg;c.fillRect(0,0,w,h);c.strokeStyle='#8cb3bf16';c.lineWidth=1;for(let x=0;x<w;x+=16){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<h;y+=16){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}const glow=c.createRadialGradient(w*.5,h*.57,3,w*.5,h*.57,82);glow.addColorStop(0,role==='support'?'#74ffcc2b':'#7adfff20');glow.addColorStop(1,'#00000000');c.fillStyle=glow;c.fillRect(0,0,w,h);c.save();c.translate(w*.5,h*.53);c.scale(1.5,1.5);const preview={...profile,team:'player',role,x:0,y:0,a:0,turret:0,hitFlash:0};const turn=now+({player:0,heavy:.28,scout:.57,sniper:.84,support:1.12}[role]||0);c.rotate(turn);drawTankModel(c,preview,1,0);c.restore();c.fillStyle='#d6edf1';c.font='bold 8px monospace';c.fillText('MTBA / FIELD MODEL',8,h-7)}}
 function drawTank(t){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.a);
 /* Combat readability pass r6: scale the shared model itself, not its hitbox. */
-const visualScale=t.role==='heavy'||t.role==='brawler'?1.42:t.role==='scout'?1.28:t.role==='sniper'?1.36:1.38;
+const visualScale=t.role==='heavy'||t.role==='brawler'?1.72:t.role==='scout'?1.48:t.role==='sniper'?1.62:1.58;
 drawTankModel(ctx,t,visualScale,0);ctx.restore();}
 let groundGrainPattern=null;
 function getGroundGrainPattern(){
