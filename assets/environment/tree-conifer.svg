@@ -1,1 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="34" cy="54" rx="24" ry="7" fill="#000" opacity=".35"/><path d="M30 36h8v17h-8z" fill="#514536"/><path d="M34 4 10 37h14L8 49h52L40 37h14Z" fill="#203b2b" stroke="#0b1a13" stroke-width="2"/><path d="M34 8 16 34h11L15 45h37L41 34h11Z" fill="#36583a"/><path d="M34 9 24 29l8-3-9 12h20l-9-12 8 3Z" fill="#54724a"/><path d="M19 43h27" stroke="#78915a" stroke-width="2" opacity=".7"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+<defs>
+ <radialGradient id="ground"><stop stop-color="#020604" stop-opacity=".62"/><stop offset="1" stop-color="#020604" stop-opacity="0"/></radialGradient>
+ <radialGradient id="crown" cx=".36" cy=".26" r=".78"><stop stop-color="#6b8550"/><stop offset=".3" stop-color="#45633b"/><stop offset=".7" stop-color="#2c482e"/><stop offset="1" stop-color="#172b20"/></radialGradient>
+ <radialGradient id="lit"><stop stop-color="#9ca96b" stop-opacity=".6"/><stop offset="1" stop-color="#9ca96b" stop-opacity="0"/></radialGradient>
+</defs>
+<ellipse cx="53" cy="57" rx="40" ry="34" fill="url(#ground)"/>
+<path d="M49 8 60 19 69 16 72 29 84 35 77 45 82 56 68 63 62 78 49 72 36 81 29 68 15 63 21 49 12 39 25 29 28 17 40 20Z" fill="#17271d" stroke="#0d1b14" stroke-width="2"/>
+<path d="M48 11 58 23 69 20 69 32 80 38 72 47 77 56 65 62 59 73 48 68 37 76 31 64 20 60 25 49 17 40 29 31 31 21 41 24Z" fill="url(#crown)" stroke="#354d30" stroke-width="1.6"/>
+<g fill="#243f2a" stroke="#527044" stroke-width="1.2">
+ <path d="M48 14 54 32 67 25 62 39 76 39 63 47 72 55 56 54 57 68 47 58 36 70 39 54 25 61 33 48 22 42 37 39 32 27 43 33Z"/>
+ <path d="M30 28 40 34 35 43 47 39 43 50 31 47 24 39Z"/>
+ <path d="M65 44 76 42 70 51 75 59 61 56Z"/>
+</g>
+<g fill="#81945a" opacity=".76">
+ <path d="M47 16 52 29 45 35 49 42 41 38 39 29Z"/>
+ <path d="M29 31 37 35 33 40 26 39Z"/>
+ <path d="M54 34 63 30 61 38 54 42Z"/>
+ <path d="M39 49 48 44 51 52 46 57Z"/>
+ <path d="M59 55 67 52 65 59 59 62Z"/>
+</g>
+<g fill="#101f17" opacity=".65"><path d="M23 48 34 50 31 59 22 56Z"/><path d="M48 59 57 57 57 66 49 68Z"/><path d="M62 39 71 39 67 46 61 45Z"/></g>
+<ellipse cx="47" cy="45" rx="22" ry="20" fill="url(#lit)" opacity=".55"/>
+<path d="M29 24 38 29M53 19 58 26M22 43 29 46M57 64 63 61" stroke="#a5b77a" stroke-width="1.2" opacity=".38"/>
+</svg>
