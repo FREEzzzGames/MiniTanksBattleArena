@@ -255,12 +255,56 @@ const turretTop=-s*turretH*.5,turretLeft=s*tx-s*turretW*.5;
 ctx.save();ctx.globalAlpha=.22;ctx.fillStyle='#020506';ctx.beginPath();
 ctx.ellipse(s*tx+s*.09,s*.12,s*turretW*.56,s*turretH*.56,.04,0,TAU);ctx.fill();ctx.restore();
 /* Turret body is rendered above the hull before the gun assembly. */
-/* Turret silhouette has broad angled faces, a heavy mantlet and one dominant hatch. */
-ctx.fillStyle='#11191b';ctx.beginPath();ctx.moveTo(turretLeft+s*.1,turretTop+s*.08);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();ctx.fill();
+/* Turret silhouette: distinct reference-driven plans, not one shared turret with different colors. */
+ctx.fillStyle='#11191b';ctx.beginPath();
+if(heavy){
+ ctx.moveTo(turretLeft+s*.06,turretTop+s*turretH*.18);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.04);
+ ctx.lineTo(turretLeft+s*turretW*.97,turretTop+s*turretH*.24);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.62);
+ ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.93);ctx.lineTo(turretLeft+s*.17,turretTop+s*turretH*.91);
+ ctx.lineTo(turretLeft,turretTop+s*turretH*.65);ctx.closePath();
+}else if(scout){
+ ctx.moveTo(turretLeft+s*.12,turretTop+s*turretH*.23);ctx.lineTo(turretLeft+s*turretW*.7,turretTop+s*turretH*.09);
+ ctx.lineTo(turretLeft+s*turretW*.96,turretTop+s*turretH*.32);ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.72);
+ ctx.lineTo(turretLeft+s*turretW*.7,turretTop+s*turretH*.9);ctx.lineTo(turretLeft+s*.16,turretTop+s*turretH*.79);
+ ctx.lineTo(turretLeft+s*.04,turretTop+s*turretH*.54);ctx.closePath();
+}else if(laser){
+ ctx.moveTo(turretLeft+s*.02,turretTop+s*turretH*.12);ctx.lineTo(turretLeft+s*turretW*.76,turretTop+s*turretH*.05);
+ ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.22);ctx.lineTo(turretLeft+s*turretW*.96,turretTop+s*turretH*.78);
+ ctx.lineTo(turretLeft+s*turretW*.77,turretTop+s*turretH*.94);ctx.lineTo(turretLeft+s*.08,turretTop+s*turretH*.88);
+ ctx.lineTo(turretLeft,turretTop+s*turretH*.64);ctx.closePath();
+}else{
+ ctx.moveTo(turretLeft+s*.1,turretTop+s*.12);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);
+ ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);
+ ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);
+ ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();
+}
+ctx.fill();
 const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
-ctx.fillStyle=tm;ctx.beginPath();ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();ctx.fill();
+ctx.fillStyle=tm;ctx.beginPath();
+if(heavy){
+ ctx.moveTo(turretLeft+s*.13,turretTop+s*turretH*.2);ctx.lineTo(turretLeft+s*turretW*.66,turretTop+s*turretH*.12);
+ ctx.lineTo(turretLeft+s*turretW*.86,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.6);
+ ctx.lineTo(turretLeft+s*turretW*.73,turretTop+s*turretH*.8);ctx.lineTo(turretLeft+s*.19,turretTop+s*turretH*.79);
+ ctx.lineTo(turretLeft+s*.09,turretTop+s*turretH*.61);ctx.closePath();
+}else if(scout){
+ ctx.moveTo(turretLeft+s*.17,turretTop+s*turretH*.25);ctx.lineTo(turretLeft+s*turretW*.67,turretTop+s*turretH*.16);
+ ctx.lineTo(turretLeft+s*turretW*.83,turretTop+s*turretH*.34);ctx.lineTo(turretLeft+s*turretW*.79,turretTop+s*turretH*.68);
+ ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*.18,turretTop+s*turretH*.7);
+ ctx.lineTo(turretLeft+s*.11,turretTop+s*turretH*.53);ctx.closePath();
+}else if(laser){
+ ctx.moveTo(turretLeft+s*.1,turretTop+s*turretH*.19);ctx.lineTo(turretLeft+s*turretW*.73,turretTop+s*turretH*.13);
+ ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.27);ctx.lineTo(turretLeft+s*turretW*.85,turretTop+s*turretH*.7);
+ ctx.lineTo(turretLeft+s*turretW*.71,turretTop+s*turretH*.8);ctx.lineTo(turretLeft+s*.14,turretTop+s*turretH*.75);
+ ctx.lineTo(turretLeft+s*.08,turretTop+s*turretH*.61);ctx.closePath();
+}else{
+ ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);
+ ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);
+ ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);
+ ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();
+}
+ctx.fill();
 ctx.strokeStyle='#d8e1c85e';ctx.lineWidth=Math.max(.65,s*.021);ctx.stroke();
-/* Turret facet pass r13: top plane, bevel break and recessed side face.
+/* Turret facet pass r14: top plane, bevel break and recessed side face.
    Low-contrast edges preserve a painted-steel look instead of a bright cartoon outline. */
 ctx.save();
 ctx.globalAlpha=.2;ctx.fillStyle='#e0e5c9';ctx.beginPath();
