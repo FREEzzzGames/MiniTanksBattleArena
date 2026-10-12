@@ -39,8 +39,8 @@ const arenaLayouts={
 const blocks=arenaLayouts[selectedArena]||arenaLayouts['iron-yard'];
 for(let i=0;i<blocks.length;i++){const [x,y,w,h]=blocks[i];const container=selectedArena==='iron-yard'?i%3!==1:selectedArena==='dust-front'?i%4===0:i%5===1;const type=selectedArena==='blackwood'?(container?'ruin':'concrete'):selectedArena==='dust-front'?(container?'berm':'concrete'):(container?'container':'concrete');obstacles.push({x,y,w,h,type,orientation:w>=h?'horizontal':'vertical',hp:Infinity});}
 /* Vegetation forms irregular cover patches and buffers the industrial structures. */
-for(const [x,y,w,h] of [[350,365,155,105],[730,410,135,105],[1120,390,160,110],[230,825,145,105],[745,815,150,105],[1100,1150,165,110],[385,1195,155,100],[1440,835,130,105],[80,1090,100,180],[1600,420,105,160]]){if(!blocks.some(([bx,by,bw,bh])=>x<bx+bw+24&&x+w>bx-24&&y<by+bh+24&&y+h>by-24))grassPatches.push({x,y,w,h,seed:Math.floor(x*3+y*7)});}
-trees.length=0;for(let i=0;i<42;i++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearTreeSpot(x,y))trees.push({x,y,r:rand(25,37),tone:Math.floor(rand(0,4)),seed:rand(0,TAU)})}
+const vegetation=selectedArena==='blackwood'?[[100,120,210,190],[420,340,170,145],[690,110,190,210],[1030,350,210,170],[1350,130,220,190],[150,720,200,180],[600,820,230,170],[1000,760,180,220],[1370,960,220,180],[340,1250,220,190],[760,1380,220,170],[1250,1330,230,190]]:selectedArena==='dust-front'?[[340,360,80,48],[1000,390,90,50],[250,850,85,44],[1180,840,95,48],[700,1220,75,44]]:[[350,365,155,105],[730,410,135,105],[1120,390,160,110],[230,825,145,105],[745,815,150,105],[1100,1150,165,110],[385,1195,155,100],[1440,835,130,105],[80,1090,100,180],[1600,420,105,160]];for(const [x,y,w,h] of vegetation){if(!blocks.some(([bx,by,bw,bh])=>x<bx+bw+24&&x+w>bx-24&&y<by+bh+24&&y+h>by-24))grassPatches.push({x,y,w,h,seed:Math.floor(x*3+y*7)})}
+trees.length=0;const treeTarget=selectedArena==='blackwood'?92:selectedArena==='dust-front'?8:14;for(let i=0,tries=0;i<treeTarget&&tries<treeTarget*8;tries++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearTreeSpot(x,y)){const tone=selectedArena==='blackwood'?(i%5===0?3:Math.floor(rand(0,3))):selectedArena==='dust-front'?3:Math.floor(rand(0,3));trees.push({x,y,r:selectedArena==='blackwood'?rand(28,42):rand(22,34),tone,seed:rand(0,TAU)});i++}}
 medkits.length=0;for(let i=0;i<9;i++)spawnMedkit();intelBoxes.length=0;for(let i=0;i<3;i++)spawnIntelBox()}
 function spawnMedkit(){for(let i=0;i<80;i++){const x=rand(45,WORLD.w-45),y=rand(45,WORLD.h-45);if(clearSpot(x,y,20)){medkits.push({x,y,life:rand(28,44),pulse:rand(0,TAU),heal:35});return true}}return false}
 function spawnIntelBox(){for(let i=0;i<90;i++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearSpot(x,y,25)&&!grassPatches.some(g=>x>g.x&&x<g.x+g.w&&y>g.y&&y<g.y+g.h)){intelBoxes.push({x,y,life:rand(35,48),pulse:rand(0,TAU)});return true}}return false}
@@ -550,7 +550,49 @@ function getGroundGrainPattern(){
  return groundGrainPattern;
 }
 let staticTerrainCanvas=null;
-function bakeStaticTerrain(){const layer=document.createElement('canvas');layer.width=WORLD.w;layer.height=WORLD.h;const layerCtx=layer.getContext('2d');if(!layerCtx)return;const previous=ctx;ctx=layerCtx;try{drawTerrainZones();drawSurfaceDetail()}finally{ctx=previous}staticTerrainCanvas=layer}
+function bakeStaticTerrain(){const layer=document.createElement('canvas');layer.width=WORLD.w;layer.height=WORLD.h;const layerCtx=layer.getContext('2d');if(!layerCtx)return;const previous=ctx;ctx=layerCtx;try{drawArenaGroundBase();drawTerrainZones();drawSurfaceDetail();drawArenaSetDressing()}finally{ctx=previous}staticTerrainCanvas=layer}
+function drawArenaGroundBase(){
+ const palettes={
+  'iron-yard':['#202a2b','#293638','#141e21'],
+  'dust-front':['#776447','#927b55','#5b4b36'],
+  'blackwood':['#101d19','#1b2b22','#09130f']
+ };
+ const p=palettes[selectedArena]||palettes['iron-yard'];
+ ctx.fillStyle=p[0];ctx.fillRect(0,0,WORLD.w,WORLD.h);
+ const wash=ctx.createLinearGradient(0,0,WORLD.w,WORLD.h);wash.addColorStop(0,p[1]+'00');wash.addColorStop(.5,p[1]+'66');wash.addColorStop(1,p[2]+'88');ctx.fillStyle=wash;ctx.fillRect(0,0,WORLD.w,WORLD.h);
+ if(selectedArena==='iron-yard'){
+  /* Faded concrete bays, expansion joints and forklift lane markings. */
+  ctx.strokeStyle='#aab9ad24';ctx.lineWidth=2;
+  for(let x=45;x<WORLD.w;x+=180){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}
+  for(let y=55;y<WORLD.h;y+=150){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}
+  ctx.strokeStyle='#e4bc4b35';ctx.lineWidth=5;ctx.setLineDash([34,26]);
+  for(const y of [430,875,1260]){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}
+  ctx.setLineDash([]);
+  for(let i=0;i<9;i++){const x=90+i*195,y=120+(i%3)*575;ctx.fillStyle='#b5c3b51b';ctx.fillRect(x,y,84,34);ctx.strokeStyle='#c2cdbd20';ctx.strokeRect(x,y,84,34)}
+ }else if(selectedArena==='dust-front'){
+  /* Wind-carved dune bands and long tire ruts establish an open desert range. */
+  for(let i=0;i<17;i++){const y=55+i*103,phase=i*67%180;ctx.beginPath();ctx.moveTo(0,y+phase*.15);ctx.bezierCurveTo(WORLD.w*.25,y-48+phase*.1,WORLD.w*.65,y+52-phase*.2,WORLD.w,y-20+phase*.12);ctx.lineWidth=18+i%4*5;ctx.strokeStyle=i%2?'#c7ad7950':'#4b3a2848';ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#e0c48a30';ctx.stroke()}
+  ctx.lineCap='round';
+  for(let i=0;i<10;i++){const x=80+i*180,y=120+(i%4)*390;ctx.strokeStyle='#3e302455';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(x,y);ctx.bezierCurveTo(x+40,y+90,x-28,y+160,x+24,y+245);ctx.stroke();ctx.strokeStyle='#d4b98244';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-7,y);ctx.bezierCurveTo(x+33,y+90,x-35,y+160,x+17,y+245);ctx.stroke()}
+  for(let i=0;i<170;i++){const x=(i*137)%WORLD.w,y=(i*293)%WORLD.h;ctx.fillStyle=i%3?'#d7bc8750':'#3b2e2348';ctx.beginPath();ctx.ellipse(x,y,2+i%5,1+i%2,(i%9)*.2,0,TAU);ctx.fill()}
+ }else{
+  /* Blackwood: damp forest floor, exposed roots, leaf litter and pools of cold shadow. */
+  for(let i=0;i<42;i++){const x=(i*317+91)%WORLD.w,y=(i*197+53)%WORLD.h,rx=65+(i*19)%105,ry=28+(i*13)%56;const g=ctx.createRadialGradient(x,y,2,x,y,rx);g.addColorStop(0,i%2?'#030a08a8':'#263b2a55');g.addColorStop(1,'#07110d00');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,rx,ry,(i%7)*.19,0,TAU);ctx.fill();ctx.strokeStyle=i%2?'#53674740':'#080f0b70';ctx.lineWidth=2+(i%3);for(let root=0;root<3;root++){ctx.beginPath();ctx.moveTo(x-rx*.6,y+root*8);ctx.quadraticCurveTo(x-rx*.12,y+root*14+9,x+rx*.72,y+root*6-4);ctx.stroke()}}
+  for(let i=0;i<360;i++){const x=(i*83+17)%WORLD.w,y=(i*211+31)%WORLD.h;ctx.save();ctx.translate(x,y);ctx.rotate((i%13)*.31);ctx.fillStyle=['#69744955','#394d3155','#8a754755','#1b302555'][i%4];ctx.beginPath();ctx.ellipse(0,0,2+i%4,1+i%2,0,0,TAU);ctx.fill();ctx.restore()}
+ }
+}
+function drawArenaSetDressing(){
+ if(selectedArena==='iron-yard'){
+  /* Broken oil spills and rust halos cluster around the industrial cover. */
+  for(let i=0;i<22;i++){const x=(i*233+81)%WORLD.w,y=(i*317+127)%WORLD.h,rx=18+i%5*7,ry=8+i%4*4;ctx.fillStyle=i%3?'#050a0b40':'#9b684022';ctx.beginPath();ctx.ellipse(x,y,rx,ry,(i%7)*.17,0,TAU);ctx.fill();ctx.strokeStyle='#b4a58a1a';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x-2,y-1,rx*.7,ry*.6,0,Math.PI,Math.PI*1.8);ctx.stroke()}
+ }else if(selectedArena==='dust-front'){
+  /* Scattered bleached rock plates, shell scars and dry scrub clumps. */
+  for(let i=0;i<80;i++){const x=(i*173+59)%WORLD.w,y=(i*307+43)%WORLD.h,r=3+i%8;ctx.fillStyle=i%2?'#d9c18b66':'#40332355';ctx.beginPath();ctx.moveTo(x-r,y+r*.4);ctx.lineTo(x-r*.2,y-r*.8);ctx.lineTo(x+r,y-r*.2);ctx.lineTo(x+r*.45,y+r*.65);ctx.closePath();ctx.fill()}
+ }else{
+  /* Fallen logs and root fans tie the cover to the forest floor. */
+  for(let i=0;i<20;i++){const x=(i*271+130)%WORLD.w,y=(i*191+80)%WORLD.h;ctx.save();ctx.translate(x,y);ctx.rotate((i%8)*.38);ctx.fillStyle='#070e0b99';ctx.fillRect(-28,-5,58,12);ctx.fillStyle='#4b4932';ctx.fillRect(-26,-3,53,6);ctx.strokeStyle='#8b8b5a55';ctx.lineWidth=1;for(let k=-18;k<22;k+=13){ctx.beginPath();ctx.moveTo(k,-3);ctx.lineTo(k+4,3);ctx.stroke()}ctx.restore()}
+ }
+}
 function drawStaticTerrain(camera){if(!staticTerrainCanvas)return;const sx=clamp(camera.x,0,WORLD.w),sy=clamp(camera.y,0,WORLD.h),sw=Math.max(0,Math.min(vw,WORLD.w-sx)),sh=Math.max(0,Math.min(vh,WORLD.h-sy));if(sw>0&&sh>0)ctx.drawImage(staticTerrainCanvas,sx,sy,sw,sh,sx,sy,sw,sh)}
 function drawTerrainZones(){
  /* Large-scale ground variation: concrete slabs, compacted dirt and damp patches. */
