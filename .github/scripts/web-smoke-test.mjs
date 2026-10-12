@@ -30,6 +30,10 @@ try {
   if (!fogSource.includes('function spawnIntelBox()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('mapRevealUntil=Math.max(mapRevealUntil,gameClock+3)') || !fogSource.includes('function drawFog(){if(gameClock<mapRevealUntil)return;')) throw new Error('Three-second tactical intel reveal mechanic missing');
   if (!fogSource.includes('crit:critical') || !fogSource.includes('b.damage*(b.crit?1.5:1)') || !fogSource.includes('КРИТИЧЕСКОЕ ПОПАДАНИЕ')) throw new Error('Critical-hit damage / feedback mechanic missing');
   if (!fogSource.includes('function drawDynamicLights()') || !fogSource.includes('function drawIntelBoxes()')) throw new Error('Combat lighting or pickup rendering missing');
+  if (!fogSource.includes('function createDrones(p)') || !fogSource.includes("kind:'scout'") || !fogSource.includes("kind:'medic'") || !fogSource.includes('function updateDrones(dt)') || !fogSource.includes('function drawDrones()')) throw new Error('Scout and medic drones must be created, updated and rendered');
+  if (!fogSource.includes('function scoutDroneSpots(e)') || !fogSource.includes('reveal(scout.x,scout.y,scout.reveal,.32)')) throw new Error('Scout drone does not reveal nearby terrain and enemies');
+  if (!fogSource.includes("if(targetHeal&&missing>0&&dist(d,targetHeal)<70)") || !fogSource.includes("say('МЕДДРОН: +'") || !fogSource.includes('target.hp+=amount')) throw new Error('Medic drone must fly to and heal wounded player/allies');
+  if (!fogSource.includes('const count=Math.min(3+Math.ceil(wave*.72),9)') || !fogSource.includes("damage:(t.team==='enemy'?t.damage*.68:t.damage)") || !fogSource.includes("t.team==='enemy'?rand(.8,1.8):rand(.2,1)")) throw new Error('Enemy damage, wave size or firing cadence was not rebalanced');
   if (!fogSource.includes("function nearestThreat(t){let best=null,bd=Infinity;const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy threat selection must use player/allies and respect concealment');
   if (fogSource.includes('Your tank has been disabled') || fogSource.includes("'REDEPLOY'")) throw new Error('Russian game-over text contains English fallback');
   if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
@@ -153,7 +157,7 @@ try {
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
   const assetFailures = await page.evaluate(() => performance.getEntriesByType('resource').filter(e => (e.name.endsWith('/css/game.css') || e.name.endsWith('/js/game.js')) && e.responseStatus >= 400).map(e => ({name:e.name,status:e.responseStatus}))).catch(() => []);
   if (assetFailures.length) throw new Error('Runtime assets failed to load: ' + JSON.stringify(assetFailures));
-  console.log('MTBA browser smoke tests passed: external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
+  console.log('MTBA browser smoke tests passed: external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
 }
