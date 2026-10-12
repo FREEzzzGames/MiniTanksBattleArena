@@ -219,6 +219,37 @@ function getGroundGrainPattern(){
  groundGrainPattern=ctx.createPattern(tile,'repeat');
  return groundGrainPattern;
 }
+function drawTerrainZones(){
+ /* Large-scale ground variation: concrete slabs, compacted dirt and damp patches. */
+ for(let gy=90;gy<WORLD.h;gy+=270)for(let gx=80;gx<WORLD.w;gx+=310){
+  const seed=(gx*31+gy*17)%997,kind=seed%5,x=gx+(seed%71)-28,y=gy+((seed*7)%61)-24;
+  const w=110+(seed%120),h=54+((seed*3)%75);
+  ctx.save();ctx.translate(x,y);ctx.rotate((seed%9-4)*.035);
+  if(kind===0){
+   const slab=ctx.createLinearGradient(0,-h/2,w,h/2);slab.addColorStop(0,'#68766a09');slab.addColorStop(.5,'#0b14100c');slab.addColorStop(1,'#a6ad8b08');
+   ctx.fillStyle=slab;ctx.fillRect(0,0,w,h);
+   ctx.strokeStyle='#b9c0a512';ctx.lineWidth=1;ctx.strokeRect(1,1,w-2,h-2);
+   ctx.strokeStyle='#050b091f';ctx.beginPath();ctx.moveTo(w*.2,0);ctx.lineTo(w*.23,h*.42);ctx.lineTo(w*.38,h*.57);ctx.stroke();
+  }else if(kind===1||kind===3){
+   const g=ctx.createRadialGradient(w*.5,h*.5,2,w*.5,h*.5,Math.max(w,h)*.62);
+   g.addColorStop(0,kind===1?'#080f0c26':'#b4a9850a');g.addColorStop(.55,'#18221b14');g.addColorStop(1,'#10181300');
+   ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(w*.5,h*.5,w*.5,h*.5,(seed%7)*.1,0,TAU);ctx.fill();
+   for(let i=0;i<9;i++){const px=(seed*i*13%97)/97*w,py=(seed*i*7%89)/89*h;ctx.fillStyle=i%2?'#b3ad8c18':'#080e0c25';ctx.beginPath();ctx.ellipse(px,py,2+i%4,1+i%3,(i*.7),0,TAU);ctx.fill()}
+  }else{
+   ctx.strokeStyle='#9fa88d16';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w*.12,h*.12);ctx.lineTo(w*.2,h*.23);ctx.lineTo(w*.18,h*.38);ctx.lineTo(w*.3,h*.46);ctx.moveTo(w*.7,h*.55);ctx.lineTo(w*.76,h*.63);ctx.lineTo(w*.73,h*.8);ctx.stroke();
+  }
+  ctx.restore();
+ }
+ /* Small rubble is clustered at obstacle corners rather than evenly tiled. */
+ for(const o of obstacles){
+  const seed=((o.x*7+o.y*11)|0)>>>0;
+  for(let i=0;i<7;i++){
+   const side=i%4,px=side===0?o.x-5-(i%3)*3:side===1?o.x+o.w+4+(i%3)*2:o.x+((seed+i*37)%(Math.max(1,o.w)));
+   const py=side===2?o.y-4-(i%3)*3:side===3?o.y+o.h+4+(i%3)*2:o.y+((seed+i*19)%(Math.max(1,o.h)));
+   const r=1.2+(i%3)*.7;ctx.fillStyle=i%2?'#a6a78a40':'#080e0c65';ctx.beginPath();ctx.moveTo(px-r,py+r*.4);ctx.lineTo(px-r*.35,py-r*.7);ctx.lineTo(px+r,py-r*.2);ctx.lineTo(px+r*.5,py+r*.7);ctx.closePath();ctx.fill();
+  }
+ }
+}
 function drawSurfaceDetail(){
 /* Deterministic battlefield texture: painted road wear, dust, chips and small debris. */
 for(let gy=35;gy<WORLD.h;gy+=83){for(let gx=27;gx<WORLD.w;gx+=91){
@@ -249,8 +280,8 @@ ctx.restore();
  }
 }
 function drawDynamicLights(){for(const f of muzzleFlashes){const a=clamp(f.life/f.max,0,1);const r=f.r*3.4;const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);g.addColorStop(0,'#ffe8ad55');g.addColorStop(.3,'#ffb84b22');g.addColorStop(1,'#ff9c2b00');ctx.globalAlpha=a;ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y,r,0,TAU);ctx.fill()}for(const l of impactLights){const a=clamp(l.life/l.max,0,1);const g=ctx.createRadialGradient(l.x,l.y,0,l.x,l.y,l.r*1.35);g.addColorStop(0,(l.color||'#ffb84b')+'55');g.addColorStop(.38,(l.color||'#ffb84b')+'20');g.addColorStop(1,'#00000000');ctx.globalAlpha=a*.75;ctx.fillStyle=g;ctx.beginPath();ctx.arc(l.x,l.y,l.r*1.35,0,TAU);ctx.fill()}ctx.globalAlpha=1}
-function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#111713';ctx.fillRect(0,0,vw,vh);const p=player();if(p){camera.x=clamp(p.x-vw/2,0,WORLD.w-vw);camera.y=clamp(p.y-vh/2,0,WORLD.h-vh)}else{camera.x=0;camera.y=0}const shakeX=screenShake>0?rand(-screenShake,screenShake)*18:0,shakeY=screenShake>0?rand(-screenShake,screenShake)*18:0;ctx.save();ctx.translate(-camera.x+shakeX,-camera.y+shakeY);ctx.fillStyle='#202b25';ctx.fillRect(0,0,WORLD.w,WORLD.h);for(let gy=0;gy<WORLD.h;gy+=100){for(let gx=0;gx<WORLD.w;gx+=100){const n=((gx*17+gy*31)%13);if(n<4){ctx.fillStyle=n===0?'#2a352b':'#263128';ctx.fillRect(gx+((gy/100)%3)*9,gy+((gx/100)%4)*7,18+n*3,2)}}}for(let gy=0;gy<WORLD.h;gy+=23){for(let gx=0;gx<WORLD.w;gx+=29){const h=((gx*13+gy*7)%17);if(h<3){ctx.fillStyle=h===0?'#43504455':'#101b1555';ctx.fillRect(gx+((gy/23)%4)*3,gy+((gx/29)%3)*2,2+h,1+h%2)}else if(h===7){ctx.strokeStyle='#0d171255';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+5,gy+2);ctx.stroke()}}}ctx.strokeStyle='#2c3a31';ctx.lineWidth=1;for(let x=0;x<WORLD.w;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}for(let y=0;y<WORLD.h;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}for(let gy=35;gy<WORLD.h;gy+=137){for(let gx=27;gx<WORLD.w;gx+=163){const seed=(gx*17+gy*29)%97;if(seed<23){const rx=7+seed%11,ry=3+seed%5;ctx.fillStyle='#10191366';ctx.beginPath();ctx.ellipse(gx+seed%31,gy+seed%19,rx,ry,seed*.04,0,TAU);ctx.fill();ctx.strokeStyle='#59634f55';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(gx+seed%31,gy+seed%19,rx*.68,ry*.55,seed*.04,Math.PI,TAU);ctx.stroke()}if(seed>61){ctx.strokeStyle='#8a8d6b33';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+4+seed%9,gy+1+seed%4);ctx.moveTo(gx+5,gy+6);ctx.lineTo(gx+8,gy+7);ctx.stroke()}}}ctx.fillStyle='#303b34';ctx.fillRect(840,0,120,WORLD.h);ctx.fillRect(0,840,WORLD.w,120);ctx.strokeStyle='#596251';ctx.setLineDash([22,18]);ctx.beginPath();ctx.moveTo(900,0);ctx.lineTo(900,WORLD.h);ctx.moveTo(0,900);ctx.lineTo(WORLD.w,900);ctx.stroke();ctx.setLineDash([]);
-drawSurfaceDetail();drawGrassBase();drawTrees();drawMedkits();drawIntelBoxes();
+function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#111713';ctx.fillRect(0,0,vw,vh);const p=player();if(p){camera.x=clamp(p.x-vw/2,0,WORLD.w-vw);camera.y=clamp(p.y-vh/2,0,WORLD.h-vh)}else{camera.x=0;camera.y=0}const shakeX=screenShake>0?rand(-screenShake,screenShake)*18:0,shakeY=screenShake>0?rand(-screenShake,screenShake)*18:0;ctx.save();ctx.translate(-camera.x+shakeX,-camera.y+shakeY);ctx.fillStyle='#202b25';ctx.fillRect(0,0,WORLD.w,WORLD.h);for(let gy=0;gy<WORLD.h;gy+=100){for(let gx=0;gx<WORLD.w;gx+=100){const n=((gx*17+gy*31)%13);if(n<4){ctx.fillStyle=n===0?'#2a352b':'#263128';ctx.fillRect(gx+((gy/100)%3)*9,gy+((gx/100)%4)*7,18+n*3,2)}}}for(let gy=0;gy<WORLD.h;gy+=23){for(let gx=0;gx<WORLD.w;gx+=29){const h=((gx*13+gy*7)%17);if(h<3){ctx.fillStyle=h===0?'#43504455':'#101b1555';ctx.fillRect(gx+((gy/23)%4)*3,gy+((gx/29)%3)*2,2+h,1+h%2)}else if(h===7){ctx.strokeStyle='#0d171255';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+5,gy+2);ctx.stroke()}}}/* The tactical grid is a subtle map aid, not the dominant ground texture. */ctx.strokeStyle='#9aa58a0b';ctx.lineWidth=1;for(let x=0;x<WORLD.w;x+=100){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}for(let y=0;y<WORLD.h;y+=100){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}ctx.strokeStyle='#0a120e0b';ctx.lineWidth=1;for(let x=50;x<WORLD.w;x+=100){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}for(let y=50;y<WORLD.h;y+=100){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}for(let gy=35;gy<WORLD.h;gy+=137){for(let gx=27;gx<WORLD.w;gx+=163){const seed=(gx*17+gy*29)%97;if(seed<23){const rx=7+seed%11,ry=3+seed%5;ctx.fillStyle='#10191366';ctx.beginPath();ctx.ellipse(gx+seed%31,gy+seed%19,rx,ry,seed*.04,0,TAU);ctx.fill();ctx.strokeStyle='#59634f55';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(gx+seed%31,gy+seed%19,rx*.68,ry*.55,seed*.04,Math.PI,TAU);ctx.stroke()}if(seed>61){ctx.strokeStyle='#8a8d6b33';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+4+seed%9,gy+1+seed%4);ctx.moveTo(gx+5,gy+6);ctx.lineTo(gx+8,gy+7);ctx.stroke()}}}/* Broad worn service lanes with shoulders and broken faded markings. */const roadV=ctx.createLinearGradient(840,0,960,0);roadV.addColorStop(0,'#10181324');roadV.addColorStop(.18,'#89917a12');roadV.addColorStop(.5,'#070d0b20');roadV.addColorStop(.82,'#a0a58b0c');roadV.addColorStop(1,'#080e0c26');ctx.fillStyle=roadV;ctx.fillRect(840,0,120,WORLD.h);const roadH=ctx.createLinearGradient(0,840,0,960);roadH.addColorStop(0,'#10181324');roadH.addColorStop(.18,'#89917a12');roadH.addColorStop(.5,'#070d0b20');roadH.addColorStop(.82,'#a0a58b0c');roadH.addColorStop(1,'#080e0c26');ctx.fillStyle=roadH;ctx.fillRect(0,840,WORLD.w,120);ctx.strokeStyle='#c2c2a31b';ctx.setLineDash([31,29]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(900,0);ctx.lineTo(900,WORLD.h);ctx.moveTo(0,900);ctx.lineTo(WORLD.w,900);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#050b091f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(846,0);ctx.lineTo(846,WORLD.h);ctx.moveTo(954,0);ctx.lineTo(954,WORLD.h);ctx.moveTo(0,846);ctx.lineTo(WORLD.w,846);ctx.moveTo(0,954);ctx.lineTo(WORLD.w,954);ctx.stroke();
+drawTerrainZones();drawSurfaceDetail();drawGrassBase();drawTrees();drawMedkits();drawIntelBoxes();
 for(const o of obstacles){
  const container=o.type==='container',metal=container?'#53645b':'#647068';
  /* Contact shadow and dark undercut make obstacles sit on the ground. */
