@@ -19,6 +19,10 @@ try {
   const [htmlSource, gameSource] = await Promise.all([readFile('index.html', 'utf8'), readFile('js/game.js', 'utf8')]);
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
+  const spriteFiles = ['assets/tanks/tank-scout.svg','assets/tanks/tank-heavy.svg','assets/tanks/tank-sniper.svg','assets/tanks/tank-support.svg','assets/environment/tree-conifer.svg','assets/environment/tree-autumn.svg','assets/environment/bush.svg','assets/environment/ruin.svg','assets/units/infantry.svg','assets/effects/explosion.svg','assets/effects/smoke.svg'];
+  const spriteContents = await Promise.all(spriteFiles.map(path => readFile(path, 'utf8')));
+  if (spriteContents.some(svg => !svg.includes('<svg') || !svg.includes('</svg>'))) throw new Error('A standalone SVG game asset is invalid');
+  if (!fogSource.includes("loadSprite('treeConifer','./assets/environment/tree-conifer.svg')") || !fogSource.includes("loadSprite('infantry','./assets/units/infantry.svg')") || !fogSource.includes('ctx.drawImage(im,-size*.5,-size*.85,size,size)') || !fogSource.includes('ctx.drawImage(sprite,-8*scale,-12*scale,16*scale,22*scale)')) throw new Error('Environment and infantry sprites are not integrated with Canvas rendering');
   if (!htmlSource.includes('href="./css/game.css"') || !htmlSource.includes('src="./js/game.js"')) throw new Error('External runtime assets are not linked from the HTML shell');
   if (stylesheetSource.includes('repair r3') || stylesheetSource.includes('legacy portrait rules')) throw new Error('Temporary CSS repair layer remains');
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
