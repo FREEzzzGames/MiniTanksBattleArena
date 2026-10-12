@@ -52,8 +52,7 @@ function create(world){
   const x=rng()*W,y=rng()*H,len=3+rng()*26,a=(rng()-.5)*1.15;
   gctx.strokeStyle=rng()>.52?'#0a100d65':'#a2a08430';gctx.lineWidth=.45+rng()*.7;gctx.beginPath();gctx.moveTo(x,y);gctx.lineTo(x+Math.cos(a)*len,y+Math.sin(a)*len);gctx.lineTo(x+Math.cos(a+.18)*len*.42,y+Math.sin(a+.18)*len*.42);gctx.stroke();
  }
- /* Faint parallel track scuffs around the industrial crossroads. */
- gctx.save();gctx.globalAlpha=.13;gctx.strokeStyle='#080d0a';gctx.lineWidth=3;gctx.setLineDash([13,9]);gctx.beginPath();gctx.moveTo(W*.5-24,0);gctx.lineTo(W*.5-24,H);gctx.moveTo(W*.5+24,0);gctx.lineTo(W*.5+24,H);gctx.moveTo(0,H*.5-24);gctx.lineTo(W,H*.5-24);gctx.moveTo(0,H*.5+24);gctx.lineTo(W,H*.5+24);gctx.stroke();gctx.restore();gctx.setLineDash([]);
+ /* Removed world-spanning cross/grid marks; local road wear and scattered track impressions remain. */
  /* Ambient occlusion-like vignette is baked once into terrain, not recomputed per frame. */
  const vignette=gctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.22,W*.5,H*.5,Math.max(W,H)*.76);
  vignette.addColorStop(0,'#00000000');vignette.addColorStop(.72,'#02070408');vignette.addColorStop(1,'#02070428');gctx.fillStyle=vignette;gctx.fillRect(0,0,W,H);
