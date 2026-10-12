@@ -161,10 +161,24 @@ for(const side of [-1,1]){
 const hull=ctx.createLinearGradient(-s*.3,-s*.55,s*.25,s*.58);
 hull.addColorStop(0,light);hull.addColorStop(.18,mid);hull.addColorStop(.56,base);hull.addColorStop(1,dark);
 ctx.fillStyle='#101819';ctx.beginPath();
-if(heavy){
+if(demolisher){
+ ctx.moveTo(-s*.86,-s*.58);ctx.lineTo(-s*.72,-s*.82);ctx.lineTo(s*.25,-s*.82);ctx.lineTo(s*.55,-s*.69);ctx.lineTo(s*.88,-s*.43);
+ ctx.lineTo(s*.9,-s*.2);ctx.lineTo(s*.9,s*.2);ctx.lineTo(s*.88,s*.43);ctx.lineTo(s*.55,s*.69);ctx.lineTo(s*.25,s*.82);
+ ctx.lineTo(-s*.72,s*.82);ctx.lineTo(-s*.86,s*.58);ctx.closePath();
+}else if(ironclad){
+ ctx.moveTo(-s*.8,-s*.62);ctx.lineTo(-s*.58,-s*.78);ctx.lineTo(s*.42,-s*.78);ctx.lineTo(s*.7,-s*.58);
+ ctx.lineTo(s*.82,-s*.36);ctx.lineTo(s*.82,s*.36);ctx.lineTo(s*.7,s*.58);ctx.lineTo(s*.42,s*.78);
+ ctx.lineTo(-s*.58,s*.78);ctx.lineTo(-s*.8,s*.62);ctx.closePath();
+}else if(heavy){
  ctx.moveTo(-s*.82,-s*.56);ctx.lineTo(-s*.62,-s*.78);ctx.lineTo(s*.45,-s*.78);ctx.lineTo(s*.79,-s*.49);
  ctx.lineTo(s*.83,-s*.32);ctx.lineTo(s*.83,s*.32);ctx.lineTo(s*.79,s*.49);ctx.lineTo(s*.45,s*.78);
  ctx.lineTo(-s*.62,s*.78);ctx.lineTo(-s*.82,s*.56);ctx.closePath();
+}else if(viper){
+ ctx.moveTo(-s*.76,-s*.34);ctx.lineTo(-s*.58,-s*.54);ctx.lineTo(s*.45,-s*.48);ctx.lineTo(s*.78,-s*.22);
+ ctx.lineTo(s*.9,0);ctx.lineTo(s*.78,s*.22);ctx.lineTo(s*.45,s*.48);ctx.lineTo(-s*.58,s*.54);ctx.lineTo(-s*.76,s*.34);ctx.closePath();
+}else if(wraith){
+ ctx.moveTo(-s*.82,-s*.37);ctx.lineTo(-s*.61,-s*.51);ctx.lineTo(s*.56,-s*.51);ctx.lineTo(s*.8,-s*.31);
+ ctx.lineTo(s*.8,s*.31);ctx.lineTo(s*.56,s*.51);ctx.lineTo(-s*.61,s*.51);ctx.lineTo(-s*.82,s*.37);ctx.closePath();
 }else if(scout){
  ctx.moveTo(-s*.75,-s*.42);ctx.lineTo(-s*.56,-s*.57);ctx.lineTo(s*.48,-s*.53);ctx.lineTo(s*.72,-s*.3);
  ctx.lineTo(s*.77,-s*.17);ctx.lineTo(s*.77,s*.17);ctx.lineTo(s*.72,s*.3);ctx.lineTo(s*.48,s*.53);
@@ -180,10 +194,24 @@ if(heavy){
 }
 ctx.fill();
 ctx.fillStyle=hull;ctx.beginPath();
-if(heavy){
+if(demolisher){
+ ctx.moveTo(-s*.77,-s*.51);ctx.lineTo(-s*.63,-s*.7);ctx.lineTo(s*.23,-s*.7);ctx.lineTo(s*.48,-s*.59);ctx.lineTo(s*.73,-s*.37);
+ ctx.lineTo(s*.76,-s*.18);ctx.lineTo(s*.76,s*.18);ctx.lineTo(s*.73,s*.37);ctx.lineTo(s*.48,s*.59);ctx.lineTo(s*.23,s*.7);
+ ctx.lineTo(-s*.63,s*.7);ctx.lineTo(-s*.77,s*.51);ctx.closePath();
+}else if(ironclad){
+ ctx.moveTo(-s*.72,-s*.51);ctx.lineTo(-s*.53,-s*.68);ctx.lineTo(s*.38,-s*.68);ctx.lineTo(s*.61,-s*.5);
+ ctx.lineTo(s*.7,-s*.29);ctx.lineTo(s*.7,s*.29);ctx.lineTo(s*.61,s*.5);ctx.lineTo(s*.38,s*.68);
+ ctx.lineTo(-s*.53,s*.68);ctx.lineTo(-s*.72,s*.51);ctx.closePath();
+}else if(heavy){
  ctx.moveTo(-s*.73,-s*.49);ctx.lineTo(-s*.55,-s*.67);ctx.lineTo(s*.4,-s*.67);ctx.lineTo(s*.68,-s*.43);
  ctx.lineTo(s*.71,-s*.27);ctx.lineTo(s*.71,s*.27);ctx.lineTo(s*.68,s*.43);ctx.lineTo(s*.4,s*.67);
  ctx.lineTo(-s*.55,s*.67);ctx.lineTo(-s*.73,s*.49);ctx.closePath();
+}else if(viper){
+ ctx.moveTo(-s*.68,-s*.29);ctx.lineTo(-s*.5,-s*.43);ctx.lineTo(s*.42,-s*.38);ctx.lineTo(s*.68,-s*.17);
+ ctx.lineTo(s*.76,0);ctx.lineTo(s*.68,s*.17);ctx.lineTo(s*.42,s*.38);ctx.lineTo(-s*.5,s*.43);ctx.lineTo(-s*.68,s*.29);ctx.closePath();
+}else if(wraith){
+ ctx.moveTo(-s*.73,-s*.3);ctx.lineTo(-s*.55,-s*.4);ctx.lineTo(s*.5,-s*.4);ctx.lineTo(s*.68,-s*.23);
+ ctx.lineTo(s*.68,s*.23);ctx.lineTo(s*.5,s*.4);ctx.lineTo(-s*.55,s*.4);ctx.lineTo(-s*.73,s*.3);ctx.closePath();
 }else if(scout){
  ctx.moveTo(-s*.67,-s*.35);ctx.lineTo(-s*.5,-s*.48);ctx.lineTo(s*.43,-s*.45);ctx.lineTo(s*.64,-s*.25);
  ctx.lineTo(s*.68,-s*.12);ctx.lineTo(s*.68,s*.12);ctx.lineTo(s*.64,s*.25);ctx.lineTo(s*.43,s*.45);
@@ -442,6 +470,44 @@ if(support){
  ctx.fillStyle='#85cdb8';ctx.fillRect(-s*.66,-s*.055,s*.11,s*.11);ctx.fillRect(-s*.7,-s*.015,s*.19,s*.03);
  ctx.strokeStyle='#b4d4ca';ctx.lineWidth=Math.max(.7,s*.02);
  ctx.beginPath();ctx.moveTo(-s*.68,s*.32);ctx.lineTo(-s*.53,s*.32);ctx.stroke();
+}
+/* Individual vehicle kits: large silhouette cues stay readable at gameplay scale. */
+if(ironclad){
+ /* Heavy armour package: wide cheek blocks and a squared rear engine grille. */
+ ctx.fillStyle='#202a25';ctx.strokeStyle='#aeb69a';ctx.lineWidth=Math.max(.8,s*.025);
+ for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.38,side*s*.43);ctx.lineTo(s*.32,side*s*.43);ctx.lineTo(s*.42,side*s*.58);ctx.lineTo(-s*.3,side*s*.58);ctx.closePath();ctx.fill();ctx.stroke();}
+ ctx.fillStyle='#111a19';ctx.fillRect(-s*.69,-s*.12,s*.18,s*.24);ctx.fillRect(-s*.69-s*.015,-s*.12,s*.025,s*.24);
+}
+if(demolisher){
+ /* Siege chassis: unmistakable front dozer blade, reinforced nose and paired rear ammunition bins. */
+ ctx.fillStyle='#151e1d';ctx.strokeStyle='#c1b994';ctx.lineWidth=Math.max(.9,s*.03);
+ ctx.beginPath();ctx.moveTo(s*.49,-s*.58);ctx.lineTo(s*.91,-s*.47);ctx.lineTo(s*.98,-s*.31);ctx.lineTo(s*.98,s*.31);ctx.lineTo(s*.91,s*.47);ctx.lineTo(s*.49,s*.58);ctx.lineTo(s*.58,s*.25);ctx.lineTo(s*.58,-s*.25);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#8f967c';ctx.fillRect(s*.65,-s*.34,s*.24,s*.07);ctx.fillRect(s*.65,s*.27,s*.24,s*.07);
+ ctx.fillStyle='#202a25';for(const side of [-1,1]){ctx.beginPath();ctx.roundRect(-s*.75,side*s*.36-s*.09,s*.25,s*.18,s*.025);ctx.fill();ctx.stroke();}
+}
+if(viper){
+ /* Raid scout: pointed prow and paired forward sensor eyes. */
+ ctx.fillStyle='#a6d8b5';ctx.beginPath();ctx.moveTo(s*.58,-s*.18);ctx.lineTo(s*.92,0);ctx.lineTo(s*.58,s*.18);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#091315';ctx.beginPath();ctx.arc(s*.56,-s*.16,s*.055,0,TAU);ctx.arc(s*.56,s*.16,s*.055,0,TAU);ctx.fill();
+}
+if(wraith){
+ /* Low-observable scout: broad flat side skirts and a split rear stealth deck. */
+ ctx.fillStyle='#172421';ctx.strokeStyle='#a3b3a2';ctx.lineWidth=Math.max(.7,s*.02);
+ for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.58,side*s*.36);ctx.lineTo(s*.38,side*s*.36);ctx.lineTo(s*.52,side*s*.46);ctx.lineTo(-s*.48,side*s*.46);ctx.closePath();ctx.fill();ctx.stroke();}
+ ctx.fillStyle='#0c1516';ctx.beginPath();ctx.moveTo(-s*.72,-s*.16);ctx.lineTo(-s*.48,-s*.28);ctx.lineTo(-s*.22,0);ctx.lineTo(-s*.48,s*.28);ctx.lineTo(-s*.72,s*.16);ctx.closePath();ctx.fill();
+}
+if(thunder){
+ /* Fire-support vehicle: twin side ammunition pods and a raised rectangular gun cradle. */
+ ctx.fillStyle='#1a2926';ctx.strokeStyle='#b3c9b9';ctx.lineWidth=Math.max(.7,s*.022);
+ for(const side of [-1,1]){ctx.beginPath();ctx.roundRect(-s*.1,side*s*.39-s*.105,s*.52,s*.21,s*.045);ctx.fill();ctx.stroke();ctx.fillStyle='#596c60';for(let rib=0;rib<3;rib++)ctx.fillRect(s*(.01+rib*.12),side*s*.39-s*.035,s*.07,s*.025);ctx.fillStyle='#1a2926';}
+ ctx.fillStyle='#111c1e';ctx.beginPath();ctx.roundRect(s*.22,-s*.14,s*.26,s*.28,s*.035);ctx.fill();
+}
+if(role==='support'){
+ /* SENTINEL service hull: broad rear utility pack and a high-visibility recovery bar. */
+ ctx.fillStyle='#20332f';ctx.strokeStyle='#8bcfbd';ctx.lineWidth=Math.max(.7,s*.02);
+ ctx.beginPath();ctx.roundRect(-s*.78,-s*.24,s*.22,s*.48,s*.035);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#8ce2d0';ctx.fillRect(-s*.73,-s*.12,s*.12,s*.24);
+ ctx.strokeStyle='#d0e3d4';ctx.lineWidth=Math.max(1,s*.035);ctx.beginPath();ctx.moveTo(-s*.65,-s*.35);ctx.lineTo(-s*.65,s*.35);ctx.stroke();
 }
 /* Readable role silhouette and paint marks; no dense bolt fields or tiny stencils. */
 if(heavy){ctx.fillStyle='#a6a27a';ctx.beginPath();ctx.roundRect(-s*.36,-s*.5,s*.22,s*.12,s*.025);ctx.fill();ctx.beginPath();ctx.roundRect(-s*.36,s*.38,s*.22,s*.12,s*.025);ctx.fill()}
