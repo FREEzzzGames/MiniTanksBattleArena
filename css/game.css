@@ -152,6 +152,7 @@ header small,.stat label,.eyebrow{color:#84979e}
 #modal button.secondary{background:#111d24;border:1px solid #4a626b;color:#d7e4e5;border-radius:2px}
 #top-actions button{background:#101b21;border:1px solid #42565e;border-radius:2px;color:#d8e4e6}
 #controls .touch-control{border-radius:3px}
+.tank-select .tank-preview{touch-action:pan-y;pointer-events:none}.tank-select .tank-art,.tank-select .preview-label{pointer-events:none}
 @media(max-width:560px){.tank-select{gap:4px}.tank-card{border-radius:2px}.tank-art{aspect-ratio:1.5}.preview-label{font-size:6px}}
 
 /* Accessible touch controls and user-configurable HUD editor. */
