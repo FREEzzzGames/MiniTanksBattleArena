@@ -4,6 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#081018">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="iron-front-build" content="2026-10-12-landscape-rebuild-r1">
+<script>
+(function(){
+  function applyOrientation(){
+    var gate=document.getElementById('orientationGate');
+    var app=document.getElementById('app');
+    if(!gate||!app)return;
+    var portrait=window.matchMedia ? window.matchMedia('(orientation: portrait)').matches : window.innerHeight>window.innerWidth;
+    var mobile=Math.min(window.innerWidth||0,window.innerHeight||0)<901;
+    var show=portrait&&mobile;
+    gate.style.display=show?'flex':'none';
+    app.style.visibility=show?'hidden':'visible';
+    document.documentElement.dataset.ironOrientation=show?'portrait-blocked':'landscape-ready';
+  }
+  document.addEventListener('DOMContentLoaded',applyOrientation,{once:true});
+  window.addEventListener('resize',applyOrientation,{passive:true});
+  window.addEventListener('orientationchange',function(){setTimeout(applyOrientation,80);},{passive:true});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',applyOrientation,{passive:true});
+})();
+</script>
 <meta name="description" content="IRON FRONT — самостоятельная браузерная танковая игра с отрядом, укрытиями и бронёй.">
 <title>IRON FRONT — Танковый бой</title>
 <style>
@@ -52,6 +75,16 @@
 }
 
 
+/* Build 2026-10-12: strict mobile landscape gate; keep this last to override legacy portrait rules. */
+@media screen and (orientation:portrait) and (max-width:900px){
+  html,body{width:100%;height:100%;overflow:hidden}
+  #orientationGate{display:flex!important;visibility:visible!important}
+  #app{visibility:hidden!important;pointer-events:none!important}
+}
+@media screen and (orientation:landscape){
+  #orientationGate{display:none!important}
+  #app{visibility:visible!important;pointer-events:auto!important}
+}
 /* IRON FRONT — landscape-first combat layout */
 #orientationGate{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:28px;text-align:center;background:radial-gradient(ellipse at center,#172a31 0%,#070c11 72%);color:#eaf5f7}
 #orientationGate .rotate-icon{font-size:54px;line-height:1;color:var(--cyan);animation:rotateHint 1.8s ease-in-out infinite}
