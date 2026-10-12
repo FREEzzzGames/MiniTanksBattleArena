@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-const s=(t.size||22)*scale,role=t.role||'player',base=t.hitFlash>0?'#fff':t.team==='player'?'#53dca3':t.team==='ally'?'#4dbacb':({brawler:'#b64e45',scout:'#b4c65a',sniper:'#9182d5',assault:'#df754f',support:'#d0a4f4',heavy:'#b9a56b'}[role]||'#53dca3'),heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
+const s=(t.size||22)*scale,role=t.role||'player',base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':({brawler:'#b64e45',scout:'#b4c65a',sniper:'#9182d5',assault:'#df754f',support:'#d0a4f4',heavy:'#b9a56b'}[role]||'#53dca3'),heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
 ctx.save();ctx.rotate(rotation);ctx.scale(scale,scale);
 
 /* Proportions pass: long, low hull; paired side tracks; consistent bilateral geometry. */
@@ -449,9 +449,9 @@ ctx.restore();
 }
 function renderTankPreviews(){if(document.hidden||ui.overlay.classList.contains('hidden'))return;const now=performance.now()*.00016;for(const cv of document.querySelectorAll('.tank-preview')){const c=cv.getContext('2d');if(!c)continue;const w=cv.width,h=cv.height,role=cv.dataset.previewTank,profile=tankProfiles[role]||tankProfiles.player;c.clearRect(0,0,w,h);const bg=c.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#16242b');bg.addColorStop(.52,'#0a1218');bg.addColorStop(1,'#182027');c.fillStyle=bg;c.fillRect(0,0,w,h);c.strokeStyle='#8cb3bf16';c.lineWidth=1;for(let x=0;x<w;x+=16){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<h;y+=16){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}const glow=c.createRadialGradient(w*.5,h*.57,3,w*.5,h*.57,82);glow.addColorStop(0,role==='support'?'#74ffcc2b':'#7adfff20');glow.addColorStop(1,'#00000000');c.fillStyle=glow;c.fillRect(0,0,w,h);c.save();c.translate(w*.5,h*.53);c.scale(1.5,1.5);const preview={...profile,team:'player',role,x:0,y:0,a:0,turret:0,hitFlash:0};const turn=now+({player:0,heavy:.28,scout:.57,sniper:.84,support:1.12}[role]||0);c.rotate(turn);drawTankModel(c,preview,1,0);c.restore();c.fillStyle='#d6edf1';c.font='bold 8px monospace';c.fillText('MTBA / FIELD MODEL',8,h-7)}}
 function drawTank(t){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.a);
-/* Combat readability pass: enlarge the silhouette without changing hitboxes, movement, aiming or collision radii. */
-const visualScale=t.role==='heavy'||t.role==='brawler'?1.22:t.role==='scout'?1.14:t.role==='sniper'?1.19:1.2;
-ctx.scale(visualScale,visualScale);drawTankModel(ctx,t,1,0);ctx.restore();}
+/* Combat readability pass r6: scale the shared model itself, not its hitbox. */
+const visualScale=t.role==='heavy'||t.role==='brawler'?1.42:t.role==='scout'?1.28:t.role==='sniper'?1.36:1.38;
+drawTankModel(ctx,t,visualScale,0);ctx.restore();}
 let groundGrainPattern=null;
 function getGroundGrainPattern(){
  if(groundGrainPattern)return groundGrainPattern;
@@ -508,7 +508,7 @@ function drawTerrainZones(){
 }
 function drawSurfaceDetail(){
 /* Deterministic battlefield texture: painted road wear, dust, chips and small debris. */
-for(let gy=35;gy<WORLD.h;gy+=83){for(let gx=27;gx<WORLD.w;gx+=91){
+for(let gy=35;gy<WORLD.h;gy+=112){for(let gx=27;gx<WORLD.w;gx+=123){
 const q=Math.abs((gx*23+gy*19)%101),x=gx+q%31,y=gy+(q*3)%23,r=2+q%7;
 if(q<34){ctx.fillStyle='#080e0b32';ctx.beginPath();ctx.ellipse(x,y,r*1.9,r*.78,q*.07,0,TAU);ctx.fill();ctx.strokeStyle='#a4aa8b25';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x-1,y-1,r*1.12,r*.45,q*.07,Math.PI*1.05,Math.PI*1.85);ctx.stroke()}
 if(q>37&&q<57){ctx.strokeStyle='#c0c6ad22';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+3+(q%5),y+1+(q%3));ctx.lineTo(x+5+(q%4),y-2);ctx.stroke()}
@@ -521,9 +521,9 @@ for(let x=70;x<WORLD.w;x+=260){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORL
 ctx.restore();
  /* Cached procedural micro-grain adds concrete/soil variation without per-frame noise generation. */
  const grain=getGroundGrainPattern();
- if(grain){ctx.save();ctx.globalAlpha=.115;ctx.globalCompositeOperation='soft-light';ctx.fillStyle=grain;ctx.fillRect(0,0,WORLD.w,WORLD.h);ctx.restore()}
+ if(grain){ctx.save();ctx.globalAlpha=.075;ctx.globalCompositeOperation='soft-light';ctx.fillStyle=grain;ctx.fillRect(0,0,WORLD.w,WORLD.h);ctx.restore()}
  /* Shallow impact pits and worn track-like scuffs, placed deterministically in world space. */
- for(let gy=74;gy<WORLD.h;gy+=211)for(let gx=61;gx<WORLD.w;gx+=227){
+ for(let gy=74;gy<WORLD.h;gy+=270)for(let gx=61;gx<WORLD.w;gx+=285){
   const h=(gx*29+gy*43)%113,x=gx+h%47,y=gy+(h*7)%39;
   if(h<34){
    const r=2+h%5;ctx.fillStyle='#080e0b2b';ctx.beginPath();ctx.ellipse(x,y,r*1.9,r*.62,h*.13,0,TAU);ctx.fill();
