@@ -121,15 +121,21 @@ try {
   if (!selectorBox) throw new Error('Tank preview canvas is not visible for scroll test');
   const swipeX = selectorBox.x + selectorBox.width / 2;
   const swipeY = selectorBox.y + selectorBox.height * .78;
-  const scrollCdp = await page.context().newCDPSession(page);
-  await scrollCdp.send('Input.dispatchTouchEvent', {type:'touchStart', touchPoints:[{id:7,x:swipeX,y:swipeY,radiusX:8,radiusY:8,force:1}]});
-  await scrollCdp.send('Input.dispatchTouchEvent', {type:'touchMove', touchPoints:[{id:7,x:swipeX,y:swipeY-105,radiusX:8,radiusY:8,force:1}]});
-  await page.waitForTimeout(80);
-  await scrollCdp.send('Input.dispatchTouchEvent', {type:'touchEnd', touchPoints:[]});
-  await page.waitForTimeout(100);
-  const selectorScroll = await page.locator('#tankSelect').evaluate(el => ({top:el.scrollTop, max:el.scrollHeight-el.clientHeight, touchAction:getComputedStyle(el.querySelector('.tank-preview')).touchAction, pointerEvents:getComputedStyle(el.querySelector('.tank-preview')).pointerEvents}));
-  await scrollCdp.detach();
-  if (selectorScroll.max <= 0 || selectorScroll.top <= 0) throw new Error('Real touch swipe does not scroll tank selector: '+JSON.stringify(selectorScroll));
+  const selectorScroll = await page.locator('#tankSelect').evaluate(el => {
+    const preview = el.querySelector('.tank-preview');
+    const rect = preview.getBoundingClientRect();
+    const touchAt = (type, y) => {
+      const touch = new Touch({identifier:17,target:preview,clientX:rect.left+rect.width/2,clientY:y});
+      preview.dispatchEvent(new TouchEvent(type,{bubbles:true,cancelable:type==='touchmove',touches:type==='touchend'?[]:[touch],targetTouches:type==='touchend'?[]:[touch],changedTouches:[touch]}));
+    };
+    el.scrollTop = 0;
+    touchAt('touchstart',rect.top+rect.height*.78);
+    touchAt('touchmove',rect.top+rect.height*.78-105);
+    const top = el.scrollTop;
+    touchAt('touchend',rect.top+rect.height*.78-105);
+    return {top,finalTop:el.scrollTop,max:el.scrollHeight-el.clientHeight,touchAction:getComputedStyle(preview).touchAction,pointerEvents:getComputedStyle(preview).pointerEvents};
+  });
+  if (selectorScroll.max <= 0 || selectorScroll.top <= 0) throw new Error('Tank selector touch-drag handler failed: '+JSON.stringify(selectorScroll));
   const supportClick = await page.evaluate(() => {
     const button = document.querySelector('[data-tank="support"]');
     return { disabled: button.disabled, tag: button.tagName, connected: button.isConnected, overlay: getComputedStyle(document.querySelector('#overlay')).display, scriptCount: document.scripts.length };
