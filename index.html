@@ -140,7 +140,7 @@ for(let i=impactLights.length-1;i>=0;i--){impactLights[i].life-=dt;if(impactLigh
 screenShake=Math.max(0,screenShake-dt*1.9);screenFlash=Math.max(0,screenFlash-dt*.85);
 for(let i=tanks.length-1;i>=0;i--)if(!tanks[i].alive&&tanks[i].team!=='player')tanks.splice(i,1);
 if(enemies().length===0&&!gameOver){wave++;spawnWave();for(const a of allies())a.hp=Math.min(a.maxHp,a.hp+12)}
-ui.health.textContent=Math.max(0,Math.ceil(p.hp));ui.ammo.textContent=p.ammo+' / '+p.maxAmmo;ui.ammo.style.color=p.ammo===0?'var(--red)':p.ammo<=2?'var(--amber)':'var(--green)';ui.healthBar.style.width=(clamp(p.hp/p.maxHp,0,1)*100)+'%';ui.healthBar.style.background=p.hp<35?'var(--red)':'var(--green)';ui.smoke.textContent='ДЫМ ×'+p.smokeCharges;
+ui.health.textContent=Math.max(0,Math.ceil(p.hp));ui.ammo.textContent=p.ammo+' / '+p.maxAmmo;ui.ammo.style.color=p.ammo===0?'var(--red)':p.ammo<=2?'var(--amber)':'var(--green)';ui.healthBar.style.width=(clamp(p.hp/p.maxHp,0,1)*100)+'%';ui.healthBar.style.background=p.hp<35?'var(--red)':'var(--green)';ui.smoke.querySelector('b').textContent='×'+p.smokeCharges;
 if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)ui.toast.style.opacity='0'}
 }
 let camera={x:0,y:0};
