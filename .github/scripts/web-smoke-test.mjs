@@ -32,7 +32,7 @@ try {
   if (await page.locator('#joystick').count() !== 1 || await page.locator('#joystickStick').count() !== 1) throw new Error('Fixed touch joystick missing');
   const joystickSource = await readFile('js/game.js', 'utf8');
   if (!joystickSource.includes('function beginJoystick(e)') || !joystickSource.includes('joystickVector={x,y}') || !joystickSource.includes('let x=joystickVector.x,y=joystickVector.y')) throw new Error('Fixed joystick pointer input is not connected to player movement');
-  if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
+  if (await page.locator('[data-tank]').count() !== 9) throw new Error('Expected nine tank selection cards');
   const [htmlSource, gameSource] = await Promise.all([readFile('index.html', 'utf8'), readFile('js/game.js', 'utf8')]);
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
