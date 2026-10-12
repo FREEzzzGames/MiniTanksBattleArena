@@ -123,7 +123,27 @@ ctx.beginPath();ctx.moveTo(-s*.59,-s*.28);ctx.lineTo(-s*.42,-s*.39);ctx.lineTo(-
 ctx.fillStyle='#111b1d';ctx.beginPath();ctx.roundRect(-s*.18,-s*.29,s*.36,s*.16,2);ctx.fill();ctx.fillStyle=laser?'#68eaff':support?'#91eaff':scout?'#d6a8ff':'#b5d8c5';ctx.fillRect(-s*.11,-s*.26,s*.22,s*.045);
 for(const [hx,hy] of [[-.51,-.12],[.51,-.12],[-.51,.12],[.51,.12]]){ctx.fillStyle='#182124';ctx.beginPath();ctx.arc(s*hx,s*hy,s*.055,0,TAU);ctx.fill();ctx.fillStyle='#91a49c';ctx.beginPath();ctx.arc(s*hx,s*hy,s*.025,0,TAU);ctx.fill()}
 ctx.restore();
-ctx.fillStyle='#263940';ctx.fillRect(-s*.46,-s*.31,s*.92,s*.62);ctx.fillStyle=base;ctx.fillRect(-s*.34,-s*.23,s*.68,s*.46);ctx.fillStyle='#18272e';ctx.fillRect(-s*.12,-s*.22,s*.24,s*.44);ctx.strokeStyle='#e0e8d066';ctx.strokeRect(-s*.39,-s*.27,s*.78,s*.54);
+/* Layered steel deck with bevels, welds, hatch and realistic value breakup. */
+ctx.fillStyle='#101719';ctx.fillRect(-s*.49,-s*.34,s*.98,s*.68);
+const deck=ctx.createLinearGradient(-s*.42,-s*.32,s*.42,s*.32);
+deck.addColorStop(0,heavy?'#8a8b79':scout?'#8e9b70':laser?'#7d8490':support?'#75949a':'#8a9b8b');
+deck.addColorStop(.32,base);deck.addColorStop(.72,heavy?'#4c554e':'#3a4a43');deck.addColorStop(1,'#172226');
+ctx.fillStyle=deck;ctx.beginPath();ctx.moveTo(-s*.42,-s*.29);ctx.lineTo(s*.35,-s*.29);ctx.lineTo(s*.47,-s*.16);ctx.lineTo(s*.47,s*.19);ctx.lineTo(s*.34,s*.3);ctx.lineTo(-s*.37,s*.3);ctx.lineTo(-s*.48,s*.16);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#d8e0cf8a';ctx.lineWidth=Math.max(.6,s*.025);ctx.stroke();
+ctx.strokeStyle='#0c1518a8';ctx.lineWidth=Math.max(.7,s*.035);ctx.beginPath();ctx.moveTo(-s*.34,-s*.2);ctx.lineTo(s*.31,-s*.2);ctx.moveTo(-s*.35,s*.21);ctx.lineTo(s*.31,s*.21);ctx.stroke();
+/* Raised center spine and non-emissive maintenance hatch. */
+ctx.fillStyle='#172327';ctx.beginPath();ctx.roundRect(-s*.14,-s*.25,s*.28,s*.5,2);ctx.fill();
+ctx.fillStyle='#66776e';ctx.beginPath();ctx.roundRect(-s*.105,-s*.21,s*.21,s*.42,2);ctx.fill();
+ctx.strokeStyle='#c0c9b777';ctx.lineWidth=.7;ctx.strokeRect(-s*.085,-s*.17,s*.17,s*.34);
+ctx.fillStyle='#1b2829';ctx.fillRect(-s*.045,-s*.125,s*.09,s*.25);
+ctx.fillStyle='#b5c1b2';ctx.fillRect(-s*.02,-s*.09,s*.04,s*.18);
+/* Bolted corner armor and recessed lifting points. */
+for(const [bx,by] of [[-.38,-.23],[.38,-.23],[-.38,.23],[.38,.23]]){ctx.fillStyle='#182224';ctx.beginPath();ctx.arc(s*bx,s*by,s*.045,0,TAU);ctx.fill();ctx.fillStyle='#a6b1a2';ctx.beginPath();ctx.arc(s*bx,s*by,s*.022,0,TAU);ctx.fill();ctx.fillStyle='#34433e';ctx.fillRect(s*bx-s*.013,s*by-s*.006,s*.026,s*.012)}
+/* Exhaust vents and grime staining differ by chassis class. */
+ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(-s*.34,-s*.12,s*.13,s*.24,1);ctx.fill();
+for(let vent=0;vent<3;vent++){ctx.strokeStyle='#89988a88';ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(-s*.32,-s*.075+vent*s*.07);ctx.lineTo(-s*.23,-s*.075+vent*s*.07);ctx.stroke()}
+ctx.fillStyle='#161d1b70';ctx.beginPath();ctx.ellipse(s*.29,0,s*.09,s*.2,.1,0,TAU);ctx.fill();
+
 for(const [bx,by] of [[-.67,-.35],[.65,-.35],[-.67,.35],[.65,.35]]){ctx.fillStyle='#d7dfd0a0';ctx.beginPath();ctx.arc(s*bx,s*by,s*.04,0,TAU);ctx.fill()}
 ctx.save();ctx.rotate((t.turret||t.a||0)-(t.a||0));
 /* Role-specific turret geometry and readable silhouettes. */
@@ -140,6 +160,20 @@ else if(scout){ctx.fillStyle='#d9a3ff';ctx.beginPath();ctx.arc(-s*.28,-s*.32,s*.
 else if(laser){ctx.fillStyle='#6beaff';ctx.beginPath();ctx.arc(-s*.25,-s*.3,s*.065,0,TAU);ctx.fill();ctx.beginPath();ctx.arc(-s*.25,s*.3,s*.065,0,TAU);ctx.fill()}
 else if(support){ctx.strokeStyle='#83e8ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,s*.37,0,TAU);ctx.stroke();ctx.fillStyle='#83e8ff';ctx.fillRect(-s*.07,-s*.07,s*.14,s*.14)}
 else{ctx.fillStyle='#e2f4c8';ctx.fillRect(-s*.42,-s*.4,s*.12,s*.06);ctx.fillRect(-s*.42,s*.34,s*.12,s*.06)}
+/* Turret cast-metal shading, mantlet, barrel collar and muzzle opening. */
+ctx.save();
+const metal=ctx.createLinearGradient(-s*.35,-s*.3,s*.38,s*.32);
+metal.addColorStop(0,'#c5d0c3');metal.addColorStop(.22,base);metal.addColorStop(.58,'#46544e');metal.addColorStop(1,'#151f22');
+ctx.fillStyle=metal;ctx.beginPath();ctx.roundRect(-s*.32,-s*.27,s*.64,s*.54,Math.max(2,s*.09));ctx.fill();
+ctx.strokeStyle='#d5e0d288';ctx.lineWidth=Math.max(.6,s*.025);ctx.stroke();
+ctx.fillStyle='#182326';ctx.beginPath();ctx.arc(0,0,s*.19,0,TAU);ctx.fill();
+ctx.fillStyle='#7c8e84';ctx.beginPath();ctx.arc(0,0,s*.135,0,TAU);ctx.fill();
+ctx.fillStyle='#25353a';ctx.beginPath();ctx.arc(0,0,s*.085,0,TAU);ctx.fill();
+ctx.fillStyle=laser?'#64dff0':support?'#8be9e0':scout?'#d8b1ff':'#d8e2d2';ctx.beginPath();ctx.arc(0,0,s*.035,0,TAU);ctx.fill();
+ctx.restore();
+/* Paint chips and soot near the exhaust, deterministic per model. */
+ctx.fillStyle='#10171588';ctx.beginPath();ctx.ellipse(-s*.34,s*.27,s*.12,s*.045,-.25,0,TAU);ctx.fill();
+ctx.fillStyle='#d8dfcb55';ctx.fillRect(s*.39,-s*.07,s*.035,s*.14);
 ctx.restore();
 ctx.restore();
 }
