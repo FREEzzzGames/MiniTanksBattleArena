@@ -152,4 +152,44 @@ $('arena-wrap').addEventListener('pointerdown',beginTouchMove);$('arena-wrap').a
 canvas.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){const r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true}});canvas.addEventListener('pointerdown',e=>{initAudio();if(e.pointerType==='mouse'){mouse.down=true;canvas.setPointerCapture?.(e.pointerId);const r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true}});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>canvas.addEventListener(ev,()=>mouse.down=false));canvas.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('blur',()=>{mouse.down=false;input.fire=false;touchMoveTarget=null;touchMovePointer=null});document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!paused)togglePause()});
 buildArena();resize();renderTankPreviews();setInterval(renderTankPreviews,33);requestAnimationFrame(loop);
+
+function initHudCustomizer(){
+const panel=$('settingsPanel'),ids=['intelBtn','smokeBtn','targetBtn','fireBtn','orderBtn','coverBtn','hud','message','pauseBtn','menuBtn','settingsBtn'];
+const labels={intelBtn:'Разведка',smokeBtn:'Дым',targetBtn:'Цель',fireBtn:'Огонь',orderBtn:'Отряд',coverBtn:'Укрыться',hud:'Панель характеристик',message:'Сообщение арены',pauseBtn:'Пауза',menuBtn:'Меню',settingsBtn:'Настройки'};
+const movable=ids.map(id=>$(id)).filter(Boolean),defaults=new Map(),layout={},backgrounds={};let editing=false,drag=null;
+const root=$('app'),wrap=$('arena-wrap');
+const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback}catch(_){return fallback}};
+const save=()=>{try{localStorage.setItem('mtba-hud-layout',JSON.stringify(layout));localStorage.setItem('mtba-hud-backgrounds',JSON.stringify(backgrounds))}catch(_){}};
+for(const el of movable){defaults.set(el.id,{left:el.style.left,top:el.style.top,right:el.style.right,bottom:el.style.bottom,transform:el.style.transform,width:el.style.width,height:el.style.height});}
+Object.assign(layout,read('mtba-hud-layout',{}));Object.assign(backgrounds,read('mtba-hud-backgrounds',{}));
+const layoutSelect=$('layoutElement'),bgSelect=$('backgroundElement');
+for(const id of ids){if(!$(id))continue;for(const sel of [layoutSelect,bgSelect]){const o=document.createElement('option');o.value=id;o.textContent=labels[id]||id;sel.append(o)}}
+function applyLayout(){for(const id of ids){const el=$(id),v=layout[id];if(!el||!v)continue;if(v.x!==undefined&&v.y!==undefined){el.style.left=(v.x*100)+'%';el.style.top=(v.y*100)+'%';el.style.right='auto';el.style.bottom='auto';el.style.transform='translate(-50%,-50%)'}if(v.size)el.style.scale=String(v.size/100)}}
+function applyBackground(id){const el=$(id),v=backgrounds[id];if(!el||!v)return;const alpha=Math.round((v.opacity??92)*2.55).toString(16).padStart(2,'0');el.style.background=v.color+alpha}
+function applyAllBackgrounds(){for(const id of ids)applyBackground(id)}
+function selectLayout(){const id=layoutSelect.value,v=layout[id]||{size:100};$('layoutSize').value=v.size||100;$('layoutSizeValue').textContent=(v.size||100)+'%';movable.forEach(el=>el.classList.toggle('hud-edit-selected',editing&&el.id===id))}
+function setEditing(on){editing=on;root.classList.toggle('layout-editing',on);selectLayout();if(!on)drag=null}
+function openSettings(){panel.hidden=false;paused=running?true:paused;input.fire=false;setEditing(false)}
+$('settingsBtn').addEventListener('click',()=>{if(panel.hidden)openSettings();else panel.hidden=true});
+$('closeSettings').addEventListener('click',()=>{panel.hidden=true;setEditing(false)});
+document.querySelectorAll('[data-settings-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-settings-tab]').forEach(t=>t.classList.toggle('active',t===b));$('layoutSettings').hidden=b.dataset.settingsTab!=='layout';$('backgroundSettings').hidden=b.dataset.settingsTab!=='backgrounds'}));
+$('editLayoutToggle').addEventListener('change',e=>setEditing(e.target.checked));
+layoutSelect.addEventListener('change',selectLayout);
+$('layoutSize').addEventListener('input',e=>{const id=layoutSelect.value;layout[id]=layout[id]||{x:.5,y:.5,size:100};layout[id].size=+e.target.value;$('layoutSizeValue').textContent=e.target.value+'%';const el=$(id);if(el)el.style.scale=String(+e.target.value/100);save()});
+$('saveLayout').addEventListener('click',()=>{save();say('РАСКЛАДКА СОХРАНЕНА')});
+$('resetLayout').addEventListener('click',()=>{for(const id of ids){delete layout[id];const el=$(id),d=defaults.get(id);if(!el||!d)continue;el.style.left=d.left;el.style.top=d.top;el.style.right=d.right;el.style.bottom=d.bottom;el.style.transform=d.transform;el.style.width=d.width;el.style.height=d.height;el.style.scale=''}try{localStorage.removeItem('mtba-hud-layout')}catch(_){}selectLayout()});
+bgSelect.addEventListener('change',()=>{const v=backgrounds[bgSelect.value]||{color:'#172630',opacity:92};$('backgroundColor').value=v.color;$('backgroundOpacity').value=v.opacity;$('backgroundOpacityValue').textContent=v.opacity+'%'});
+function setBg(id,color,opacity){backgrounds[id]={color,opacity};applyBackground(id);save()}
+$('applyOneBackground').addEventListener('click',()=>{setBg(bgSelect.value,$('backgroundColor').value,+$('backgroundOpacity').value);say('ФОН ЭЛЕМЕНТА ИЗМЕНЁН')});
+$('applyAllBackground').addEventListener('click',()=>{for(const id of ids)setBg(id,$('backgroundColor').value,+$('backgroundOpacity').value);say('ЕДИНЫЙ ФОН ПРИМЕНЁН')});
+$('backgroundOpacity').addEventListener('input',e=>{$('backgroundOpacityValue').textContent=e.target.value+'%'});
+$('resetBackgrounds').addEventListener('click',()=>{for(const id of ids){delete backgrounds[id];const el=$(id);if(el)el.style.background=''}try{localStorage.removeItem('mtba-hud-backgrounds')}catch(_){}});
+function dragStart(e){if(!editing||e.button!==undefined&&e.button!==0)return;const el=e.target.closest('#controls .touch-control,#hud,#message,#top-actions button');if(!el||!ids.includes(el.id))return;if(el.id==='settingsBtn')return;e.preventDefault();drag={id:el.id,pointer:e.pointerId,el};layoutSelect.value=el.id;selectLayout();try{el.setPointerCapture(e.pointerId)}catch(_){}}
+function dragMove(e){if(!drag||e.pointerId!==drag.pointer)return;const r=wrap.getBoundingClientRect();const x=Math.max(.035,Math.min(.965,(e.clientX-r.left)/r.width)),y=Math.max(.06,Math.min(.94,(e.clientY-r.top)/r.height));layout[drag.id]=layout[drag.id]||{size:100};layout[drag.id].x=x;layout[drag.id].y=y;const el=drag.el;el.style.left=(x*100)+'%';el.style.top=(y*100)+'%';el.style.right='auto';el.style.bottom='auto';el.style.transform='translate(-50%,-50%)';save()}
+function dragEnd(e){if(drag&&(!e||e.pointerId===drag.pointer)){drag=null}}
+root.addEventListener('pointerdown',dragStart,true);window.addEventListener('pointermove',dragMove);window.addEventListener('pointerup',dragEnd);window.addEventListener('pointercancel',dragEnd);
+applyLayout();applyAllBackgrounds();selectLayout();bgSelect.dispatchEvent(new Event('change'));
+}
+initHudCustomizer();
+
 })();
