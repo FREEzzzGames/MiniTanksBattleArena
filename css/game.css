@@ -210,3 +210,14 @@ header small,.stat label,.eyebrow{color:#84979e}
 @media (orientation:landscape) and (max-height:500px){
   #toast{top:42px;max-width:min(460px,calc(100% - 24px));font-size:9px;padding:5px 8px}
 }
+
+
+/* r6: reserve a clean reading area for combat status; keep buttons clear of the tank silhouette. */
+#message{max-width:min(520px,calc(100% - 32px));letter-spacing:.09em}
+#toast{left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:min(440px,calc(100% - 28px));text-wrap:balance}
+@media (orientation:landscape) and (max-height:500px){
+  #message{max-width:min(460px,calc(100% - 30px));font-size:9px;padding:5px 8px}
+  #controls .intel-control{right:clamp(380px,34vw,500px)}
+  #controls .smoke-control{right:clamp(295px,25vw,380px)}
+  #controls .cover-control{right:clamp(210px,17vw,260px)}
+}
