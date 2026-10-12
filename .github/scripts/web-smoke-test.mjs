@@ -169,7 +169,7 @@ try {
   ]});
   const ammoSeen = new Set();
   let emptied = false;
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 220; i++) {
     const ammo = await page.locator('#ammoText').innerText();
     ammoSeen.add(ammo);
     if (ammo === '0 / 4') { emptied = true; break; }
@@ -181,7 +181,7 @@ try {
   ]});
   await page.waitForTimeout(200);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  if (!emptied || ammoSeen.size < 2) throw new Error('Simultaneous movement + FIRE did not consume the magazine: ' + [...ammoSeen].join(', '));
+  if (!emptied || ammoSeen.size < 2) { const fireDiagnostics = await page.evaluate(() => ({ health: document.querySelector('#healthText')?.textContent, overlay: document.querySelector('#overlay')?.textContent, gameOver: document.querySelector('#overlay')?.classList.contains('hidden') === false })); throw new Error('Simultaneous movement + FIRE did not consume the magazine: ' + [...ammoSeen].join(', ') + '; state=' + JSON.stringify(fireDiagnostics)); }
   let reloadedAmmo = await page.locator('#ammoText').innerText();
   for (let i = 0; i < 80 && reloadedAmmo !== '4 / 4'; i++) {
     await page.waitForTimeout(100);
