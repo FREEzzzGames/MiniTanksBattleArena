@@ -238,6 +238,48 @@ ctx.restore();
 ctx.save();ctx.rotate((Number.isFinite(t.mgAngle)?t.mgAngle:(t.turret||t.a||0))-(t.a||0));const mgScale=s;ctx.fillStyle='#101719';ctx.beginPath();ctx.roundRect(-mgScale*.13,-mgScale*.19,mgScale*.32,mgScale*.38,mgScale*.06);ctx.fill();ctx.strokeStyle='#b8c7b5';ctx.lineWidth=Math.max(.6,mgScale*.025);ctx.stroke();ctx.fillStyle='#4d5b53';ctx.beginPath();ctx.roundRect(mgScale*.02,-mgScale*.07,mgScale*.51,mgScale*.14,mgScale*.035);ctx.fill();ctx.fillStyle='#151e21';ctx.fillRect(mgScale*.35,-mgScale*.09,mgScale*.22,mgScale*.18);ctx.fillStyle='#a9b7a9';ctx.fillRect(mgScale*.42,-mgScale*.055,mgScale*.16,mgScale*.11);ctx.fillStyle='#11191b';ctx.fillRect(-mgScale*.06,-mgScale*.27,mgScale*.09,mgScale*.11);ctx.fillStyle='#d2dccc';ctx.fillRect(-mgScale*.045,-mgScale*.25,mgScale*.06,mgScale*.07);ctx.restore();
 /* Antenna base, radio aerial, rear tow hooks and external stowage. */
 ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(-s*.58,s*.31,s*.075,0,TAU);ctx.fill();ctx.strokeStyle='#d4ddce';ctx.lineWidth=Math.max(.45,s*.014);ctx.beginPath();ctx.moveTo(-s*.58,s*.31);ctx.lineTo(-s*.69,s*.68);ctx.stroke();ctx.fillStyle='#202b2a';ctx.beginPath();ctx.roundRect(s*.53,s*.27,s*.19,s*.12,1.5);ctx.fill();ctx.strokeStyle='#b5c1ad77';ctx.stroke();ctx.fillStyle='#b9c6b7';ctx.fillRect(s*.58,s*.3,s*.09,s*.018);ctx.strokeStyle='#c4cfbf';ctx.lineWidth=Math.max(.5,s*.018);ctx.beginPath();ctx.moveTo(-s*.61,s*.44);ctx.lineTo(-s*.78,s*.48);ctx.lineTo(-s*.78,s*.55);ctx.moveTo(s*.61,s*.44);ctx.lineTo(s*.78,s*.48);ctx.lineTo(s*.78,s*.55);ctx.stroke();
+/* Model-specific field equipment: spare track links, intake grilles, optics and lamps.
+   Kept inside the shared renderer so previews and battlefield vehicles stay identical. */
+if(heavy){
+  /* Bolt-on reactive armour cassettes across the turret cheeks. */
+  for(const side of [-1,1])for(let k=0;k<2;k++){
+    const ex=s*(side*.39),ey=s*(-.13+k*.25);
+    ctx.fillStyle='#182321';ctx.beginPath();ctx.roundRect(ex-s*.075,ey-s*.07,s*.15,s*.14,Math.max(.8,s*.025));ctx.fill();
+    ctx.fillStyle='#68766a';ctx.beginPath();ctx.moveTo(ex-s*.065,ey-s*.052);ctx.lineTo(ex+s*.055,ey-s*.045);ctx.lineTo(ex+s*.065,ey+s*.045);ctx.lineTo(ex-s*.055,ey+s*.05);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='#d4c59a77';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
+    ctx.fillStyle='#b6c0aa';ctx.fillRect(ex-s*.045,ey-s*.01,s*.09,s*.018);
+  }
+}else if(scout){
+  /* Recon sensor mast and twin low-light optics. */
+  ctx.fillStyle='#111b20';ctx.beginPath();ctx.roundRect(-s*.49,-s*.18,s*.13,s*.25,1);ctx.fill();
+  ctx.strokeStyle='#c4d0b9';ctx.lineWidth=Math.max(.5,s*.018);ctx.beginPath();ctx.moveTo(-s*.43,-s*.12);ctx.lineTo(-s*.5,-s*.42);ctx.stroke();
+  ctx.fillStyle='#8fe9f4';ctx.beginPath();ctx.arc(-s*.5,-s*.43,s*.035,0,TAU);ctx.fill();
+}else if(laser){
+  /* Long-range optic hood and heat-resistant barrel support. */
+  ctx.fillStyle='#15252b';ctx.beginPath();ctx.roundRect(-s*.4,-s*.42,s*.26,s*.12,1.5);ctx.fill();
+  ctx.fillStyle='#7de8f5';ctx.fillRect(-s*.35,-s*.395,s*.14,s*.045);
+  ctx.strokeStyle='#c2d2ce';ctx.lineWidth=Math.max(.55,s*.02);ctx.beginPath();ctx.moveTo(s*.56,-s*.09);ctx.lineTo(s*.76,-s*.09);ctx.moveTo(s*.56,s*.09);ctx.lineTo(s*.76,s*.09);ctx.stroke();
+}else if(support){
+  /* Support vehicle: protected equipment cases and status indicators. */
+  for(let k=0;k<2;k++){const ey=-s*.19+k*s*.38;ctx.fillStyle='#182526';ctx.beginPath();ctx.roundRect(-s*.49,ey-s*.065,s*.2,s*.13,1.5);ctx.fill();ctx.strokeStyle='#9ddfd6';ctx.lineWidth=.6;ctx.stroke();ctx.fillStyle=k?'#d8bd69':'#7be5d0';ctx.fillRect(-s*.44,ey-s*.018,s*.1,s*.036)}
+}
+/* Visible cooling louvers and a small service stencil on the rear deck. */
+ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(-s*.36,s*.29,s*.22,s*.09,1.5);ctx.fill();
+for(let k=0;k<4;k++){ctx.strokeStyle='#9eab9d';ctx.lineWidth=Math.max(.45,s*.014);ctx.beginPath();ctx.moveTo(-s*.33+k*s*.045,s*.305);ctx.lineTo(-s*.33+k*s*.045,s*.365);ctx.stroke()}
+ctx.fillStyle='#d6dfcc';ctx.globalAlpha=.7;ctx.font='bold '+Math.max(3.2,s*.075)+'px monospace';ctx.textAlign='center';ctx.fillText(heavy?'ARMOR':scout?'RECON':laser?'RANGE':support?'SUPPLY':'MT-01',s*.16,s*.385);ctx.globalAlpha=1;
+/* Front lamps sit on the leading corners and catch the top-left light. */
+for(const side of [-1,1]){
+ const lx=s*.69,ly=side*s*.27;
+ ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(lx,ly,s*.065,0,TAU);ctx.fill();
+ ctx.fillStyle=side===-1?'#f2e8b2':'#b9d7d2';ctx.beginPath();ctx.arc(lx,ly,s*.041,0,TAU);ctx.fill();
+ ctx.fillStyle='#ffffff';ctx.globalAlpha=.75;ctx.fillRect(lx-s*.018,ly-s*.027,s*.022,s*.022);ctx.globalAlpha=1;
+}
+/* Weld beads and tiny fasteners along the side skirt edge. */
+if(!scout)for(const side of [-1,1])for(let k=0;k<5;k++){
+ const fx=-s*.39+k*s*.19,fy=side*s*.44;
+ ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(fx,fy,s*.021,0,TAU);ctx.fill();
+ ctx.fillStyle='#c4cebd';ctx.beginPath();ctx.arc(fx-s*.006,fy-s*.006,s*.009,0,TAU);ctx.fill();
+}
 /* Paint chips and soot near the exhaust, deterministic per model. */
 ctx.fillStyle='#10171588';ctx.beginPath();ctx.ellipse(-s*.34,s*.27,s*.12,s*.045,-.25,0,TAU);ctx.fill();
 ctx.fillStyle='#d8dfcb55';ctx.fillRect(s*.39,-s*.07,s*.035,s*.14);
