@@ -43,7 +43,7 @@ try {
     if (layout.canvasWidth < 300 || layout.canvasHeight < 250 || layout.overflow)
       throw new Error('Mobile layout failed at ' + width + 'px: ' + JSON.stringify(layout));
     for (const control of layout.controls) {
-      if (control.top < layout.arenaTop || control.bottom > layout.arenaBottom || control.left < 0 || control.right > innerWidth)
+      if (control.top < layout.arenaTop || control.bottom > layout.arenaBottom || control.left < 0 || control.right > layout.viewportWidth)
         throw new Error('Control outside mobile viewport: ' + JSON.stringify({ control, layout }));
       if (control.id !== 'fireBtn' && control.top < layout.messageBottom + 6)
         throw new Error('Control overlaps mission message: ' + JSON.stringify({ control, layout }));
