@@ -39,6 +39,7 @@
 .squad-control{right:calc(12px + clamp(0px,7.5vh,42px));top:auto;bottom:10px}
 .fire-control{right:12px;top:auto;bottom:10px;width:clamp(66px,17vh,88px);height:clamp(66px,17vh,88px);font-size:28px}
 .fire-control small{font-size:10px}
+@media (orientation:portrait) and (max-width:900px){#orientationGate{display:flex}#app{visibility:hidden;pointer-events:none}}
 html.is-portrait #orientationGate{display:flex}
 html.is-portrait #app{visibility:hidden;pointer-events:none}
 html.is-landscape #orientationGate{display:none}
