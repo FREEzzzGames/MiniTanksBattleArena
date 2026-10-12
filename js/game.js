@@ -4,7 +4,7 @@
 const canvas=document.getElementById('game'),mainCtx=canvas.getContext('2d',{alpha:false});let ctx=mainCtx;
 const $=id=>document.getElementById(id);
 const ui={health:$('healthText'),healthBar:$('healthBar'),wave:$('waveText'),kills:$('killsText'),ammo:$('ammoText'),message:$('message'),toast:$('toast'),intel:$('intelBtn'),overlay:$('overlay'),modal:$('modal'),start:$('startBtn'),resume:$('resumeBtn'),pause:$('pauseBtn'),menu:$('menuBtn'),order:$('orderBtn'),fire:$('fireBtn'),smoke:$('smokeBtn'),target:$('targetBtn'),cover:$('coverBtn')};
-const WORLD={w:1800,h:1800},TAU=Math.PI*2;
+const MAP_SCALE=2,WORLD={w:3600,h:3600},TAU=Math.PI*2;
 const renderEngine=window.MTBARenderEngine?window.MTBARenderEngine.create(WORLD):null;
 let selectedTankRole='heavy';let selectedArena='iron-yard';let mainMenuMarkup='';
 const spriteAssets={};
@@ -49,6 +49,7 @@ const coverLayouts={
 for(const [x,y,w,h] of coverLayouts[selectedArena]||coverLayouts['iron-yard']){if(!obstacles.some(o=>x<o.x+o.w+20&&x+w>o.x-20&&y<o.y+o.h+20&&y+h>o.y-20))obstacles.push({x,y,w,h,type:selectedArena==='dust-front'?'sandbag':'barricade',orientation:w>=h?'horizontal':'vertical',hp:Infinity,lowCover:true});}
 /* Vegetation forms irregular cover patches and buffers the industrial structures. */
 const vegetation=selectedArena==='blackwood'?[[100,120,210,190],[420,340,170,145],[690,110,190,210],[1030,350,210,170],[1350,130,220,190],[150,720,200,180],[600,820,230,170],[1000,760,180,220],[1370,960,220,180],[340,1250,220,190],[760,1380,220,170],[1250,1330,230,190]]:selectedArena==='dust-front'?[[340,360,80,48],[1000,390,90,50],[250,850,85,44],[1180,840,95,48],[700,1220,75,44]]:[[350,365,155,105],[730,410,135,105],[1120,390,160,110],[230,825,145,105],[745,815,150,105],[1100,1150,165,110],[385,1195,155,100],[1440,835,130,105],[80,1090,100,180],[1600,420,105,160]];for(const [x,y,w,h] of vegetation){if(!blocks.some(([bx,by,bw,bh])=>x<bx+bw+24&&x+w>bx-24&&y<by+bh+24&&y+h>by-24))grassPatches.push({x,y,w,h,seed:Math.floor(x*3+y*7)})}
+/* Expand hand-authored cover and vegetation with the arena; preserve the same tactical composition. */for(const o of obstacles){o.x*=MAP_SCALE;o.y*=MAP_SCALE;o.w*=MAP_SCALE;o.h*=MAP_SCALE}for(const g of grassPatches){g.x*=MAP_SCALE;g.y*=MAP_SCALE;g.w*=MAP_SCALE;g.h*=MAP_SCALE}
 trees.length=0;const treeTarget=selectedArena==='blackwood'?92:selectedArena==='dust-front'?8:14;for(let i=0,tries=0;i<treeTarget&&tries<treeTarget*8;tries++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearTreeSpot(x,y)){const tone=selectedArena==='blackwood'?(i%5===0?3:Math.floor(rand(0,3))):selectedArena==='dust-front'?3:Math.floor(rand(0,3));trees.push({x,y,r:selectedArena==='blackwood'?rand(28,42):rand(22,34),tone,seed:rand(0,TAU)});i++}}
 medkits.length=0;for(let i=0;i<9;i++)spawnMedkit();intelBoxes.length=0;for(let i=0;i<3;i++)spawnIntelBox()}
 function spawnMedkit(){for(let i=0;i<80;i++){const x=rand(45,WORLD.w-45),y=rand(45,WORLD.h-45);if(clearSpot(x,y,20)){medkits.push({x,y,life:rand(28,44),pulse:rand(0,TAU),heal:35});return true}}return false}
@@ -609,14 +610,11 @@ function drawArenaGroundBase(){
  ctx.fillStyle=p[0];ctx.fillRect(0,0,WORLD.w,WORLD.h);
  const wash=ctx.createLinearGradient(0,0,WORLD.w,WORLD.h);wash.addColorStop(0,p[1]+'00');wash.addColorStop(.5,p[1]+'66');wash.addColorStop(1,p[2]+'88');ctx.fillStyle=wash;ctx.fillRect(0,0,WORLD.w,WORLD.h);
  if(selectedArena==='iron-yard'){
-  /* Faded concrete bays, expansion joints and forklift lane markings. */
-  ctx.strokeStyle='#aab9ad24';ctx.lineWidth=2;
-  for(let x=45;x<WORLD.w;x+=180){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}
-  for(let y=55;y<WORLD.h;y+=150){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}
-  ctx.strokeStyle='#e4bc4b35';ctx.lineWidth=5;ctx.setLineDash([34,26]);
-  for(const y of [430,875,1260]){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}
+  /* Sparse, broken industrial paint and isolated loading-bay remnants; no repeating grid. */
+  ctx.strokeStyle='#e4bc4b20';ctx.lineWidth=4;ctx.setLineDash([22,38]);
+  for(const [x,y,len] of [[120,610,170],[960,520,115],[2460,1880,190],[3020,2650,125],[720,3010,150]]){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+3);ctx.stroke()}
   ctx.setLineDash([]);
-  for(let i=0;i<9;i++){const x=90+i*195,y=120+(i%3)*575;ctx.fillStyle='#b5c3b51b';ctx.fillRect(x,y,84,34);ctx.strokeStyle='#c2cdbd20';ctx.strokeRect(x,y,84,34)}
+  for(const [x,y,w,h] of [[180,250,90,38],[920,760,72,30],[2200,1230,86,34],[3000,3080,68,28],[1420,2800,74,32]]){ctx.fillStyle='#b5c3b50b';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#c2cdbd12';ctx.strokeRect(x,y,w,h)}
  }else if(selectedArena==='dust-front'){
   /* Wind-carved dune bands and long tire ruts establish an open desert range. */
   for(let i=0;i<17;i++){const y=55+i*103,phase=i*67%180;ctx.beginPath();ctx.moveTo(0,y+phase*.15);ctx.bezierCurveTo(WORLD.w*.25,y-48+phase*.1,WORLD.w*.65,y+52-phase*.2,WORLD.w,y-20+phase*.12);ctx.lineWidth=18+i%4*5;ctx.strokeStyle=i%2?'#c7ad7950':'#4b3a2848';ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#e0c48a30';ctx.stroke()}
@@ -704,9 +702,7 @@ for(let gy=155;gy<WORLD.h;gy+=365){
  }
 }
 /* Faded lane markings at a believable interval; they no longer tile the entire terrain. */
-ctx.save();ctx.setLineDash([27,34]);ctx.strokeStyle='#c6c6a510';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,WORLD.h*.5);ctx.lineTo(WORLD.w,WORLD.h*.5);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#111a1618';ctx.lineWidth=1;
-for(let x=70;x<WORLD.w;x+=260){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}
-ctx.restore();
+/* Repeating world-spanning lane/grid strokes removed; localized wear and track marks carry surface detail. */
  /* Cached procedural micro-grain adds concrete/soil variation without per-frame noise generation. */
  const grain=getGroundGrainPattern();
  if(grain){ctx.save();ctx.globalAlpha=.075;ctx.globalCompositeOperation='soft-light';ctx.fillStyle=grain;ctx.fillRect(0,0,WORLD.w,WORLD.h);ctx.restore()}
@@ -803,12 +799,12 @@ const INFANTRY_ROUTES=INFANTRY_ROUTE_SETS[selectedArena]||INFANTRY_ROUTE_SETS['i
 function spawnInfantry(){
  soldiers.length=0;infantryShots.length=0;bloodPools.length=0;
  for(const faction of ['alpha','bravo']){
-  const route=INFANTRY_ROUTES[faction];
+  const route=INFANTRY_ROUTES[faction].map(p=>({x:p.x*MAP_SCALE,y:p.y*MAP_SCALE}));
   for(let i=0;i<8;i++){
    const lane=i%4,rank=Math.floor(i/4),anchor=route[lane];
    let x=anchor.x+rand(-26,26)+(faction==='alpha'?-rank*22:rank*22),y=anchor.y+rand(-24,24);
    for(let tries=0;tries<24&&!clearSpot(x,y,11);tries++){x=anchor.x+rand(-42,42);y=anchor.y+rand(-42,42)}
-   if(!clearSpot(x,y,10)){x=faction==='alpha'?100+rand(0,180):1520+rand(0,180);y=150+rand(0,150)}
+   if(!clearSpot(x,y,10)){x=(faction==='alpha'?100+rand(0,180):1520+rand(0,180))*MAP_SCALE;y=(150+rand(0,150))*MAP_SCALE}
    soldiers.push({id:++soldierId,faction,x,y,a:faction==='alpha'?0:Math.PI,hp:52,maxHp:52,speed:rand(42,52),range:rand(205,255),alive:true,state:'patrol',routeIndex:(lane+rank*2)%route.length,route,think:rand(.1,.8),shotTimer:rand(.2,1.4),phase:rand(0,TAU),coverSide:Math.random()<.5?-1:1,coverX:NaN,coverY:NaN,coverTimer:0,suppression:0,revealUntil:0,fireFlash:0,moveSpeed:0,seed:rand(0,1000),squad:rank});
   }
  }
@@ -911,7 +907,7 @@ const CIVILIAN_ROUTES={
  'dust-front':[{x:90,y:500},{x:350,y:450},{x:720,y:470},{x:820,y:820},{x:700,y:1060},{x:390,y:1190},{x:180,y:1330}],
  'blackwood':[{x:90,y:520},{x:360,y:470},{x:430,y:820},{x:730,y:900},{x:760,y:1180},{x:450,y:1280},{x:170,y:1160}]
 };
-function buildCivilians(){civilians.length=0;const route=CIVILIAN_ROUTES[selectedArena]||CIVILIAN_ROUTES['iron-yard'];for(let i=0;i<22;i++){const anchor=route[i%route.length];let x=anchor.x+rand(-34,34),y=anchor.y+rand(-28,28);for(let tries=0;tries<45&&!clearSpot(x,y,12);tries++){const next=route[(i+tries+1)%route.length];x=next.x+rand(-28,28);y=next.y+rand(-25,25)}if(clearSpot(x,y,12))civilians.push({x,y,a:rand(0,TAU),speed:rand(42,66),panic:rand(.5,2),turn:rand(-1,1),seed:rand(0,TAU),route,routeIndex:(i*3)%route.length,panicTimer:0,kind:i%11===0?'child':i%9===0?'elderly':i%7===0?'medic':'civilian',shirt:['#b7b9a5','#8babb1','#c9a27b','#b5a4b8','#d0d1c5','#9b6e5d','#b2a16c'][i%7],pants:['#3b4544','#424b58','#555047'][i%3],skin:['#c9a887','#ad8062','#e0b99b'][i%3],hair:['#40362b','#262b2c','#77705e'][i%3]})}}
+function buildCivilians(){civilians.length=0;const route=(CIVILIAN_ROUTES[selectedArena]||CIVILIAN_ROUTES['iron-yard']).map(p=>({x:p.x*MAP_SCALE,y:p.y*MAP_SCALE}));for(let i=0;i<22;i++){const anchor=route[i%route.length];let x=anchor.x+rand(-34,34),y=anchor.y+rand(-28,28);for(let tries=0;tries<45&&!clearSpot(x,y,12);tries++){const next=route[(i+tries+1)%route.length];x=next.x+rand(-28,28);y=next.y+rand(-25,25)}if(clearSpot(x,y,12))civilians.push({x,y,a:rand(0,TAU),speed:rand(42,66),panic:rand(.5,2),turn:rand(-1,1),seed:rand(0,TAU),route,routeIndex:(i*3)%route.length,panicTimer:0,kind:i%11===0?'child':i%9===0?'elderly':i%7===0?'medic':'civilian',shirt:['#b7b9a5','#8babb1','#c9a27b','#b5a4b8','#d0d1c5','#9b6e5d','#b2a16c'][i%7],pants:['#3b4544','#424b58','#555047'][i%3],skin:['#c9a887','#ad8062','#e0b99b'][i%3],hair:['#40362b','#262b2c','#77705e'][i%3]})}}
 function updateCivilians(dt){for(const c of civilians){c.panic=Math.max(0,c.panic-dt*.12);let threat=null,near=240;for(const t of tanks){if(!t.alive)continue;const d=dist(c,t);if(d<near){near=d;threat=t}}for(const b of bullets){const d=Math.hypot(c.x-b.x,c.y-b.y);if(d<95){c.panic=2.5;c.panicTimer=2.5;c.a=Math.atan2(c.y-b.y,c.x-b.x);threat=null;break}}if(threat&&near<240){c.panic=2.2;c.panicTimer=2.2;c.a=Math.atan2(c.y-threat.y,c.x-threat.x)+c.turn*.25}
  const fleeing=(c.panicTimer||0)>0;c.panicTimer=Math.max(0,(c.panicTimer||0)-dt);
  if(!fleeing&&c.route&&c.route.length){const wp=c.route[c.routeIndex%c.route.length];if(Math.hypot(wp.x-c.x,wp.y-c.y)<28)c.routeIndex=(c.routeIndex+1)%c.route.length;const next=c.route[c.routeIndex%c.route.length];c.a=rotateToward(c.a,Math.atan2(next.y-c.y,next.x-c.x),dt*1.5)}else if(c.panic>0)c.a+=Math.sin(performance.now()*.004+c.seed)*dt*1.8;
