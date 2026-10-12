@@ -36,6 +36,8 @@ try {
   const [htmlSource, gameSource] = await Promise.all([readFile('index.html', 'utf8'), readFile('js/game.js', 'utf8')]);
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
+  const renderEngineSource = await readFile('js/mtba-render-engine.js', 'utf8');
+  if (!renderEngineSource.includes('window.MTBARenderEngine={create,version:') || !renderEngineSource.includes('function drawGround(ctx)') || !renderEngineSource.includes('function recordFrame(ms)') || !gameSource.includes('renderEngine.drawGround(ctx)') || !htmlSource.includes('src="./js/mtba-render-engine.js?v=1"')) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
   const spriteFiles = ['assets/tanks/tank-scout.svg','assets/tanks/tank-heavy.svg','assets/tanks/tank-sniper.svg','assets/tanks/tank-support.svg','assets/environment/tree-conifer.svg','assets/environment/tree-autumn.svg','assets/environment/bush.svg','assets/environment/ruin.svg','assets/units/infantry.svg','assets/effects/explosion.svg','assets/effects/smoke.svg'];
   const spriteContents = await Promise.all(spriteFiles.map(path => readFile(path, 'utf8')));
   if (spriteContents.some(svg => !svg.includes('<svg') || !svg.includes('</svg>'))) throw new Error('A standalone SVG game asset is invalid');
@@ -183,7 +185,9 @@ try {
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
   const assetFailures = await page.evaluate(() => performance.getEntriesByType('resource').filter(e => (e.name.endsWith('/css/game.css') || e.name.endsWith('/js/game.js')) && e.responseStatus >= 400).map(e => ({name:e.name,status:e.responseStatus}))).catch(() => []);
   if (assetFailures.length) throw new Error('Runtime assets failed to load: ' + JSON.stringify(assetFailures));
-  console.log('MTBA browser smoke tests passed: shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
+  const engineState = await page.evaluate(() => window.MTBARenderEngine?.version || null);
+  if (engineState !== '1.0.0') throw new Error('MTBA Render Engine failed to initialize: ' + engineState);
+  console.log('MTBA browser smoke tests passed: procedural pixel terrain render engine, shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
