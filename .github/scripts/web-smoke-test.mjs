@@ -136,6 +136,9 @@ try {
     return {top,finalTop:el.scrollTop,max:el.scrollHeight-el.clientHeight,touchAction:getComputedStyle(preview).touchAction,pointerEvents:getComputedStyle(preview).pointerEvents};
   });
   if (selectorScroll.max <= 0 || selectorScroll.top <= 0) throw new Error('Tank selector touch-drag handler failed: '+JSON.stringify(selectorScroll));
+  // The real UI deliberately suppresses the synthetic click immediately after a drag.
+  // Wait for that short suppression window before testing an intentional tank selection.
+  await page.waitForTimeout(100);
   const supportClick = await page.evaluate(() => {
     const button = document.querySelector('[data-tank="support"]');
     return { disabled: button.disabled, tag: button.tagName, connected: button.isConnected, overlay: getComputedStyle(document.querySelector('#overlay')).display, scriptCount: document.scripts.length };
