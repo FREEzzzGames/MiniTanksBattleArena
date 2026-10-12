@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r10.
+/* MTBA layered tank renderer r11.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -141,6 +141,10 @@ for(const side of [-1,1]){
   ctx.fillStyle='#303a35';ctx.beginPath();ctx.arc(x,y,s*.035,0,TAU);ctx.fill();
   ctx.fillStyle='#c0c7ad';ctx.globalAlpha=.55;ctx.beginPath();ctx.arc(x-s*.018,y-s*.018,s*.018,0,TAU);ctx.fill();ctx.globalAlpha=1;
  }
+ /* Recessed tread blocks: broad alternating shoes give the belts a real segmented profile. */
+ ctx.fillStyle='#0a1011';ctx.globalAlpha=.72;
+ for(let shoe=0;shoe<6;shoe++){const sx=-s*.69+shoe*s*.25;ctx.beginPath();ctx.roundRect(sx,y-s*.145,s*.14,s*.045,s*.012);ctx.fill();ctx.beginPath();ctx.roundRect(sx,y+s*.1,s*.14,s*.045,s*.012);ctx.fill();}
+ ctx.globalAlpha=1;
  /* A handful of broad track shoes, not a noisy row of tiny bolts. */
  ctx.strokeStyle='#b0b7a3';ctx.lineWidth=Math.max(.6,s*.018);
  for(let i=0;i<3;i++){const x=-s*.58+i*s*.55;ctx.beginPath();ctx.moveTo(x,y-side*s*.135);ctx.lineTo(x+s*.11,y-side*s*.135);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y+side*s*.135);ctx.lineTo(x+s*.11,y+side*s*.135);ctx.stroke()}
@@ -190,6 +194,20 @@ ctx.fillStyle='#9da68e';ctx.fillRect(-s*.53,-s*hullH*.25,s*.07,s*hullH*.5);
 /* Role-specific upper hull: heavy gets broad shoulder armor; scout stays compact; sniper is long and low. */
 if(heavy){ctx.fillStyle='#303a31';ctx.beginPath();ctx.moveTo(-s*.45,-s*.44);ctx.lineTo(-s*.25,-s*.62);ctx.lineTo(s*.48,-s*.58);ctx.lineTo(s*.62,-s*.35);ctx.lineTo(s*.58,s*.35);ctx.lineTo(s*.4,s*.56);ctx.lineTo(-s*.3,s*.56);ctx.lineTo(-s*.48,s*.34);ctx.closePath();ctx.fill();ctx.strokeStyle='#a7ad91';ctx.lineWidth=Math.max(.8,s*.025);ctx.stroke()}
 if(laser){ctx.fillStyle='#172329';ctx.beginPath();ctx.moveTo(-s*.61,-s*.35);ctx.lineTo(s*.35,-s*.4);ctx.lineTo(s*.58,-s*.23);ctx.lineTo(s*.56,s*.23);ctx.lineTo(s*.32,s*.4);ctx.lineTo(-s*.61,s*.35);ctx.closePath();ctx.fill();ctx.fillStyle='#84969a';ctx.beginPath();ctx.moveTo(-s*.42,-s*.3);ctx.lineTo(s*.32,-s*.33);ctx.lineTo(s*.46,-s*.16);ctx.lineTo(s*.42,s*.16);ctx.lineTo(s*.28,s*.3);ctx.lineTo(-s*.42,s*.27);ctx.closePath();ctx.fill();ctx.strokeStyle='#d5e0d8';ctx.lineWidth=Math.max(.7,s*.022);ctx.stroke()}
+/* Hull fittings: recessed front lamps, tow points and large fasteners on the side plates. */
+ctx.save();
+ctx.fillStyle='#11191a';
+for(const side of [-1,1]){
+ ctx.beginPath();ctx.roundRect(s*.48,side*s*hullH*.31-s*.045,s*.13,s*.09,s*.018);ctx.fill();
+ ctx.fillStyle=side===-1?'#e4d7a0':'#b74d39';
+ ctx.globalAlpha=.78;ctx.beginPath();ctx.arc(s*.555,side*s*hullH*.31,s*.022,0,TAU);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#11191a';
+ ctx.beginPath();ctx.arc(-s*.4,side*s*hullH*.43,s*.025,0,TAU);ctx.fill();
+ ctx.fillStyle='#a7b098';ctx.beginPath();ctx.arc(-s*.4,side*s*hullH*.43,s*.012,0,TAU);ctx.fill();ctx.fillStyle='#11191a';
+}
+ctx.strokeStyle='#b4bda7';ctx.globalAlpha=.52;ctx.lineWidth=Math.max(.7,s*.02);
+ctx.beginPath();ctx.moveTo(-s*.68,-s*hullH*.58);ctx.lineTo(-s*.59,-s*hullH*.5);ctx.stroke();
+ctx.beginPath();ctx.moveTo(-s*.68,s*hullH*.58);ctx.lineTo(-s*.59,s*hullH*.5);ctx.stroke();
+ctx.restore();
 /* Turret and barrel rotate independently from the hull. */
 ctx.save();ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
 const turretW=heavy?1.08:scout?.68:laser?.86:support?.86:.88;
@@ -210,6 +228,18 @@ ctx.save();ctx.globalAlpha=.28;ctx.strokeStyle='#f4f5d8';ctx.lineWidth=Math.max(
 ctx.moveTo(turretLeft+s*.16,turretTop+s*.12);ctx.lineTo(turretLeft+s*turretW*.67,turretTop+s*.1);ctx.stroke();
 ctx.globalAlpha=.24;ctx.strokeStyle='#071012';ctx.lineWidth=Math.max(1,s*.045);ctx.beginPath();
 ctx.moveTo(turretLeft+s*.14,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*turretW*.63,turretTop+s*turretH*.82);ctx.stroke();ctx.restore();
+/* Turret cheek plates and rear stowage add functional mass to the silhouette. */
+ctx.fillStyle='#192321';ctx.beginPath();
+ctx.moveTo(turretLeft+s*.12,turretTop+s*turretH*.48);
+ctx.lineTo(turretLeft+s*.27,turretTop+s*turretH*.39);
+ctx.lineTo(turretLeft+s*.34,turretTop+s*turretH*.68);
+ctx.lineTo(turretLeft+s*.25,turretTop+s*turretH*.78);
+ctx.lineTo(turretLeft+s*.13,turretTop+s*turretH*.7);ctx.closePath();ctx.fill();
+ctx.fillStyle='#b1ba9e';ctx.globalAlpha=.48;ctx.beginPath();
+ctx.moveTo(turretLeft+s*.15,turretTop+s*turretH*.49);
+ctx.lineTo(turretLeft+s*.26,turretTop+s*turretH*.43);ctx.strokeStyle='#c5ceb0';ctx.lineWidth=Math.max(.6,s*.018);ctx.stroke();ctx.globalAlpha=1;
+ctx.fillStyle='#1c2825';ctx.beginPath();ctx.roundRect(turretLeft+s*turretW*.68,turretTop+s*turretH*.67,s*.16,s*.12,s*.025);ctx.fill();
+ctx.fillStyle='#87947e';ctx.fillRect(turretLeft+s*turretW*.71,turretTop+s*turretH*.7,s*.1,s*.025);
 /* Gun barrel layer: above hull and turret, then covered at the joint by the mantlet. */
 /* Long gun silhouette first; sniper has a visibly extended barrel. */
 const barrelLen=s*(laser?1.78:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(laser?.115:heavy?.19:scout?.105:.135);
