@@ -12,6 +12,45 @@
 @media(min-width:760px){.touch-control{width:76px;height:76px}.fire-control{width:112px;height:112px}}
 @media(max-width:380px){header{height:42px;flex-basis:42px;padding:0 6px;gap:5px}header strong{font-size:10px}header small{display:none}#hud{gap:4px;flex:1;justify-content:center}.bar{width:40px}.stat{min-width:27px}.stat b{font-size:9px}.stat label{font-size:8px}.touch-control{width:58px;height:58px;font-size:20px}.touch-control small{font-size:8px}.smoke-control{right:82px;top:14px}.target-control{right:12px;top:14px}.squad-control{right:12px;top:82px}.cover-control{right:82px;top:82px}.fire-control{right:12px;bottom:14px;width:84px;height:84px;font-size:31px}}
 @media(orientation:landscape) and (max-height:500px){header{height:36px;flex-basis:36px}.touch-control{width:52px;height:52px}.smoke-control{right:78px;top:8px}.target-control{right:12px;top:8px}.squad-control{right:12px;top:68px}.cover-control{right:78px;top:68px}.fire-control{width:72px;height:72px;right:12px;bottom:10px}}
+
+/* Mobile HUD and battlefield controls: prevent overlap on real phone viewports. */
+@media(max-width:560px){
+  header{height:46px;flex:0 0 46px;padding:0 7px;gap:5px}
+  header>div:first-child{flex:0 0 76px;min-width:0}
+  header strong{font-size:10px;letter-spacing:.08em}
+  header small{display:none}
+  #hud{flex:1;min-width:0;justify-content:space-around;gap:3px}
+  .stat{min-width:0;flex:0 1 auto;gap:1px}
+  .stat label{display:none}
+  .stat b{font-size:10px;white-space:nowrap}
+  .bar{width:31px;height:4px}
+  #top-actions{flex:0 0 auto;gap:4px}
+  #top-actions button{min-height:29px;padding:4px 6px;font-size:9px}
+  #pauseBtn{width:29px}
+  #menuBtn{width:43px}
+  #message{top:8px;left:8px;right:8px;transform:none;max-width:none;white-space:normal;text-align:center;font-size:9px;line-height:1.25;padding:6px 8px}
+  .touch-control{width:62px;height:62px;font-size:21px}
+  .touch-control small{font-size:8px}
+  .smoke-control{right:82px;top:72px}
+  .target-control{right:12px;top:72px}
+  .cover-control{right:82px;top:144px}
+  .squad-control{right:12px;top:144px}
+  .fire-control{right:12px;bottom:max(12px,env(safe-area-inset-bottom));width:88px;height:88px;font-size:32px}
+  .fire-control small{font-size:11px}
+}
+@media(max-width:360px){
+  header>div:first-child{flex-basis:66px}
+  header strong{font-size:9px}
+  .bar{width:23px}
+  .stat b{font-size:9px}
+  .touch-control{width:56px;height:56px}
+  .smoke-control,.cover-control{right:72px}
+  .target-control,.squad-control{right:8px}
+  .smoke-control,.target-control{top:68px}
+  .cover-control,.squad-control{top:132px}
+  .fire-control{width:78px;height:78px;right:8px;bottom:10px}
+}
+
 </style>
 </head>
 <body>
