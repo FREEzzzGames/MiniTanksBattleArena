@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION='1.0.1'
+          VERSION='1.0.2'
           mkdir -p dist/minitanksbattlearena
           cp android/app/build/outputs/apk/debug/app-debug.apk dist/minitanksbattlearena/MiniTanksBattleArena-v${VERSION}-debug.apk
           cat > dist/minitanksbattlearena/README.txt <<EOF
@@ -65,14 +65,14 @@ jobs:
       - name: Upload versioned APK ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: MiniTanksBattleArena-Android-v1.0.1-ZIP
-          path: dist/MiniTanksBattleArena-Android-v1.0.1.zip
+          name: MiniTanksBattleArena-Android-v1.0.2-ZIP
+          path: dist/MiniTanksBattleArena-Android-v1.0.2.zip
           if-no-files-found: error
           retention-days: 90
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: MiniTanksBattleArena-Android-v1.0.1-APK
+          name: MiniTanksBattleArena-Android-v1.0.2-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 90
