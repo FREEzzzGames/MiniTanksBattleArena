@@ -110,7 +110,8 @@ function drawTankModel(ctx,t,scale=1,rotation=0){
 /* MTBA layered tank renderer r16.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
-const role=t.role||'player',profile=tankProfiles[role]||null,arch=profile?.archetype||role,heavy=arch==='heavy'||role==='brawler',scout=arch==='scout'||role==='scout',laser=arch==='sniper'||role==='sniper',support=arch==='support'||role==='support',ironclad=role==='ironclad',demolisher=role==='demolisher',viper=role==='viper',wraith=role==='wraith',thunder=role==='thunder';\nconst s=(t.size||22)*scale*(demolisher ? 1.035 : ironclad ? 1.015 : viper ? 0.94 : wraith ? 0.98 : thunder ? 1.01 : 1);
+const role=t.role||'player',profile=tankProfiles[role]||null,arch=profile?.archetype||role,heavy=arch==='heavy'||role==='brawler',scout=arch==='scout'||role==='scout',laser=arch==='sniper'||role==='sniper',support=arch==='support'||role==='support',ironclad=role==='ironclad',demolisher=role==='demolisher',viper=role==='viper',wraith=role==='wraith',thunder=role==='thunder';
+const s=(t.size||22)*scale*(demolisher ? 1.035 : ironclad ? 1.015 : viper ? 0.94 : wraith ? 0.98 : thunder ? 1.01 : 1);
 const base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':t.team==='enemy'?'#8b514a':'#7a8068';
 const dark=heavy?'#29332d':scout?'#303d2c':laser?'#29343a':support?'#2e3d3b':'#303a30';
 const mid=heavy?'#77816b':scout?'#718650':laser?'#75848b':support?'#6e9187':'#71836c';
