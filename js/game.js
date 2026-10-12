@@ -280,6 +280,74 @@ if(!scout)for(const side of [-1,1])for(let k=0;k<5;k++){
  ctx.fillStyle='#11191b';ctx.beginPath();ctx.arc(fx,fy,s*.021,0,TAU);ctx.fill();
  ctx.fillStyle='#c4cebd';ctx.beginPath();ctx.arc(fx-s*.006,fy-s*.006,s*.009,0,TAU);ctx.fill();
 }
+/* Second detailing pass: layered field-service hardware and breakup of broad paint areas.
+   All marks are drawn in local hull coordinates, so they rotate with the vehicle. */
+/* Subtle irregular camouflage plates, clipped to the hull silhouette. */
+ctx.save();hullPath();ctx.clip();ctx.globalAlpha=.19;
+ctx.fillStyle=heavy?'#202d27':scout?'#4a5a35':laser?'#293e48':support?'#334b4a':'#26382c';
+ctx.beginPath();ctx.moveTo(-s*.8,-s*.28);ctx.lineTo(-s*.47,-s*.48);ctx.lineTo(-s*.25,-s*.38);ctx.lineTo(-s*.35,-s*.17);ctx.lineTo(-s*.66,-s*.08);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(s*.18,-s*.49);ctx.lineTo(s*.48,-s*.4);ctx.lineTo(s*.8,-s*.19);ctx.lineTo(s*.62,s*.02);ctx.lineTo(s*.38,-s*.12);ctx.closePath();ctx.fill();
+ctx.beginPath();ctx.moveTo(-s*.47,s*.25);ctx.lineTo(-s*.16,s*.32);ctx.lineTo(s*.03,s*.48);ctx.lineTo(-s*.4,s*.46);ctx.closePath();ctx.fill();ctx.globalAlpha=1;ctx.restore();
+/* Track end caps, guide teeth and small suspension access points. */
+for(let side=-1;side<=1;side+=2){
+ const ty=side*s*.47;
+ ctx.fillStyle='#0b1215';ctx.beginPath();ctx.roundRect(-s*.67,ty-s*.045,s*1.32,s*.09,s*.025);ctx.fill();
+ for(let k=0;k<7;k++){
+  const px=-s*.58+k*s*.19;
+  ctx.fillStyle=k%2?'#647169':'#283531';ctx.fillRect(px,ty-s*.028,s*.105,s*.055);
+  ctx.fillStyle='#c0c9ba';ctx.beginPath();ctx.arc(px+s*.052,ty,s*.012,0,TAU);ctx.fill();
+ }
+ ctx.fillStyle='#131d20';ctx.beginPath();ctx.roundRect(-s*.44,ty-s*.09,s*.15,s*.18,s*.025);ctx.fill();
+ ctx.strokeStyle='#829187';ctx.lineWidth=Math.max(.45,s*.015);ctx.stroke();
+}
+/* Raised crew hatches with hinges, handles and non-emissive glass blocks. */
+for(let hatch=0;hatch<2;hatch++){
+ const hx=s*(hatch?-.17:.18),hy=s*(hatch?-.13:.13),r=s*(hatch?.09:.105);
+ ctx.fillStyle='#10191c';ctx.beginPath();ctx.ellipse(hx,hy,r*1.08,r*.82,-.28,0,TAU);ctx.fill();
+ ctx.fillStyle=heavy?'#747d6b':scout?'#7d9264':laser?'#697b83':support?'#6e8c88':'#738574';
+ ctx.beginPath();ctx.ellipse(hx,hy,r*.88,r*.63,-.28,0,TAU);ctx.fill();
+ ctx.strokeStyle='#d1dccb';ctx.lineWidth=Math.max(.6,s*.02);ctx.stroke();
+ ctx.strokeStyle='#172326';ctx.lineWidth=Math.max(.7,s*.025);ctx.beginPath();ctx.moveTo(hx-r*.4,hy);ctx.lineTo(hx+r*.4,hy);ctx.stroke();
+ ctx.fillStyle='#d8e0cf';ctx.beginPath();ctx.arc(hx-r*.48,hy-r*.28,s*.018,0,TAU);ctx.fill();
+ ctx.fillStyle='#202c2d';ctx.beginPath();ctx.roundRect(hx-r*.22,hy+r*.53,r*.44,s*.035,1);ctx.fill();
+}
+/* External fuel/tool canisters and tie-down straps. */
+for(let side=-1;side<=1;side+=2){
+ const bx=-s*.49,by=side*s*.22;
+ ctx.fillStyle='#111a1d';ctx.beginPath();ctx.roundRect(bx-s*.07,by-s*.105,s*.14,s*.21,s*.045);ctx.fill();
+ ctx.fillStyle=heavy?'#756a4d':support?'#627c73':'#58695a';ctx.beginPath();ctx.roundRect(bx-s*.052,by-s*.085,s*.104,s*.17,s*.035);ctx.fill();
+ ctx.strokeStyle='#c3cbb5';ctx.lineWidth=Math.max(.45,s*.014);ctx.stroke();
+ ctx.fillStyle='#1a2526';ctx.fillRect(bx-s*.057,by-s*.018,s*.114,s*.036);
+ ctx.fillStyle='#d5ddca';ctx.fillRect(bx-s*.013,by-s*.012,s*.026,s*.024);
+}
+/* Tow cable is a dark braided loop with metallic attachment eyes. */
+ctx.strokeStyle='#101719';ctx.lineWidth=Math.max(1,s*.045);ctx.beginPath();ctx.moveTo(-s*.68,s*.31);ctx.quadraticCurveTo(-s*.87,s*.42,-s*.75,s*.54);ctx.lineTo(-s*.55,s*.57);ctx.stroke();
+ctx.strokeStyle='#a2afa1';ctx.lineWidth=Math.max(.45,s*.014);ctx.beginPath();ctx.moveTo(-s*.68,s*.31);ctx.quadraticCurveTo(-s*.87,s*.42,-s*.75,s*.54);ctx.lineTo(-s*.55,s*.57);ctx.stroke();
+for(let eye=0;eye<2;eye++){const ex=eye?-s*.55:-s*.68,ey=eye?s*.57:s*.31;ctx.fillStyle='#101719';ctx.beginPath();ctx.arc(ex,ey,s*.045,0,TAU);ctx.fill();ctx.strokeStyle='#b9c4b5';ctx.lineWidth=Math.max(.5,s*.016);ctx.beginPath();ctx.arc(ex,ey,s*.025,0,TAU);ctx.stroke()}
+/* Per-role silhouettes: smoke launchers, spare track, reconnaissance optics, or support kit. */
+if(heavy||role==='brawler'){
+ for(let side=-1;side<=1;side+=2){
+  ctx.fillStyle='#141e21';ctx.beginPath();ctx.roundRect(s*.19,side*s*.28,s*.17,s*.105,s*.025);ctx.fill();
+  for(let tube=0;tube<3;tube++){ctx.fillStyle='#68766a';ctx.beginPath();ctx.arc(s*(.22+tube*.045),side*s*.31,s*.022,0,TAU);ctx.fill()}
+ }
+}else if(scout){
+ ctx.fillStyle='#10191c';ctx.beginPath();ctx.roundRect(-s*.23,-s*.39,s*.27,s*.13,s*.025);ctx.fill();
+ ctx.fillStyle='#7ee6ef';ctx.beginPath();ctx.arc(-s*.12,-s*.325,s*.035,0,TAU);ctx.fill();
+ ctx.fillStyle='#263b3e';ctx.fillRect(-s*.18,-s*.365,s*.1,s*.018);
+}else if(laser){
+ ctx.fillStyle='#111b20';ctx.beginPath();ctx.roundRect(-s*.1,-s*.4,s*.27,s*.12,s*.025);ctx.fill();
+ ctx.strokeStyle='#8ddce9';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke();
+ ctx.fillStyle='#a2eaf2';ctx.fillRect(-s*.055,-s*.37,s*.18,s*.035);
+}else if(support){
+ ctx.fillStyle='#152123';ctx.beginPath();ctx.roundRect(-s*.45,s*.12,s*.18,s*.17,s*.025);ctx.fill();
+ ctx.strokeStyle='#8edbd1';ctx.lineWidth=Math.max(.5,s*.018);ctx.stroke();
+ ctx.fillStyle='#7be3d1';ctx.fillRect(-s*.415,s*.17,s*.11,s*.025);
+}
+/* Small warning chevrons and serial plates, kept matte so they don't read as UI. */
+ctx.fillStyle=heavy?'#d2b67a':scout?'#d2e49a':laser?'#8fdbe9':support?'#9ce0d2':'#c8d4bd';
+ctx.globalAlpha=.8;
+for(let mark=0;mark<2;mark++){const mx=s*(.43+mark*.065),my=-s*.27;ctx.beginPath();ctx.moveTo(mx-s*.02,my-s*.025);ctx.lineTo(mx+s*.02,my);ctx.lineTo(mx-s*.02,my+s*.025);ctx.closePath();ctx.fill()}
+ctx.globalAlpha=1;
 /* Paint chips and soot near the exhaust, deterministic per model. */
 ctx.fillStyle='#10171588';ctx.beginPath();ctx.ellipse(-s*.34,s*.27,s*.12,s*.045,-.25,0,TAU);ctx.fill();
 ctx.fillStyle='#d8dfcb55';ctx.fillRect(s*.39,-s*.07,s*.035,s*.14);
