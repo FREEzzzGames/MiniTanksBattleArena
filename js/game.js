@@ -50,7 +50,41 @@ for(const [x,y,w,h] of coverLayouts[selectedArena]||coverLayouts['iron-yard']){i
 /* Vegetation forms irregular cover patches and buffers the industrial structures. */
 const vegetation=selectedArena==='blackwood'?[[100,120,210,190],[420,340,170,145],[690,110,190,210],[1030,350,210,170],[1350,130,220,190],[150,720,200,180],[600,820,230,170],[1000,760,180,220],[1370,960,220,180],[340,1250,220,190],[760,1380,220,170],[1250,1330,230,190]]:selectedArena==='dust-front'?[[340,360,80,48],[1000,390,90,50],[250,850,85,44],[1180,840,95,48],[700,1220,75,44]]:[[350,365,155,105],[730,410,135,105],[1120,390,160,110],[230,825,145,105],[745,815,150,105],[1100,1150,165,110],[385,1195,155,100],[1440,835,130,105],[80,1090,100,180],[1600,420,105,160]];for(const [x,y,w,h] of vegetation){if(!blocks.some(([bx,by,bw,bh])=>x<bx+bw+24&&x+w>bx-24&&y<by+bh+24&&y+h>by-24))grassPatches.push({x,y,w,h,seed:Math.floor(x*3+y*7)})}
 /* Expand hand-authored cover and vegetation with the arena; preserve the same tactical composition. */for(const o of obstacles){o.x*=MAP_SCALE;o.y*=MAP_SCALE;o.w*=MAP_SCALE;o.h*=MAP_SCALE}for(const g of grassPatches){g.x*=MAP_SCALE;g.y*=MAP_SCALE;g.w*=MAP_SCALE;g.h*=MAP_SCALE}
-trees.length=0;const treeTarget=selectedArena==='blackwood'?92:selectedArena==='dust-front'?8:14;for(let i=0,tries=0;i<treeTarget&&tries<treeTarget*8;tries++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearTreeSpot(x,y)){const tone=selectedArena==='blackwood'?(i%5===0?3:Math.floor(rand(0,3))):selectedArena==='dust-front'?3:Math.floor(rand(0,3));trees.push({x,y,r:selectedArena==='blackwood'?rand(28,42):rand(22,34),tone,seed:rand(0,TAU)});i++}}
+/* Hand-authored tactical cover: each group protects a flank or creates a crossfire pocket without blocking the central service routes. */
+const tacticalCoverLayouts={
+ 'iron-yard':[[105,420,72,24],[755,445,24,72],[1040,690,76,24],[1510,880,24,72],[530,875,72,24],[820,1245,24,72],[1530,1450,76,24],[240,1530,24,72]],
+ 'dust-front':[[130,420,72,20],[740,485,20,72],[1100,760,76,20],[1510,1030,20,72],[470,1080,72,20],[900,1510,20,72],[1480,1510,76,20]],
+ 'blackwood':[[110,430,64,22],[620,440,22,64],[1040,450,64,22],[1510,430,22,64],[110,900,64,22],[700,900,22,64],[1050,1240,64,22],[1510,1230,22,64]]
+};
+for(const [x,y,w,h] of tacticalCoverLayouts[selectedArena]||tacticalCoverLayouts['iron-yard']){
+ const candidate={x:x*MAP_SCALE,y:y*MAP_SCALE,w:w*MAP_SCALE,h:h*MAP_SCALE};
+ if(!obstacles.some(o=>candidate.x<o.x+o.w+26&&candidate.x+candidate.w>o.x-26&&candidate.y<o.y+o.h+26&&candidate.y+candidate.h>o.y-26))
+  obstacles.push({...candidate,type:selectedArena==='dust-front'?'sandbag':'barricade',orientation:w>=h?'horizontal':'vertical',hp:Infinity,lowCover:true,tacticalAnchor:true});
+}
+/* Tree lines are planned as belts and groves around the combat lanes, not scattered randomly. */
+const treeZones={
+ 'iron-yard':[[35,55,190,300],[720,35,300,125],[1510,65,250,300],[30,760,130,280],[1640,830,120,360],[35,1510,310,240],[720,1590,330,160],[1390,1510,360,230]],
+ 'dust-front':[[35,60,170,190],[1510,45,240,175],[35,1220,175,260],[1490,1250,245,250]],
+ 'blackwood':[[25,25,420,430],[600,25,300,390],[1240,25,520,420],[20,470,270,420],[1460,460,330,440],[20,1080,300,680],[600,1500,430,280],[1240,1430,520,350]]
+};
+trees.length=0;
+const zones=treeZones[selectedArena]||treeZones['iron-yard'];
+const treeStep=selectedArena==='blackwood'?64:selectedArena==='dust-front'?105:112;
+for(let zi=0;zi<zones.length;zi++){
+ const [zx,zy,zw,zh]=zones[zi];
+ for(let gy=zy+treeStep*.5;gy<zy+zh;gy+=treeStep){
+  for(let gx=zx+treeStep*.5;gx<zx+zw;gx+=treeStep){
+   /* Small deterministic offsets break perfect rows while preserving intentional groves. */
+   const jx=((Math.floor(gx*7+gy*3+zi*11)%9)-4)*2.2;
+   const jy=((Math.floor(gx*5+gy*11+zi*13)%9)-4)*2.2;
+   const x=(gx+jx)*MAP_SCALE,y=(gy+jy)*MAP_SCALE;
+   if(Math.abs(x-WORLD.w/2)<115||Math.abs(y-WORLD.h/2)<115)continue;
+   if(!clearTreeSpot(x,y)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<(t.r+34)))continue;
+   const tone=selectedArena==='blackwood'?(trees.length%6===0?3:trees.length%3):selectedArena==='dust-front'?3:(trees.length+zi)%4;
+   trees.push({x,y,r:selectedArena==='blackwood'?30+(trees.length%4)*2.5:selectedArena==='dust-front'?22:24+(trees.length%3)*3,tone,seed:((zi+1)*17+Math.floor(gx*3+gy))%628/100});
+  }
+ }
+}
 medkits.length=0;for(let i=0;i<9;i++)spawnMedkit();intelBoxes.length=0;for(let i=0;i<3;i++)spawnIntelBox()}
 function spawnMedkit(){for(let i=0;i<80;i++){const x=rand(45,WORLD.w-45),y=rand(45,WORLD.h-45);if(clearSpot(x,y,20)){medkits.push({x,y,life:rand(28,44),pulse:rand(0,TAU),heal:35});return true}}return false}
 function spawnIntelBox(){for(let i=0;i<90;i++){const x=rand(55,WORLD.w-55),y=rand(55,WORLD.h-55);if(clearSpot(x,y,25)&&!grassPatches.some(g=>x>g.x&&x<g.x+g.w&&y>g.y&&y<g.y+g.h)){intelBoxes.push({x,y,life:rand(35,48),pulse:rand(0,TAU)});return true}}return false}
