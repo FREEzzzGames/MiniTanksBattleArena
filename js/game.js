@@ -107,11 +107,10 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-const variant=t.role==='ironclad'?'ironclad':t.role==='demolisher'?'demolisher':t.role==='viper'?'viper':t.role==='wraith'?'wraith':t.role==='thunder'?'thunder':t.role==='support'?'support':t.role==='sniper'?'sniper':t.role==='scout'?'shade':'bastion';
 /* MTBA layered tank renderer r16.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
-const s=(t.size||22)*scale,role=t.role||'player',profile=tankProfiles[role]||null,arch=profile?.archetype||role,heavy=arch==='heavy'||role==='brawler',scout=arch==='scout'||role==='scout',laser=arch==='sniper'||role==='sniper',support=arch==='support'||role==='support',ironclad=role==='ironclad',demolisher=role==='demolisher',viper=role==='viper',wraith=role==='wraith',thunder=role==='thunder';
+const s=(t.size||22)*scale,role=t.role||'player',profile=tankProfiles[role]||null,arch=profile?.archetype||role,heavy=arch==='heavy'||role==='brawler',scout=arch==='scout'||role==='scout',laser=arch==='sniper'||role==='sniper',support=arch==='support'||role==='support';
 const base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':t.team==='enemy'?'#8b514a':'#7a8068';
 const dark=heavy?'#29332d':scout?'#303d2c':laser?'#29343a':support?'#2e3d3b':'#303a30';
 const mid=heavy?'#77816b':scout?'#718650':laser?'#75848b':support?'#6e9187':'#71836c';
@@ -126,8 +125,6 @@ ctx.globalAlpha=.16;ctx.fillStyle='#020606';ctx.beginPath();ctx.ellipse(s*.17,s*
 ctx.globalAlpha=.13;ctx.fillStyle='#030707';ctx.beginPath();ctx.ellipse(s*.1,s*.18,s*1.03,s*.58,-.08,0,TAU);ctx.fill();
 ctx.globalAlpha=.48;ctx.fillStyle='#030605';ctx.beginPath();ctx.ellipse(s*.025,s*.09,s*.88,s*.49,0,0,TAU);ctx.fill();
 ctx.restore();
-/* Variant proportions create distinct silhouettes while preserving render-layer order. */
-if(ironclad)ctx.scale(1.1,1.04);else if(demolisher)ctx.scale(1.12,1.12);else if(viper)ctx.scale(.91,.9);else if(wraith)ctx.scale(1.02,.88);else if(thunder)ctx.scale(1.04,1.02);
 ctx.fillStyle='#0b1112';ctx.beginPath();ctx.roundRect(-s*.83,-s*.54,s*1.68,s*1.08,s*.15);ctx.fill();
 /* Paired side tracks: wide, dark continuous belts with only a few large readable road wheels. */
 for(const side of [-1,1]){
@@ -364,7 +361,7 @@ ctx.fillStyle='#1c2825';ctx.beginPath();ctx.roundRect(turretLeft+s*turretW*.68,t
 ctx.fillStyle='#87947e';ctx.fillRect(turretLeft+s*turretW*.71,turretTop+s*turretH*.7,s*.1,s*.025);
 /* Gun barrel layer: above hull and turret, then covered at the joint by the mantlet. */
 /* Long gun silhouette first; sniper has a visibly extended barrel. */
-const barrelLen=s*(laser?1.78:demolisher?1.52:ironclad?1.18:viper?.82:wraith?.96:thunder?1.36:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(demolisher?.25:thunder?.16:laser?.115:heavy?.19:scout?.105:.135);
+const barrelLen=s*(laser?1.78:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(laser?.115:heavy?.19:scout?.105:.135);
 ctx.fillStyle='#0a1113';ctx.beginPath();ctx.roundRect(s*(tx+.16),-barrelH*.7,barrelLen,barrelH*1.4,barrelH*.2);ctx.fill();
 const barrel=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);barrel.addColorStop(0,'#c4cfc0');barrel.addColorStop(.22,laser?'#8ea6b0':'#7d8c7b');barrel.addColorStop(.55,'#43534b');barrel.addColorStop(1,'#172124');
 ctx.fillStyle=barrel;ctx.beginPath();ctx.roundRect(s*(tx+.18),-barrelH*.43,barrelLen-s*.03,barrelH*.86,barrelH*.13);ctx.fill();
