@@ -121,9 +121,9 @@ ctx.save();
 /* Directional ground shadow: hard contact core plus a soft offset cast shadow.
    Keep it procedural and allocation-free in the frame loop. */
 ctx.save();
-ctx.globalAlpha=.26;ctx.fillStyle='#020606';ctx.beginPath();ctx.ellipse(s*.19,s*.29,s*1.16,s*.7,-.08,0,TAU);ctx.fill();
-ctx.globalAlpha=.2;ctx.fillStyle='#030707';ctx.beginPath();ctx.ellipse(s*.12,s*.22,s*1.08,s*.61,-.08,0,TAU);ctx.fill();
-ctx.globalAlpha=.72;ctx.fillStyle='#030605';ctx.beginPath();ctx.ellipse(s*.025,s*.105,s*.91,s*.52,0,0,TAU);ctx.fill();
+ctx.globalAlpha=.16;ctx.fillStyle='#020606';ctx.beginPath();ctx.ellipse(s*.17,s*.24,s*1.12,s*.66,-.08,0,TAU);ctx.fill();
+ctx.globalAlpha=.13;ctx.fillStyle='#030707';ctx.beginPath();ctx.ellipse(s*.1,s*.18,s*1.03,s*.58,-.08,0,TAU);ctx.fill();
+ctx.globalAlpha=.48;ctx.fillStyle='#030605';ctx.beginPath();ctx.ellipse(s*.025,s*.09,s*.88,s*.49,0,0,TAU);ctx.fill();
 ctx.restore();
 ctx.fillStyle='#0b1112';ctx.beginPath();ctx.roundRect(-s*.83,-s*.54,s*1.68,s*1.08,s*.15);ctx.fill();
 /* Paired side tracks: wide, dark continuous belts with only a few large readable road wheels. */
@@ -154,7 +154,7 @@ ctx.fillStyle=hull;ctx.beginPath();
 ctx.moveTo(-s*.72,-s*hullH*.57);ctx.lineTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);
 ctx.lineTo(s*.68,-s*hullH*.38);ctx.lineTo(s*.66,s*hullH*.39);ctx.lineTo(s*.43,s*hullH*.74);
 ctx.lineTo(-s*.52,s*hullH*.82);ctx.lineTo(-s*.72,s*hullH*.55);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#e0e4c5a8';ctx.lineWidth=Math.max(.8,s*.035);ctx.stroke();
+ctx.strokeStyle='#e0e4c56e';ctx.lineWidth=Math.max(.7,s*.024);ctx.stroke();
 /* Directional top-left key light and subtle edge occlusion make the hull read as thick armor. */
 ctx.save();
 const edgeShade=ctx.createLinearGradient(-s*.7,0,s*.72,0);
@@ -163,7 +163,7 @@ ctx.fillStyle=edgeShade;ctx.beginPath();
 ctx.moveTo(-s*.72,-s*hullH*.57);ctx.lineTo(-s*.52,-s*hullH*.82);ctx.lineTo(s*.43,-s*hullH*.76);
 ctx.lineTo(s*.68,-s*hullH*.38);ctx.lineTo(s*.66,s*hullH*.39);ctx.lineTo(s*.43,s*hullH*.74);
 ctx.lineTo(-s*.52,s*hullH*.82);ctx.lineTo(-s*.72,s*hullH*.55);ctx.closePath();ctx.fill();
-ctx.globalAlpha=.48;ctx.strokeStyle='#f0f3d2';ctx.lineWidth=Math.max(.8,s*.035);ctx.beginPath();
+ctx.globalAlpha=.3;ctx.strokeStyle='#f0f3d2';ctx.lineWidth=Math.max(.7,s*.027);ctx.beginPath();
 ctx.moveTo(-s*.5,-s*hullH*.8);ctx.lineTo(s*.4,-s*hullH*.74);ctx.lineTo(s*.61,-s*hullH*.36);ctx.stroke();
 ctx.restore();
 /* Large front glacis and rear engine deck distinguish the vehicle at gameplay scale. */
@@ -180,16 +180,16 @@ const turretH=heavy?.72:scout?.48:laser?.43:support?.56:.55;
 const tx=heavy?.02:laser?-.05:.0,ty=0;
 const turretTop=-s*turretH*.5,turretLeft=s*tx-s*turretW*.5;
 /* Turret drop shadow and contact occlusion separate it from the hull. */
-ctx.save();ctx.globalAlpha=.34;ctx.fillStyle='#020506';ctx.beginPath();
+ctx.save();ctx.globalAlpha=.22;ctx.fillStyle='#020506';ctx.beginPath();
 ctx.ellipse(s*tx+s*.09,s*.12,s*turretW*.56,s*turretH*.56,.04,0,TAU);ctx.fill();ctx.restore();
 /* Turret body is rendered above the hull before the gun assembly. */
 /* Turret silhouette has broad angled faces, a heavy mantlet and one dominant hatch. */
 ctx.fillStyle='#11191b';ctx.beginPath();ctx.moveTo(turretLeft+s*.1,turretTop+s*.08);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.96);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.87);ctx.lineTo(turretLeft,turretTop+s*turretH*.58);ctx.closePath();ctx.fill();
 const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
 ctx.fillStyle=tm;ctx.beginPath();ctx.moveTo(turretLeft+s*.14,turretTop+s*.11);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*.09);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.31);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.7);ctx.lineTo(turretLeft+s*turretW*.64,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*.07,turretTop+s*turretH*.54);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#d8e1c8';ctx.lineWidth=Math.max(.8,s*.03);ctx.stroke();
+ctx.strokeStyle='#d8e1c88a';ctx.lineWidth=Math.max(.7,s*.024);ctx.stroke();
 /* A restrained upper-face highlight and lower-face shade add volume without extra micro-detail. */
-ctx.save();ctx.globalAlpha=.42;ctx.strokeStyle='#f4f5d8';ctx.lineWidth=Math.max(1,s*.04);ctx.beginPath();
+ctx.save();ctx.globalAlpha=.28;ctx.strokeStyle='#f4f5d8';ctx.lineWidth=Math.max(.8,s*.03);ctx.beginPath();
 ctx.moveTo(turretLeft+s*.16,turretTop+s*.12);ctx.lineTo(turretLeft+s*turretW*.67,turretTop+s*.1);ctx.stroke();
 ctx.globalAlpha=.24;ctx.strokeStyle='#071012';ctx.lineWidth=Math.max(1,s*.045);ctx.beginPath();
 ctx.moveTo(turretLeft+s*.14,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*turretW*.63,turretTop+s*turretH*.82);ctx.stroke();ctx.restore();
