@@ -58,6 +58,7 @@ try {
   await checkMobileLayout(844, 390);
   await checkMobileLayout(640, 320);
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(50);
   const portraitGate = await page.evaluate(() => ({ gate: getComputedStyle(document.querySelector('#orientationGate')).display, app: getComputedStyle(document.querySelector('#app')).visibility }));
   if (portraitGate.gate !== 'flex' || portraitGate.app !== 'hidden') throw new Error('Portrait orientation must be gated with a rotate-device prompt: ' + JSON.stringify(portraitGate));
   await page.setViewportSize({ width: 844, height: 390 });

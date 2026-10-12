@@ -19,6 +19,7 @@
   document.addEventListener('DOMContentLoaded', updateOrientation, { once: true });
   window.addEventListener('resize', updateOrientation, { passive: true });
   window.addEventListener('orientationchange', updateOrientation, { passive: true });
+  window.addEventListener('resize', updateOrientation, { passive: true });
   window.visualViewport?.addEventListener('resize', updateOrientation, { passive: true });
 })();
 </script>
