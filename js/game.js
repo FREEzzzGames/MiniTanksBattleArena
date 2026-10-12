@@ -166,6 +166,41 @@ ctx.fillStyle='#1b2829';ctx.fillRect(-s*.045,-s*.125,s*.09,s*.25);
 ctx.fillStyle='#b5c1b2';ctx.fillRect(-s*.02,-s*.09,s*.04,s*.18);
 /* Bolted corner armor and recessed lifting points. */
 for(const [bx,by] of [[-.38,-.23],[.38,-.23],[-.38,.23],[.38,.23]]){ctx.fillStyle='#182224';ctx.beginPath();ctx.arc(s*bx,s*by,s*.045,0,TAU);ctx.fill();ctx.fillStyle='#a6b1a2';ctx.beginPath();ctx.arc(s*bx,s*by,s*.022,0,TAU);ctx.fill();ctx.fillStyle='#34433e';ctx.fillRect(s*bx-s*.013,s*by-s*.006,s*.026,s*.012)}
+/* Field-service details: recessed deck plates, weld beads, serial stencils and chipped edges. */
+ctx.save();
+ctx.strokeStyle='#0b1416b8';ctx.lineWidth=Math.max(.7,s*.026);
+ctx.beginPath();ctx.moveTo(-s*.57,-s*.16);ctx.lineTo(-s*.45,-s*.25);ctx.lineTo(-s*.23,-s*.24);ctx.moveTo(s*.24,-s*.25);ctx.lineTo(s*.47,-s*.24);ctx.lineTo(s*.57,-s*.12);ctx.moveTo(-s*.55,s*.17);ctx.lineTo(-s*.43,s*.25);ctx.lineTo(-s*.22,s*.25);ctx.stroke();
+ctx.strokeStyle='#d7e0cc65';ctx.lineWidth=Math.max(.55,s*.018);
+ctx.beginPath();ctx.moveTo(-s*.57,-s*.16);ctx.lineTo(-s*.45,-s*.25);ctx.lineTo(-s*.23,-s*.24);ctx.moveTo(s*.24,-s*.25);ctx.lineTo(s*.47,-s*.24);ctx.moveTo(-s*.55,s*.17);ctx.lineTo(-s*.43,s*.25);ctx.stroke();
+/* Low-profile access hatches and raised handles. */
+for(const [hx,hy,hw,hh] of [[-.31,-.12,.16,.12],[.32,.13,.13,.1],[-.29,.18,.1,.065]]){
+ ctx.fillStyle='#182326';ctx.beginPath();ctx.roundRect(s*hx-s*hw/2,s*hy-s*hh/2,s*hw,s*hh,Math.max(.5,s*.018));ctx.fill();
+ ctx.strokeStyle='#aebdb077';ctx.lineWidth=Math.max(.45,s*.015);ctx.stroke();
+ ctx.strokeStyle='#d9e0ce88';ctx.beginPath();ctx.moveTo(s*(hx-hw*.25),s*hy);ctx.lineTo(s*(hx+hw*.25),s*hy);ctx.stroke();
+}
+if(!scout){
+ /* Modular side skirts with visible fasteners and abrasion on the lower lip. */
+ for(const side of [-1,1]){
+  const sy=side*s*.405;
+  for(let panel=0;panel<3;panel++){
+   const px=-s*.39+panel*s*.27;
+   ctx.fillStyle=panel===1?'#25332f':'#1b2827';
+   ctx.beginPath();ctx.moveTo(px,sy-s*.035);ctx.lineTo(px+s*.22,sy-s*.025);ctx.lineTo(px+s*.2,sy+s*.055);ctx.lineTo(px+s*.015,sy+s*.06);ctx.closePath();ctx.fill();
+   ctx.strokeStyle='#a9b7a45b';ctx.lineWidth=Math.max(.45,s*.015);ctx.stroke();
+   ctx.fillStyle='#a7b4a0';ctx.beginPath();ctx.arc(px+s*.04,sy+s*.012,s*.018,0,TAU);ctx.fill();
+  }
+ }
+}
+/* Matte chassis stencil; readable without competing with tactical HUD. */
+ctx.fillStyle=heavy?'#e0c18b':scout?'#d5e4a0':laser?'#b7c3d0':support?'#b9e4d9':'#d7e1d3';
+ctx.globalAlpha=.78;ctx.font='bold '+Math.max(3.8,s*.12)+'px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillText(heavy?'H-04':scout?'L-03':laser?'S-04':support?'R-05':'T-01',s*.39,-s*.305);
+ctx.globalAlpha=1;
+/* Fine paint chips concentrated on exposed leading edges. */
+ctx.fillStyle='#dfe5d19a';
+for(const [cx,cy] of [[-.62,-.32],[-.48,-.39],[.57,-.29],[.66,.19],[-.58,.26],[.42,.34]])ctx.fillRect(s*cx,s*cy,Math.max(.45,s*.025),Math.max(.4,s*.018));
+ctx.fillStyle='#101716a8';ctx.fillRect(-s*.08,-s*.31,s*.16,s*.025);
+ctx.restore();
 /* Exhaust vents and grime staining differ by chassis class. */
 ctx.fillStyle='#11191b';ctx.beginPath();ctx.roundRect(-s*.34,-s*.12,s*.13,s*.24,1);ctx.fill();
 for(let vent=0;vent<3;vent++){ctx.strokeStyle='#89988a88';ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(-s*.32,-s*.075+vent*s*.07);ctx.lineTo(-s*.23,-s*.075+vent*s*.07);ctx.stroke()}
