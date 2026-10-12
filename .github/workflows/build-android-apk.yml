@@ -45,10 +45,34 @@ jobs:
         run: |
           test -s android/app/build/outputs/apk/debug/app-debug.apk
           file android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Package versioned APK ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION='1.0.1'
+          mkdir -p dist/minitanksbattlearena
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/minitanksbattlearena/MiniTanksBattleArena-v${VERSION}-debug.apk
+          cat > dist/minitanksbattlearena/README.txt <<EOF
+          MiniTanksBattleArena Android APK
+          Version: ${VERSION}
+          Build commit: ${GITHUB_SHA}
+          Package: debug-signed APK for direct installation on Android.
+          Install: download the APK, open it on the phone, and allow installs from this source if Android asks.
+          The APK contains a local/offline copy of the web game assets bundled by the Android build.
+          EOF
+          (cd dist && zip -qr MiniTanksBattleArena-Android-v${VERSION}.zip minitanksbattlearena)
+          test -s dist/MiniTanksBattleArena-Android-v${VERSION}.zip
+      - name: Upload versioned APK ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiniTanksBattleArena-Android-v1.0.1-ZIP
+          path: dist/MiniTanksBattleArena-Android-v1.0.1.zip
+          if-no-files-found: error
+          retention-days: 90
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: MiniTanksBattleArena-Android-APK
+          name: MiniTanksBattleArena-Android-v1.0.1-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
