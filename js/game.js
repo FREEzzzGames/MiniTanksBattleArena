@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r14.
+/* MTBA layered tank renderer r15.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -244,6 +244,28 @@ for(const side of [-1,1]){
 ctx.strokeStyle='#b4bda7';ctx.globalAlpha=.52;ctx.lineWidth=Math.max(.7,s*.02);
 ctx.beginPath();ctx.moveTo(-s*.68,-s*hullH*.58);ctx.lineTo(-s*.59,-s*hullH*.5);ctx.stroke();
 ctx.beginPath();ctx.moveTo(-s*.68,s*hullH*.58);ctx.lineTo(-s*.59,s*hullH*.5);ctx.stroke();
+ctx.restore();
+/* Material readability pass r15: restrained weld seams, armor breaks and engine-deck ribs.
+   Shapes are deliberately broad and low-contrast so they remain legible at phone scale. */
+ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ctx.strokeStyle='#101816';ctx.globalAlpha=.48;ctx.lineWidth=Math.max(.7,s*.022);
+ctx.beginPath();ctx.moveTo(-s*.45,-s*hullH*.58);ctx.lineTo(-s*.38,-s*hullH*.39);ctx.lineTo(-s*.15,-s*hullH*.34);ctx.stroke();
+ctx.beginPath();ctx.moveTo(-s*.45,s*hullH*.58);ctx.lineTo(-s*.38,s*hullH*.39);ctx.lineTo(-s*.15,s*hullH*.34);ctx.stroke();
+ctx.strokeStyle='#c5ceb0';ctx.globalAlpha=.3;ctx.lineWidth=Math.max(.6,s*.014);
+for(let rib=0;rib<4;rib++){
+ const rx=-s*.48+rib*s*.055;
+ ctx.beginPath();ctx.moveTo(rx,-s*hullH*.22);ctx.lineTo(rx+s*.018,-s*hullH*.045);ctx.stroke();
+}
+ctx.globalAlpha=.5;ctx.strokeStyle='#0a1110';ctx.lineWidth=Math.max(.8,s*.024);
+ctx.beginPath();ctx.moveTo(s*.39,-s*hullH*.45);ctx.lineTo(s*.55,-s*hullH*.28);ctx.lineTo(s*.58,0);ctx.lineTo(s*.55,s*hullH*.28);ctx.lineTo(s*.39,s*hullH*.45);ctx.stroke();
+ctx.globalAlpha=.42;ctx.strokeStyle='#e0e5c4';ctx.lineWidth=Math.max(.6,s*.016);
+ctx.beginPath();ctx.moveTo(s*.41,-s*hullH*.43);ctx.lineTo(s*.53,-s*hullH*.25);ctx.stroke();
+for(const side of [-1,1]){
+ for(const bolt of [-.24,.05,.34]){
+  ctx.fillStyle='#151f1b';ctx.beginPath();ctx.arc(s*bolt,side*s*hullH*.56,s*.018,0,TAU);ctx.fill();
+  ctx.fillStyle='#c1c9ad';ctx.globalAlpha=.5;ctx.beginPath();ctx.arc(s*bolt-s*.004,side*s*hullH*.56-s*.004,s*.008,0,TAU);ctx.fill();ctx.globalAlpha=.42;
+ }
+}
 ctx.restore();
 /* Turret and barrel rotate independently from the hull. */
 ctx.save();ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
@@ -477,6 +499,27 @@ if(q>37&&q<57){ctx.strokeStyle='#c0c6ad22';ctx.lineWidth=1;ctx.beginPath();ctx.m
 if(q>67&&q<80){ctx.save();ctx.translate(x,y);ctx.rotate(q*.11);ctx.fillStyle='#141d1a66';ctx.fillRect(-3,-2,7,4);ctx.fillStyle='#9ba18b33';ctx.fillRect(-2,-2,3,1);ctx.restore()}
 if(q>88){ctx.strokeStyle='#a7b09b1c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx+q%24,gy+q%17);ctx.lineTo(gx+q%24+7,gy+q%17+3);ctx.lineTo(gx+q%24+9,gy+q%17+1);ctx.stroke()}
 }}
+/* Baked macro-wear pass r15: low-frequency oil/dust stains and compressed tread scuffs.
+   This runs only while baking static terrain, never in the animation loop. */
+for(let gy=155;gy<WORLD.h;gy+=365){
+ for(let gx=125;gx<WORLD.w;gx+=455){
+  const seed=(gx*17+gy*29)%991,px=gx+(seed%137)-62,py=gy+((seed*11)%103)-48;
+  const rx=38+(seed%53),ry=18+((seed*3)%31);
+  const stain=ctx.createRadialGradient(px,py,2,px,py,Math.max(rx,ry)*1.18);
+  stain.addColorStop(0,seed%3===0?'#11191320':'#080f0c1c');
+  stain.addColorStop(.48,seed%2?'#171d1720':'#aaa68a0a');
+  stain.addColorStop(1,'#10181300');
+  ctx.fillStyle=stain;ctx.beginPath();ctx.ellipse(px,py,rx,ry,(seed%13)*.12,0,TAU);ctx.fill();
+  if(seed%4!==0){
+   ctx.save();ctx.translate(px,py);ctx.rotate((seed%9-4)*.09);
+   ctx.strokeStyle='#070d0b20';ctx.lineWidth=3+(seed%3);
+   for(let lane=-1;lane<=1;lane+=2){ctx.beginPath();ctx.moveTo(-rx*.72,lane*ry*.23);ctx.lineTo(rx*.72,lane*ry*.23);ctx.stroke()}
+   ctx.strokeStyle='#b5b69a12';ctx.lineWidth=1;
+   ctx.beginPath();ctx.moveTo(-rx*.6,-ry*.12);ctx.lineTo(rx*.55,-ry*.12);ctx.stroke();
+   ctx.restore();
+  }
+ }
+}
 /* Faded lane markings at a believable interval; they no longer tile the entire terrain. */
 ctx.save();ctx.setLineDash([27,34]);ctx.strokeStyle='#c6c6a510';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,WORLD.h*.5);ctx.lineTo(WORLD.w,WORLD.h*.5);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#111a1618';ctx.lineWidth=1;
 for(let x=70;x<WORLD.w;x+=260){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}
@@ -519,10 +562,15 @@ function drawObstacle(o){
   ctx.strokeStyle='#aab5a42e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+w*.2,y+h*.12);ctx.lineTo(x+w*.23,y+h*.2);ctx.lineTo(x+w*.18,y+h*.28);ctx.stroke();
  }
  for(const [cx,cy] of [[x+6,y+6],[x+w-6,y+6],[x+6,y+h-6],[x+w-6,y+h-6]]){ctx.fillStyle='#17231e';ctx.beginPath();ctx.roundRect(cx-3,cy-3,6,6,1);ctx.fill();ctx.fillStyle='#c0c7b455';ctx.fillRect(cx-1,cy-1,2,2)}
+ /* Raised rim and corner hardware catch the overhead light without animated filters. */
+ ctx.globalAlpha=.58;ctx.strokeStyle='#d4ddcc';ctx.lineWidth=1.15;ctx.beginPath();
+ ctx.moveTo(x+5,y+3);ctx.lineTo(x+w-5,y+3);ctx.moveTo(x+3,y+5);ctx.lineTo(x+3,y+h-5);ctx.stroke();
+ ctx.globalAlpha=.28;ctx.strokeStyle='#060b09';ctx.lineWidth=2;ctx.beginPath();
+ ctx.moveTo(x+5,y+h-3);ctx.lineTo(x+w-5,y+h-3);ctx.moveTo(x+w-3,y+5);ctx.lineTo(x+w-3,y+h-5);ctx.stroke();ctx.globalAlpha=1;
  const sheen=ctx.createLinearGradient(x,y,x,y+h);sheen.addColorStop(0,'#d9e1d41a');sheen.addColorStop(.45,'#d9e1d400');sheen.addColorStop(1,'#03080635');ctx.fillStyle=sheen;ctx.fillRect(x+2,y+2,w-4,h-4);ctx.restore();
 }
 function drawObstacles(){for(const o of obstacles)drawObstacle(o)}
-function drawTrackMarks(){for(const tr of trackMarks){ctx.save();ctx.translate(tr.x,tr.y);ctx.rotate(tr.a);ctx.globalAlpha=(tr.life/tr.max)*tr.alpha;ctx.fillStyle='#080d0b';ctx.fillRect(-tr.w/2,-tr.h/2,tr.w,tr.h);ctx.fillStyle='#526055';ctx.globalAlpha=(tr.life/tr.max)*.14;ctx.fillRect(-tr.w*.32,-tr.h*.4,tr.w*.64,tr.h*.8);ctx.restore()}ctx.globalAlpha=1}
+function drawTrackMarks(){for(const tr of trackMarks){ctx.save();ctx.translate(tr.x,tr.y);ctx.rotate(tr.a);const fade=(tr.life/tr.max)*tr.alpha;ctx.globalAlpha=fade;ctx.fillStyle='#080d0b';ctx.fillRect(-tr.w/2,-tr.h/2,tr.w,tr.h);ctx.fillStyle='#526055';ctx.globalAlpha=fade*.18;ctx.fillRect(-tr.w*.28,-tr.h*.42,tr.w*.56,tr.h*.84);ctx.strokeStyle='#090f0d';ctx.globalAlpha=fade*.72;ctx.lineWidth=Math.max(.6,tr.w*.16);for(let shoe=0;shoe<5;shoe++){const sy=-tr.h*.4+shoe*tr.h*.2;ctx.beginPath();ctx.moveTo(-tr.w*.43,sy);ctx.lineTo(tr.w*.43,sy);ctx.stroke()}ctx.restore()}ctx.globalAlpha=1}
 function drawWallMarks(){for(const mark of wallMarks){ctx.save();ctx.translate(mark.x,mark.y);ctx.rotate(mark.angle);ctx.globalAlpha=Math.min(1,mark.life/4)*Math.min(1,mark.life/mark.max*4);ctx.fillStyle=mark.color;ctx.beginPath();ctx.ellipse(0,0,mark.r,mark.r*.56,0,0,TAU);ctx.fill();ctx.strokeStyle='#090e0c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-mark.r*.7,0);ctx.lineTo(mark.r*.7,0);ctx.stroke();ctx.restore()}ctx.globalAlpha=1}
 function drawSmokeClouds(){const im=spriteAssets.smoke;for(const s of smokes){const life=clamp(s.life/s.max,0,1),pulse=.94+.06*Math.sin(s.life*3);ctx.save();ctx.translate(s.x,s.y);ctx.rotate(Math.sin(s.life*.7)*.06);ctx.globalAlpha=(.15+.08*(1-life))*pulse;
  if(im)ctx.drawImage(im,-s.r*.98,-s.r*.67,s.r*1.96,s.r*1.34);
