@@ -61,7 +61,7 @@ try {
   if (!fogSource.includes('function spawnIntelBox()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('mapRevealUntil=Math.max(mapRevealUntil,gameClock+3)') || !fogSource.includes('function drawFog(){if(gameClock<mapRevealUntil)return;')) throw new Error('Three-second tactical intel reveal mechanic missing');
   if (!fogSource.includes('crit:critical') || !fogSource.includes('b.damage*(b.crit?1.5:1)') || !fogSource.includes('КРИТИЧЕСКОЕ ПОПАДАНИЕ')) throw new Error('Critical-hit damage / feedback mechanic missing');
   if (!fogSource.includes('function drawDynamicLights()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('function drawImpactLights()') || !fogSource.includes('function drawSmokeClouds()')) throw new Error('Combat lighting or pickup rendering missing');
-  if (!/class=["'][^"']*tank-preview/.test(htmlSource) || !/data-preview-tank=["']support["']/.test(htmlSource) || (htmlSource.match(/data-preview-tank=/g) || []).length !== 5) throw new Error('Five tank cards must use the shared Canvas renderer previews');
+  if (!/class=["'][^"']*tank-preview/.test(htmlSource) || !/data-preview-tank=["']support["']/.test(htmlSource) || (htmlSource.match(/data-preview-tank=/g) || []).length !== 9) throw new Error('Five tank cards must use the shared Canvas renderer previews');
   if (!fogSource.includes('function drawTankModel(ctx,t,scale=1,rotation=0)') || !fogSource.includes('function renderTankPreviews()') || !fogSource.includes('setInterval(renderTankPreviews,120)') || !fogSource.includes('c.rotate(turn);drawTankModel(c,preview,1,0)') || fogSource.includes('setInterval(renderTankPreviews,33)')) throw new Error('Shared renderer / throttled Canvas tank previews missing');
   if (/PSEUDO-3D|3D TURNTABLE/.test(htmlSource)) throw new Error('2D Canvas tank preview labels must not imply 3D models');
   if (!stylesheetSource.includes('MTBA visual reference pass') || !stylesheetSource.includes('.tank-preview')) throw new Error('Minimal military UI styling missing');
@@ -81,7 +81,7 @@ try {
   if (!fogSource.includes("if(t.team==='player'&&t.role==='support')damage*=.82")) throw new Error('Support tank damage resistance missing');
   if (!fogSource.includes("function nearestThreat(t){let best=null,bd=Infinity;const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy threat selection must use player/allies and respect concealment');
   if (fogSource.includes('Your tank has been disabled') || fogSource.includes("'REDEPLOY'")) throw new Error('Russian game-over text contains English fallback');
-  if (await page.locator('[data-tank="support"]').count() !== 1) throw new Error('Support tank selection card missing');
+  if (await page.locator('[data-tank="support"]').count() !== 1 || (await page.locator('[data-tank]').count()) !== 9) throw new Error('Support tank selection card missing');
   const checkMobileLayout = async (width, height) => {
     await page.setViewportSize({ width, height });
     await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
@@ -139,7 +139,7 @@ try {
   }));
   if (stats.armor !== '155' || stats.speed !== '104' || stats.damage !== '34') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
   const balanceSource = gameSource;
-  if (!balanceSource.includes("scout:{name:'L-03 SHADE',hp:74,speed:176,damage:18,reload:.84") || !balanceSource.includes("sniper:{name:'S-04 NOVA',hp:82,speed:112,damage:38,reload:1.72")) throw new Error('Tank balance profile changes missing');
+  if (!balanceSource.includes("scout:{name:'SHADE',hp:74,speed:176,damage:18,reload:.84") || !balanceSource.includes("sniper:{name:'JÄGER',hp:82,speed:112,damage:38,reload:1.72") || !balanceSource.includes("ironclad:{name:'IRONCLAD'") || !balanceSource.includes("demolisher:{name:'DEMOLISHER'") || !balanceSource.includes("viper:{name:'VIPER'") || !balanceSource.includes("wraith:{name:'WRAITH'") || !balanceSource.includes("thunder:{name:'THUNDER'")) throw new Error('Tank balance profile changes missing');
   await page.locator('#startBtn').click();
   await page.waitForTimeout(300);
   const state = await page.evaluate(() => ({
