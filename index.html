@@ -91,40 +91,35 @@
 </div>
 <script src="./js/mtba-render-engine.js?v=mtba-20261013-r26" defer></script>
 <script>
-/* Reliable touch-drag scrolling for tank picker on browsers with global touch-action:none. */
+/* Explicit drag scrolling for touchscreens and mouse/trackpad users. */
 (() => {
   const list = document.getElementById('tankSelect');
   if (!list) return;
-  let active = false, startY = 0, startScroll = 0, dragged = false, pointer = null;
-  list.addEventListener('pointerdown', e => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    active = true; dragged = false; pointer = e.pointerId;
-    startY = e.clientY; startScroll = list.scrollTop;
-    try { list.setPointerCapture(e.pointerId); } catch (_) {}
-  });
-  list.addEventListener('pointermove', e => {
-    if (!active || e.pointerId !== pointer) return;
-    const delta = startY - e.clientY;
+  let startY = 0, startScroll = 0, dragged = false, active = false;
+  const begin = y => { active = true; dragged = false; startY = y; startScroll = list.scrollTop; };
+  const move = (y, e) => {
+    if (!active) return;
+    const delta = startY - y;
     if (Math.abs(delta) > 4) dragged = true;
-    if (dragged) {
-      list.scrollTop = startScroll + delta;
-      if (e.cancelable) e.preventDefault();
-    }
-  }, { passive: false });
-  const finish = e => {
-    if (!active || (e && pointer !== null && e.pointerId !== pointer)) return;
-    active = false; pointer = null;
+    if (dragged) { list.scrollTop = startScroll + delta; if (e && e.cancelable) e.preventDefault(); }
+  };
+  const end = () => {
     if (dragged) {
       list.dataset.dragged = 'true';
-      setTimeout(() => { delete list.dataset.dragged; }, 0);
+      setTimeout(() => { delete list.dataset.dragged; }, 80);
     }
+    active = false;
   };
-  list.addEventListener('pointerup', finish);
-  list.addEventListener('pointercancel', finish);
+  list.addEventListener('touchstart', e => { if (e.touches.length === 1) begin(e.touches[0].clientY); }, {passive:true});
+  list.addEventListener('touchmove', e => { if (e.touches.length === 1) move(e.touches[0].clientY,e); }, {passive:false});
+  list.addEventListener('touchend', end, {passive:true});
+  list.addEventListener('touchcancel', end, {passive:true});
+  list.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') return; if (e.button !== 0) return; begin(e.clientY); });
+  list.addEventListener('pointermove', e => { if (e.pointerType !== 'touch') move(e.clientY,e); }, {passive:false});
+  list.addEventListener('pointerup', end);
+  list.addEventListener('pointercancel', end);
   list.addEventListener('click', e => {
-    if (list.dataset.dragged === 'true') {
-      e.preventDefault(); e.stopPropagation(); delete list.dataset.dragged;
-    }
+    if (list.dataset.dragged === 'true') { e.preventDefault(); e.stopPropagation(); delete list.dataset.dragged; }
   }, true);
 })();
 </script>
