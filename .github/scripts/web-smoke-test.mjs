@@ -37,12 +37,12 @@ try {
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
   const renderEngineSource = await readFile('js/mtba-render-engine.js', 'utf8');
-  if (!/window\.MTBARenderEngine\s*=\s*\{\s*create\s*,\s*version\s*:\s*['"]1\.0\.0['"]\s*\}/.test(renderEngineSource) || !/function\s+drawGround\s*\(\s*ctx\s*,\s*camera\s*,\s*viewWidth\s*,\s*viewHeight\s*\)/.test(renderEngineSource) || !/function\s+recordFrame\s*\(\s*ms\s*\)/.test(renderEngineSource) || !/renderEngine\.drawGround\(\s*ctx\s*,\s*camera\s*,\s*vw\s*,\s*vh\s*\)/.test(gameSource) || !/src=["']\.\/js\/mtba-render-engine\.js\?v=1["']/.test(htmlSource)) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
+  if (!/window\.MTBARenderEngine\s*=\s*\{\s*create\s*,\s*version\s*:\s*['"]1\.0\.0['"]\s*\}/.test(renderEngineSource) || !/function\s+drawGround\s*\(\s*ctx\s*,\s*camera\s*,\s*viewWidth\s*,\s*viewHeight\s*\)/.test(renderEngineSource) || !/function\s+recordFrame\s*\(\s*ms\s*\)/.test(renderEngineSource) || !/renderEngine\.drawGround\(\s*ctx\s*,\s*camera\s*,\s*vw\s*,\s*vh\s*\)/.test(gameSource) || !/src=["']\.\/js\/mtba-render-engine\.js\?v=2["']/.test(htmlSource)) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
   const spriteFiles = ['assets/tanks/tank-scout.svg','assets/tanks/tank-heavy.svg','assets/tanks/tank-sniper.svg','assets/tanks/tank-support.svg','assets/environment/tree-conifer.svg','assets/environment/tree-autumn.svg','assets/environment/bush.svg','assets/environment/ruin.svg','assets/units/infantry.svg','assets/effects/explosion.svg','assets/effects/smoke.svg'];
   const spriteContents = await Promise.all(spriteFiles.map(path => readFile(path, 'utf8')));
   if (spriteContents.some(svg => !svg.includes('<svg') || !svg.includes('</svg>'))) throw new Error('A standalone SVG game asset is invalid');
   if (!fogSource.includes("loadSprite('treeConifer','./assets/environment/tree-conifer.svg?v=2')") || !fogSource.includes("loadSprite('infantry','./assets/units/infantry.svg')") || !fogSource.includes('ctx.drawImage(im,-size*.5,-size*.78,size,size)') || !fogSource.includes('ctx.drawImage(sprite,-8*scale,-12*scale,16*scale,22*scale)')) throw new Error('Environment and infantry sprites are not integrated with Canvas rendering');
-  if (!htmlSource.includes('href="./css/game.css"') || !htmlSource.includes('src="./js/game.js"')) throw new Error('External runtime assets are not linked from the HTML shell');
+  if (!/href=["']\.\/css\/game\.css(?:\?[^"']*)?["']/.test(htmlSource) || !/src=["']\.\/js\/game\.js(?:\?[^"']*)?["']/.test(htmlSource)) throw new Error('External runtime assets are not linked from the HTML shell');
   if (stylesheetSource.includes('repair r3') || stylesheetSource.includes('legacy portrait rules')) throw new Error('Temporary CSS repair layer remains');
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
@@ -184,7 +184,7 @@ try {
   await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
   await page.setViewportSize({ width: 640, height: 320 });
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  const assetFailures = await page.evaluate(() => performance.getEntriesByType('resource').filter(e => (e.name.endsWith('/css/game.css') || e.name.endsWith('/js/game.js')) && e.responseStatus >= 400).map(e => ({name:e.name,status:e.responseStatus}))).catch(() => []);
+  const assetFailures = await page.evaluate(() => performance.getEntriesByType('resource').filter(e => { const path = new URL(e.name).pathname; return (path.endsWith('/css/game.css') || path.endsWith('/js/game.js') || path.endsWith('/js/mtba-render-engine.js')) && e.responseStatus >= 400; }).map(e => ({name:e.name,status:e.responseStatus}))).catch(() => []);
   if (assetFailures.length) throw new Error('Runtime assets failed to load: ' + JSON.stringify(assetFailures));
   const engineState = await page.evaluate(() => window.MTBARenderEngine?.version || null);
   if (engineState !== '1.0.0') throw new Error('MTBA Render Engine failed to initialize: ' + engineState);
