@@ -58,7 +58,7 @@ function create(world){
  const vignette=gctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.22,W*.5,H*.5,Math.max(W,H)*.76);
  vignette.addColorStop(0,'#00000000');vignette.addColorStop(.72,'#02070408');vignette.addColorStop(1,'#02070428');gctx.fillStyle=vignette;gctx.fillRect(0,0,W,H);
  let frames=0,last=0,avgMs=16.7,lowFrames=0,adaptive='native';
- function drawGround(ctx){ctx.drawImage(ground,0,0,W,H)}
+ function drawGround(ctx,camera,viewWidth,viewHeight){const sx=clamp(camera&&camera.x||0,0,Math.max(0,W-viewWidth)),sy=clamp(camera&&camera.y||0,0,Math.max(0,H-viewHeight)),sw=Math.max(1,Math.min(viewWidth,W-sx)),sh=Math.max(1,Math.min(viewHeight,H-sy));ctx.drawImage(ground,sx,sy,sw,sh,sx,sy,sw,sh)}
  function drawMaterialPass(ctx,visible){if(!visible)return;/* reserved for camera-visible decals; all expensive ground work is cached */}
  function recordFrame(ms){frames++;avgMs=avgMs*.94+ms*.06;if(avgMs>23)lowFrames++;else lowFrames=Math.max(0,lowFrames-1);if(lowFrames>90)adaptive='reduced';else if(lowFrames===0)adaptive='native';last=ms}
  function stats(){return{quality,adaptive,avgFrameMs:Math.round(avgMs*10)/10,worldWidth:W,worldHeight:H,textureWidth:tw,textureHeight:th,frames,lastFrameMs:last}}
