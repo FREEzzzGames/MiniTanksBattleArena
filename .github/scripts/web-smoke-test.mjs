@@ -30,6 +30,9 @@ try {
   if (!fogSource.includes('function spawnIntelBox()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('mapRevealUntil=Math.max(mapRevealUntil,gameClock+3)') || !fogSource.includes('function drawFog(){if(gameClock<mapRevealUntil)return;')) throw new Error('Three-second tactical intel reveal mechanic missing');
   if (!fogSource.includes('crit:critical') || !fogSource.includes('b.damage*(b.crit?1.5:1)') || !fogSource.includes('КРИТИЧЕСКОЕ ПОПАДАНИЕ')) throw new Error('Critical-hit damage / feedback mechanic missing');
   if (!fogSource.includes('function drawDynamicLights()') || !fogSource.includes('function drawIntelBoxes()')) throw new Error('Combat lighting or pickup rendering missing');
+  if (!htmlSource.includes('class="tank-preview"') || !htmlSource.includes('data-preview-tank="support"')) throw new Error('Tank cards must use the live renderer previews');
+  if (!fogSource.includes('function drawTankModel(ctx,t,scale=1,rotation=0)') || !fogSource.includes('function renderTankPreviews()') || !fogSource.includes('setInterval(renderTankPreviews,33)')) throw new Error('Shared tank renderer / slow rotating turntable previews missing');
+  if (!stylesheetSource.includes('MTBA visual reference pass') || !stylesheetSource.includes('.tank-preview')) throw new Error('Minimal military UI styling missing');
   if (!fogSource.includes('function createDrones(p)') || !fogSource.includes("kind:'scout'") || !fogSource.includes("kind:'medic'") || !fogSource.includes('function updateDrones(dt)') || !fogSource.includes('function drawDrones()')) throw new Error('Scout and medic drones must be created, updated and rendered');
   if (!fogSource.includes('function scoutDroneSpots(e)') || !fogSource.includes('reveal(scout.x,scout.y,scout.reveal,.32)')) throw new Error('Scout drone does not reveal nearby terrain and enemies');
   if (!fogSource.includes("if(targetHeal&&missing>0&&dist(d,targetHeal)<70)") || !fogSource.includes("say('МЕДДРОН: +'") || !fogSource.includes('targetHeal.hp+=amount')) throw new Error('Medic drone must fly to and heal wounded player/allies');
@@ -158,7 +161,7 @@ try {
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
   const assetFailures = await page.evaluate(() => performance.getEntriesByType('resource').filter(e => (e.name.endsWith('/css/game.css') || e.name.endsWith('/js/game.js')) && e.responseStatus >= 400).map(e => ({name:e.name,status:e.responseStatus}))).catch(() => []);
   if (assetFailures.length) throw new Error('Runtime assets failed to load: ' + JSON.stringify(assetFailures));
-  console.log('MTBA browser smoke tests passed: external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
+  console.log('MTBA browser smoke tests passed: shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
 }
