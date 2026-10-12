@@ -107,7 +107,7 @@ let camera={x:0,y:0};
 function screenToWorld(x,y){return{x:x+camera.x,y:y+camera.y}}
 function drawDrone(x,y,scale,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);ctx.fillStyle='#11191e';ctx.strokeStyle=color;ctx.lineWidth=1.8;for(const [dx,dy] of [[-9,-7],[9,-7],[-9,7],[9,7]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();ctx.beginPath();ctx.ellipse(dx,dy,5,2.3,0,0,TAU);ctx.fill();ctx.stroke()}ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-4,-4,8,8,2);ctx.fill();ctx.fillStyle='#e9faff';ctx.fillRect(-1,-1,2,2);ctx.restore()}
 function drawTankModel(ctx,t,scale=1,rotation=0){
-/* MTBA layered tank renderer r9.
+/* MTBA layered tank renderer r10.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
 const s=(t.size||22)*scale,role=t.role||'player',heavy=role==='heavy'||role==='brawler',scout=role==='scout',laser=role==='sniper',support=role==='support';
@@ -231,6 +231,38 @@ ctx.fillStyle=scout?'#c8ef8e':laser?'#b6efff':support?'#a2e6d4':'#d7d7a1';ctx.be
 if(heavy){ctx.fillStyle='#9ca78e';ctx.beginPath();ctx.roundRect(turretLeft+s*.28,-s*.055,s*.14,s*.11,s*.025);ctx.fill();}
 if(support){ctx.fillStyle='#152225';ctx.beginPath();ctx.roundRect(turretLeft+s*.55,-s*.12,s*.13,s*.24,s*.025);ctx.fill();ctx.fillStyle='#83d7c6';ctx.fillRect(turretLeft+s*.58,-s*.06,s*.07,s*.12)}
 ctx.restore();
+/* Role-specific silhouette pass r10: distinctive equipment, not just different paint.
+   Geometry stays in the tank-local frame; hull and turret rotations remain independent. */
+if(heavy){
+ /* Heavy tank: spaced armor blocks on the hull shoulders and a thick rear tow bar. */
+ ctx.fillStyle='#202a25';ctx.strokeStyle='#9ca58c';ctx.lineWidth=Math.max(.7,s*.022);
+ for(const side of [-1,1]){ctx.beginPath();ctx.roundRect(-s*.24,side*s*.43-s*.075,s*.48,s*.15,s*.035);ctx.fill();ctx.stroke();ctx.fillStyle='#7b8770';ctx.fillRect(-s*.16,side*s*.43-s*.025,s*.32,s*.035);ctx.fillStyle='#202a25';}
+ ctx.fillStyle='#141c1b';ctx.beginPath();ctx.roundRect(-s*.79,-s*.13,s*.12,s*.26,s*.035);ctx.fill();
+}
+if(scout){
+ /* Recon tank: twin whip antennas, raised sensor mast and a compact rear stowage pack. */
+ ctx.strokeStyle='#151e20';ctx.lineWidth=Math.max(1,s*.035);
+ ctx.beginPath();ctx.moveTo(-s*.48,-s*.18);ctx.lineTo(-s*.61,-s*.58);ctx.stroke();
+ ctx.strokeStyle='#b7c9a0';ctx.lineWidth=Math.max(.6,s*.016);
+ ctx.beginPath();ctx.moveTo(-s*.48,-s*.18);ctx.lineTo(-s*.61,-s*.58);ctx.stroke();
+ ctx.strokeStyle='#151e20';ctx.lineWidth=Math.max(1,s*.03);
+ ctx.beginPath();ctx.moveTo(-s*.43,s*.2);ctx.lineTo(-s*.52,s*.48);ctx.stroke();
+ ctx.fillStyle='#1a2728';ctx.beginPath();ctx.roundRect(-s*.7,-s*.2,s*.2,s*.4,s*.035);ctx.fill();
+ ctx.fillStyle='#8fdbe2';ctx.fillRect(-s*.66,-s*.11,s*.1,s*.08);ctx.fillRect(-s*.66,s*.04,s*.1,s*.08);
+}
+if(laser){
+ /* Sniper tank: oversized thermal sleeve and a slotted muzzle brake make the long gun unmistakable. */
+ ctx.fillStyle='#172124';ctx.beginPath();ctx.roundRect(s*1.08,-s*.13,s*.25,s*.26,s*.025);ctx.fill();
+ ctx.fillStyle='#9cabb0';ctx.fillRect(s*1.12,-s*.075,s*.16,s*.035);ctx.fillRect(s*1.12,s*.04,s*.16,s*.035);
+ ctx.strokeStyle='#d5e0d8';ctx.lineWidth=Math.max(.7,s*.02);ctx.beginPath();ctx.moveTo(s*.95,-s*.12);ctx.lineTo(s*.95,s*.12);ctx.stroke();
+}
+if(support){
+ /* Support tank: visible medical/service pack, retrieval hooks and a restrained identification cross. */
+ ctx.fillStyle='#1a2926';ctx.beginPath();ctx.roundRect(-s*.73,-s*.28,s*.25,s*.56,s*.045);ctx.fill();
+ ctx.fillStyle='#85cdb8';ctx.fillRect(-s*.66,-s*.055,s*.11,s*.11);ctx.fillRect(-s*.7,-s*.015,s*.19,s*.03);
+ ctx.strokeStyle='#b4d4ca';ctx.lineWidth=Math.max(.7,s*.02);
+ ctx.beginPath();ctx.moveTo(-s*.68,s*.32);ctx.lineTo(-s*.53,s*.32);ctx.stroke();
+}
 /* Readable role silhouette and paint marks; no dense bolt fields or tiny stencils. */
 if(heavy){ctx.fillStyle='#a6a27a';ctx.beginPath();ctx.roundRect(-s*.36,-s*.5,s*.22,s*.12,s*.025);ctx.fill();ctx.beginPath();ctx.roundRect(-s*.36,s*.38,s*.22,s*.12,s*.025);ctx.fill()}
 if(scout){ctx.fillStyle='#9ce7f1';ctx.beginPath();ctx.arc(-s*.48,-s*.31,s*.055,0,TAU);ctx.fill();}
