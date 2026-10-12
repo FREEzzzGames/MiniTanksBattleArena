@@ -182,9 +182,15 @@ try {
   await page.waitForTimeout(200);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   if (!emptied || ammoSeen.size < 2) throw new Error('Simultaneous movement + FIRE did not consume the magazine: ' + [...ammoSeen].join(', '));
-  await page.waitForTimeout(2800);
-  const reloadedAmmo = await page.locator('#ammoText').innerText();
-  if (reloadedAmmo !== '4 / 4') throw new Error('Empty magazine did not recover after releasing FIRE: ' + reloadedAmmo);
+  let reloadedAmmo = await page.locator('#ammoText').innerText();
+  for (let i = 0; i < 80 && reloadedAmmo !== '4 / 4'; i++) {
+    await page.waitForTimeout(100);
+    reloadedAmmo = await page.locator('#ammoText').innerText();
+  }
+  if (reloadedAmmo !== '4 / 4') {
+    const reloadDiagnostics = await page.evaluate(() => ({ health: document.querySelector('#healthText')?.textContent, overlay: document.querySelector('#overlay')?.textContent, gameOver: document.querySelector('#overlay')?.classList.contains('hidden') === false }));
+    throw new Error('Empty magazine did not recover after releasing FIRE: ' + reloadedAmmo + '; state=' + JSON.stringify(reloadDiagnostics));
+  }
   await page.locator('#pauseBtn').click();
   await page.locator('#overlay').waitFor({ state: 'visible' });
   await page.locator('#resumeBtn').click();
