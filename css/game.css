@@ -102,3 +102,15 @@ html.is-landscape #app{visibility:visible;pointer-events:auto}
   .tank-stats{gap:4px;margin:6px 0}.tank-stat{padding:6px}
   #modal button.primary,#modal button.secondary{min-height:38px;margin-top:5px}
 }
+
+/* MTBA touch controls: stronger silhouettes, clear hit areas and pressed feedback. */
+#controls .touch-control{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;padding:5px;border:1px solid #9eb5c2a8;background:linear-gradient(155deg,#172630f2,#080f16f5);box-shadow:0 3px 0 #03070b,inset 0 1px 0 #ffffff18,0 0 18px #0007;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;transition:transform .08s ease,filter .08s ease,box-shadow .08s ease}
+#controls .touch-control:active{transform:translateY(2px) scale(.97);filter:brightness(1.25);box-shadow:0 1px 0 #03070b,inset 0 1px 0 #ffffff22}
+#controls .touch-control small{display:block;line-height:1.05;letter-spacing:.04em;font-weight:800;text-shadow:0 1px 3px #000}
+#fireBtn{border:2px solid #ff8b98!important;background:radial-gradient(circle at 35% 25%,#8b3849,#35151f 78%)!important;color:#fff0f2;box-shadow:0 4px 0 #1d080d,inset 0 0 0 2px #ffb6bf22,0 0 20px #f0445b2b!important}
+#fireBtn:active{box-shadow:0 1px 0 #1d080d,inset 0 0 0 2px #ffb6bf33!important}
+#smokeBtn{border-color:#a6b6c0;background:linear-gradient(155deg,#26343c,#10191f)}
+#targetBtn{border-color:#d2b66f;color:#f5d990;background:linear-gradient(155deg,#322b1b,#14130f)}
+#coverBtn{border-color:#9aabb3;color:#d6e3e8}
+#orderBtn{border-color:#79cfd8;color:#c3f8fa}
+@media (max-width:560px) and (orientation:landscape){#controls .touch-control{min-width:48px;min-height:48px}#fireBtn{min-width:56px;min-height:56px}}
