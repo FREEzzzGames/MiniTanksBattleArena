@@ -37,7 +37,7 @@ try {
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
   const renderEngineSource = await readFile('js/mtba-render-engine.js', 'utf8');
-  if (!renderEngineSource.includes('window.MTBARenderEngine={create,version:') || !renderEngineSource.includes('function drawGround(ctx)') || !renderEngineSource.includes('function recordFrame(ms)') || !gameSource.includes('renderEngine.drawGround(ctx)') || !htmlSource.includes('src="./js/mtba-render-engine.js?v=1"')) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
+  if (!renderEngineSource.includes('window.MTBARenderEngine={create,version:') || !renderEngineSource.includes('function drawGround(ctx)') || !renderEngineSource.includes('function recordFrame(ms)') || !gameSource.includes('renderEngine.drawGround(ctx,camera,vw,vh)') || !htmlSource.includes('src="./js/mtba-render-engine.js?v=1"')) throw new Error('Procedural Canvas render engine is not loaded and connected to the world renderer');
   const spriteFiles = ['assets/tanks/tank-scout.svg','assets/tanks/tank-heavy.svg','assets/tanks/tank-sniper.svg','assets/tanks/tank-support.svg','assets/environment/tree-conifer.svg','assets/environment/tree-autumn.svg','assets/environment/bush.svg','assets/environment/ruin.svg','assets/units/infantry.svg','assets/effects/explosion.svg','assets/effects/smoke.svg'];
   const spriteContents = await Promise.all(spriteFiles.map(path => readFile(path, 'utf8')));
   if (spriteContents.some(svg => !svg.includes('<svg') || !svg.includes('</svg>'))) throw new Error('A standalone SVG game asset is invalid');
