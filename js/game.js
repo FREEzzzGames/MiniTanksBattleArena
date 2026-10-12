@@ -280,7 +280,17 @@ ctx.ellipse(s*tx+s*.09,s*.12,s*turretW*.56,s*turretH*.56,.04,0,TAU);ctx.fill();c
 /* Turret body is rendered above the hull before the gun assembly. */
 /* Turret silhouette: distinct reference-driven plans, not one shared turret with different colors. */
 ctx.fillStyle='#11191b';ctx.beginPath();
-if(heavy){
+if(demolisher){
+ ctx.moveTo(turretLeft+s*.02,turretTop+s*turretH*.1);ctx.lineTo(turretLeft+s*turretW*.76,turretTop+s*turretH*.02);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.2);ctx.lineTo(turretLeft+s*turretW*.98,turretTop+s*turretH*.82);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH);ctx.lineTo(turretLeft+s*.08,turretTop+s*turretH*.91);ctx.lineTo(turretLeft,turretTop+s*turretH*.65);ctx.closePath();
+}else if(ironclad){
+ ctx.moveTo(turretLeft+s*.04,turretTop+s*turretH*.22);ctx.lineTo(turretLeft+s*turretW*.58,turretTop+s*turretH*.03);ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.15);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.46);ctx.lineTo(turretLeft+s*turretW*.89,turretTop+s*turretH*.83);ctx.lineTo(turretLeft+s*turretW*.68,turretTop+s*turretH*.97);ctx.lineTo(turretLeft+s*.13,turretTop+s*turretH*.91);ctx.lineTo(turretLeft,turretTop+s*turretH*.64);ctx.closePath();
+}else if(viper){
+ ctx.moveTo(turretLeft+s*.02,turretTop+s*turretH*.38);ctx.lineTo(turretLeft+s*turretW*.18,turretTop+s*turretH*.12);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.04);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.28);ctx.lineTo(turretLeft+s*turretW*.92,turretTop+s*turretH*.69);ctx.lineTo(turretLeft+s*turretW*.68,turretTop+s*turretH*.89);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.76);ctx.closePath();
+}else if(wraith){
+ ctx.moveTo(turretLeft+s*.08,turretTop+s*turretH*.17);ctx.lineTo(turretLeft+s*turretW*.75,turretTop+s*turretH*.08);ctx.lineTo(turretLeft+s*turretW*.96,turretTop+s*turretH*.33);ctx.lineTo(turretLeft+s*turretW*.82,turretTop+s*turretH*.57);ctx.lineTo(turretLeft+s*turretW*.97,turretTop+s*turretH*.8);ctx.lineTo(turretLeft+s*turretW*.63,turretTop+s*turretH*.95);ctx.lineTo(turretLeft+s*.05,turretTop+s*turretH*.7);ctx.closePath();
+}else if(thunder){
+ ctx.moveTo(turretLeft+s*.03,turretTop+s*turretH*.23);ctx.lineTo(turretLeft+s*turretW*.48,turretTop+s*turretH*.03);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.15);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.43);ctx.lineTo(turretLeft+s*turretW*.89,turretTop+s*turretH*.78);ctx.lineTo(turretLeft+s*turretW*.58,turretTop+s*turretH*.94);ctx.lineTo(turretLeft+s*.12,turretTop+s*turretH*.8);ctx.closePath();
+}else if(heavy){
  ctx.moveTo(turretLeft+s*.06,turretTop+s*turretH*.18);ctx.lineTo(turretLeft+s*turretW*.69,turretTop+s*turretH*.04);
  ctx.lineTo(turretLeft+s*turretW*.97,turretTop+s*turretH*.24);ctx.lineTo(turretLeft+s*turretW,turretTop+s*turretH*.62);
  ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.93);ctx.lineTo(turretLeft+s*.17,turretTop+s*turretH*.91);
@@ -304,7 +314,17 @@ if(heavy){
 ctx.fill();
 const tm=ctx.createLinearGradient(-s*.3,-s*.35,s*.25,s*.35);tm.addColorStop(0,light);tm.addColorStop(.24,base);tm.addColorStop(.7,mid);tm.addColorStop(1,dark);
 ctx.fillStyle=tm;ctx.beginPath();
-if(heavy){
+if(demolisher){
+ ctx.moveTo(turretLeft+s*.1,turretTop+s*turretH*.19);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*turretH*.1);ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.25);ctx.lineTo(turretLeft+s*turretW*.9,turretTop+s*turretH*.77);ctx.lineTo(turretLeft+s*turretW*.72,turretTop+s*turretH*.88);ctx.lineTo(turretLeft+s*.13,turretTop+s*turretH*.81);ctx.closePath();
+}else if(ironclad){
+ ctx.moveTo(turretLeft+s*.12,turretTop+s*turretH*.26);ctx.lineTo(turretLeft+s*turretW*.58,turretTop+s*turretH*.11);ctx.lineTo(turretLeft+s*turretW*.83,turretTop+s*turretH*.22);ctx.lineTo(turretLeft+s*turretW*.91,turretTop+s*turretH*.46);ctx.lineTo(turretLeft+s*turretW*.8,turretTop+s*turretH*.73);ctx.lineTo(turretLeft+s*turretW*.62,turretTop+s*turretH*.84);ctx.lineTo(turretLeft+s*.18,turretTop+s*turretH*.79);ctx.closePath();
+}else if(viper){
+ ctx.moveTo(turretLeft+s*.15,turretTop+s*turretH*.36);ctx.lineTo(turretLeft+s*.28,turretTop+s*turretH*.22);ctx.lineTo(turretLeft+s*turretW*.77,turretTop+s*turretH*.15);ctx.lineTo(turretLeft+s*turretW*.86,turretTop+s*turretH*.34);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.67);ctx.lineTo(turretLeft+s*.19,turretTop+s*turretH*.61);ctx.closePath();
+}else if(wraith){
+ ctx.moveTo(turretLeft+s*.14,turretTop+s*turretH*.24);ctx.lineTo(turretLeft+s*turretW*.71,turretTop+s*turretH*.17);ctx.lineTo(turretLeft+s*turretW*.8,turretTop+s*turretH*.33);ctx.lineTo(turretLeft+s*turretW*.7,turretTop+s*turretH*.47);ctx.lineTo(turretLeft+s*turretW*.84,turretTop+s*turretH*.68);ctx.lineTo(turretLeft+s*turretW*.59,turretTop+s*turretH*.8);ctx.lineTo(turretLeft+s*.15,turretTop+s*turretH*.64);ctx.closePath();
+}else if(thunder){
+ ctx.moveTo(turretLeft+s*.16,turretTop+s*turretH*.27);ctx.lineTo(turretLeft+s*turretW*.49,turretTop+s*turretH*.12);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.23);ctx.lineTo(turretLeft+s*turretW*.87,turretTop+s*turretH*.44);ctx.lineTo(turretLeft+s*turretW*.78,turretTop+s*turretH*.66);ctx.lineTo(turretLeft+s*turretW*.51,turretTop+s*turretH*.8);ctx.lineTo(turretLeft+s*.16,turretTop+s*turretH*.68);ctx.closePath();
+}else if(heavy){
  ctx.moveTo(turretLeft+s*.13,turretTop+s*turretH*.2);ctx.lineTo(turretLeft+s*turretW*.66,turretTop+s*turretH*.12);
  ctx.lineTo(turretLeft+s*turretW*.86,turretTop+s*turretH*.29);ctx.lineTo(turretLeft+s*turretW*.88,turretTop+s*turretH*.6);
  ctx.lineTo(turretLeft+s*turretW*.73,turretTop+s*turretH*.8);ctx.lineTo(turretLeft+s*.19,turretTop+s*turretH*.79);
