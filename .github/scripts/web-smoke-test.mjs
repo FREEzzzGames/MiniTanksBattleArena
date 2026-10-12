@@ -64,7 +64,8 @@ try {
     const button = document.querySelector('[data-tank="support"]');
     return { disabled: button.disabled, tag: button.tagName, connected: button.isConnected, overlay: getComputedStyle(document.querySelector('#overlay')).display, scriptCount: document.scripts.length };
   });
-  await page.locator('[data-tank="support"]').click({ force: true });
+  await page.locator('[data-tank="support"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-tank="support"]').tap({ force: true });
   await page.waitForTimeout(100);
   if (await page.locator('#selArmor').textContent() !== '125') throw new Error('Support click failed; diagnostics=' + JSON.stringify(supportClick) + '; pageErrors=' + errors.join(' | '));
   if (await page.locator('#selArmor').textContent() !== '125') throw new Error('Support tank selection did not update stats: ' + await page.locator('#selArmor').textContent());
