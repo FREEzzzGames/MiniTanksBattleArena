@@ -90,4 +90,42 @@
 
 </div>
 <script src="./js/mtba-render-engine.js?v=mtba-20261013-r25" defer></script>
+<script>
+/* Reliable touch-drag scrolling for tank picker on browsers with global touch-action:none. */
+(() => {
+  const list = document.getElementById('tankSelect');
+  if (!list) return;
+  let active = false, startY = 0, startScroll = 0, dragged = false, pointer = null;
+  list.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    active = true; dragged = false; pointer = e.pointerId;
+    startY = e.clientY; startScroll = list.scrollTop;
+    try { list.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  list.addEventListener('pointermove', e => {
+    if (!active || e.pointerId !== pointer) return;
+    const delta = startY - e.clientY;
+    if (Math.abs(delta) > 4) dragged = true;
+    if (dragged) {
+      list.scrollTop = startScroll + delta;
+      if (e.cancelable) e.preventDefault();
+    }
+  }, { passive: false });
+  const finish = e => {
+    if (!active || (e && pointer !== null && e.pointerId !== pointer)) return;
+    active = false; pointer = null;
+    if (dragged) {
+      list.dataset.dragged = 'true';
+      setTimeout(() => { delete list.dataset.dragged; }, 0);
+    }
+  };
+  list.addEventListener('pointerup', finish);
+  list.addEventListener('pointercancel', finish);
+  list.addEventListener('click', e => {
+    if (list.dataset.dragged === 'true') {
+      e.preventDefault(); e.stopPropagation(); delete list.dataset.dragged;
+    }
+  }, true);
+})();
+</script>
 <script src="./js/game.js?v=mtba-20261013-r25" defer></script>
