@@ -1,9 +1,11 @@
-name: Deploy IRON FRONT Web Game
+name: Deploy MiniTanksBattleArena
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
+      - 'css/**'
+      - 'js/**'
       - '.github/workflows/pages.yml'
       - '.github/scripts/**'
       - 'README.md'

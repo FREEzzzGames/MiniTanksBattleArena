@@ -16,7 +16,8 @@ try {
   }
   if (await page.locator('#joystick').count() !== 0) throw new Error('Legacy joystick still present');
   if (await page.locator('[data-tank]').count() !== 5) throw new Error('Expected five tank selection cards, including support tank');
-  const fogSource = await readFile('index.html', 'utf8');
+  const [htmlSource, gameSource] = await Promise.all([readFile('index.html', 'utf8'), readFile('js/game.js', 'utf8')]);
+  const fogSource = gameSource;
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
@@ -129,7 +130,7 @@ try {
   await page.locator('#overlay.hidden').waitFor({ state: 'attached' });
   await page.setViewportSize({ width: 640, height: 320 });
   if (errors.length) throw new Error('Runtime errors: ' + errors.join('; '));
-  console.log('IRON FRONT smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
+  console.log('MTBA browser smoke tests passed: tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
 }
