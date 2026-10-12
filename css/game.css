@@ -153,3 +153,27 @@ header small,.stat label,.eyebrow{color:#84979e}
 #top-actions button{background:#101b21;border:1px solid #42565e;border-radius:2px;color:#d8e4e6}
 #controls .touch-control{border-radius:3px}
 @media(max-width:560px){.tank-select{gap:4px}.tank-card{border-radius:2px}.tank-art{aspect-ratio:1.5}.preview-label{font-size:6px}}
+
+/* Accessible touch controls and user-configurable HUD editor. */
+#top-actions #settingsBtn{min-width:36px;font-size:18px;padding:2px 8px}
+#controls .touch-control{width:clamp(68px,14vh,86px);height:clamp(68px,14vh,86px);border-radius:22px!important;font-size:25px}
+#controls #fireBtn{width:clamp(82px,17vh,104px);height:clamp(82px,17vh,104px);border-radius:28px!important}
+#controls .touch-control small{font-size:10px}
+#settingsPanel{position:absolute;z-index:20;top:48px;right:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 58px);overflow:auto;padding:12px;background:#0b141bee;border:1px solid #64818a;border-radius:16px;box-shadow:0 12px 36px #000b;backdrop-filter:blur(12px);color:#e4eef0;touch-action:pan-y}
+#settingsPanel[hidden],#layoutSettings[hidden],#backgroundSettings[hidden]{display:none!important}
+.settings-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;letter-spacing:.08em}
+.settings-head button,.settings-tabs button,.settings-actions button,#resetBackgrounds{border:1px solid #526a73;border-radius:12px;background:#182830;color:#e5f0f2;padding:9px}
+.settings-head button{font-size:20px;padding:2px 11px}
+.settings-tabs{display:flex;gap:6px;margin:10px 0}.settings-tabs button{flex:1;font-size:10px}.settings-tabs .active{border-color:#7ce8d0;color:#7ce8d0}
+#settingsPanel p{color:#a9bbc1;font-size:11px;line-height:1.5}
+#settingsPanel label{display:flex;flex-direction:column;gap:6px;margin:11px 0;font-size:11px;color:#c7d6da}
+#settingsPanel input[type=range]{width:100%;accent-color:#7ce8d0}
+#settingsPanel select{width:100%;padding:9px;border-radius:10px;border:1px solid #405963;background:#101d24;color:#eef8f8}
+#settingsPanel input[type=color]{width:100%;height:40px;border:1px solid #405963;border-radius:10px;background:#101d24}
+.editor-toggle{flex-direction:row!important;align-items:center}.editor-toggle input{width:20px;height:20px;accent-color:#7ce8d0}
+.settings-actions{display:flex;gap:7px}.settings-actions button{flex:1;font-size:10px}
+#app.layout-editing #controls .touch-control,#app.layout-editing #hud,#app.layout-editing #message{outline:2px dashed #7ce8d0;outline-offset:2px;touch-action:none;cursor:move}
+#app.layout-editing #controls{pointer-events:auto}
+#app.layout-editing .hud-edit-selected{outline:3px solid #ffd66b!important;z-index:10}
+#controls .touch-control{min-width:64px;min-height:64px}
+@media(max-height:420px) and (orientation:landscape){#controls .touch-control{width:64px;height:64px}#controls #fireBtn{width:76px;height:76px}}
