@@ -100,7 +100,7 @@ try {
     overlayHidden: document.querySelector('#overlay').classList.contains('hidden'),
     ammo: document.querySelector('#ammoText').textContent
   }));
-  if (!state.canvas || state.wave !== '01' || state.hud !== '165' || !state.overlayHidden || state.ammo !== '4 / 4') throw new Error('Game did not initialize selected tank/ammo correctly: ' + JSON.stringify(state));
+  if (!state.canvas || state.wave !== '01' || state.hud !== '155' || !state.overlayHidden || state.ammo !== '4 / 4') throw new Error('Game did not initialize selected tank/ammo correctly: ' + JSON.stringify(state));
   const renderCheck = await page.evaluate(() => {
     const canvas = document.querySelector('#game');
     const ctx = canvas.getContext('2d');
