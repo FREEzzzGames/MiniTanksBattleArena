@@ -47,6 +47,7 @@ try {
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
+  if (!fogSource.includes('function segmentIntersectsRect(x1,y1,x2,y2,r){let t0=0,t1=1;const dx=x2-x1,dy=y2-y1;let p=-dx,q=x1-r.x')) throw new Error('Segment/obstacle collision test must not allocate temporary arrays inside combat loops');
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(') || !/ctx\.restore\(\);drawFog\(\);drawRadar\(\)/.test(gameSource)) throw new Error('Fog-of-war must render after restoring the world camera and before the fixed radar');
   if (!gameSource.includes('function bakeStaticTerrain()') || !gameSource.includes('function drawStaticTerrain(camera)') || !gameSource.includes('drawStaticTerrain(camera);drawGrassBase()')) throw new Error('Static terrain details are not baked and viewport-clipped');
   if (!fogSource.includes('alpha:[{x:230,y:420},{x:390,y:500},{x:650,y:700},{x:810,y:850}') || !fogSource.includes('bravo:[{x:1510,y:420},{x:1370,y:500},{x:1150,y:700},{x:990,y:850}')) throw new Error('Opposing infantry patrol routes must converge on the central engagement zone');
