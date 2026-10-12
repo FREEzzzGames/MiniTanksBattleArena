@@ -47,7 +47,7 @@ try {
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
-  if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(')) throw new Error('Fog-of-war / visibility system missing');
+  if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(') || !/ctx\.restore\(\);drawFog\(\);drawRadar\(\)/.test(gameSource)) throw new Error('Fog-of-war must render after restoring the world camera and before the fixed radar');
   if (!gameSource.includes('function bakeStaticTerrain()') || !gameSource.includes('function drawStaticTerrain(camera)') || !gameSource.includes('drawStaticTerrain(camera);drawGrassBase()')) throw new Error('Static terrain details are not baked and viewport-clipped');
   if (!fogSource.includes('function drawGrassBase()') || !fogSource.includes('function drawGrassCanopy()') || !fogSource.includes('function isConcealed(') || !fogSource.includes('t.grassRevealUntil=gameClock+2')) throw new Error('Grass concealment / 2-second firing reveal mechanic missing');
   if (!fogSource.includes("const candidates=t.team==='enemy'?[player(),...allies()].filter(v=>v&&v.alive&&!isConcealed(v)):enemies()")) throw new Error('Enemy target acquisition does not respect grass concealment');
