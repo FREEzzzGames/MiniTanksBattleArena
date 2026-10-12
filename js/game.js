@@ -110,7 +110,7 @@ function drawTankModel(ctx,t,scale=1,rotation=0){
 /* MTBA layered tank renderer r16.
    Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights.
    Collision and movement geometry are untouched. */
-const s=(t.size||22)*scale,role=t.role||'player',profile=tankProfiles[role]||null,arch=profile?.archetype||role,heavy=arch==='heavy'||role==='brawler',scout=arch==='scout'||role==='scout',laser=arch==='sniper'||role==='sniper',support=arch==='support'||role==='support';
+const role=t.role||'player',profile=tankProfiles[role]||null,arch=profile?.archetype||role,heavy=arch==='heavy'||role==='brawler',scout=arch==='scout'||role==='scout',laser=arch==='sniper'||role==='sniper',support=arch==='support'||role==='support',ironclad=role==='ironclad',demolisher=role==='demolisher',viper=role==='viper',wraith=role==='wraith',thunder=role==='thunder';\nconst s=(t.size||22)*scale*(demolisher?1.035:ironclad?1.015:viper?.94:wraith?.98:thunder?1.01:1);
 const base=t.hitFlash>0?'#fff':t.team==='player'?'#788b65':t.team==='ally'?'#668b91':t.team==='enemy'?'#8b514a':'#7a8068';
 const dark=heavy?'#29332d':scout?'#303d2c':laser?'#29343a':support?'#2e3d3b':'#303a30';
 const mid=heavy?'#77816b':scout?'#718650':laser?'#75848b':support?'#6e9187':'#71836c';
@@ -269,8 +269,8 @@ for(const side of [-1,1]){
 ctx.restore();
 /* Turret and barrel rotate independently from the hull. */
 ctx.save();ctx.rotate((Number.isFinite(t.turret)?t.turret:(t.a||0))-(t.a||0));
-const turretW=heavy?1.08:scout?.68:laser?.86:support?.86:.88;
-const turretH=heavy?.72:scout?.48:laser?.43:support?.56:.55;
+const turretW=demolisher?1.17:ironclad?1.12:viper?.61:wraith?.72:thunder?.9:heavy?1.08:scout?.68:laser?.86:support?.86:.88;
+const turretH=demolisher?.78:ironclad?.68:viper?.42:wraith?.46:thunder?.59:heavy?.72:scout?.48:laser?.43:support?.56:.55;
 const tx=heavy?.02:laser?-.05:.0,ty=0;
 const turretTop=-s*turretH*.5,turretLeft=s*tx-s*turretW*.5;
 /* Turret drop shadow and contact occlusion separate it from the hull. */
@@ -361,7 +361,7 @@ ctx.fillStyle='#1c2825';ctx.beginPath();ctx.roundRect(turretLeft+s*turretW*.68,t
 ctx.fillStyle='#87947e';ctx.fillRect(turretLeft+s*turretW*.71,turretTop+s*turretH*.7,s*.1,s*.025);
 /* Gun barrel layer: above hull and turret, then covered at the joint by the mantlet. */
 /* Long gun silhouette first; sniper has a visibly extended barrel. */
-const barrelLen=s*(laser?1.78:heavy?1.28:scout?.86:support?.91:1.08),barrelH=s*(laser?.115:heavy?.19:scout?.105:.135);
+const barrelLen=s*(laser?1.78:demolisher?1.05:ironclad?1.38:heavy?1.28:viper?.78:wraith?.96:thunder?1.18:scout?.86:support?.91:1.08),barrelH=s*(laser?.115:demolisher?.24:heavy?.19:scout?.105:.135);
 ctx.fillStyle='#0a1113';ctx.beginPath();ctx.roundRect(s*(tx+.16),-barrelH*.7,barrelLen,barrelH*1.4,barrelH*.2);ctx.fill();
 const barrel=ctx.createLinearGradient(0,-barrelH*.5,0,barrelH*.5);barrel.addColorStop(0,'#c4cfc0');barrel.addColorStop(.22,laser?'#8ea6b0':'#7d8c7b');barrel.addColorStop(.55,'#43534b');barrel.addColorStop(1,'#172124');
 ctx.fillStyle=barrel;ctx.beginPath();ctx.roundRect(s*(tx+.18),-barrelH*.43,barrelLen-s*.03,barrelH*.86,barrelH*.13);ctx.fill();
