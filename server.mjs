@@ -56,7 +56,7 @@ function makeMatch(entries) {
   for(const e of entries) {
     const ids=e.playerIds.filter(id=>clients.has(id));
     if(!ids.length) continue;
-    const team=teams.blue.length+ids.length<=TEAM_SIZE?'blue':teams.red.length+ids.length<=TEAM_SIZE?'red':null;
+    const team=e.team||(teams.blue.length+ids.length<=TEAM_SIZE?'blue':teams.red.length+ids.length<=TEAM_SIZE?'red':null);
     if(!team) continue;
     for(const id of ids) {
       const c=clients.get(id);
@@ -85,9 +85,11 @@ function tryMatch() {
     const e=queue[i],liveIds=e.playerIds.filter(id=>clients.has(id)),size=liveIds.length;
     if(!size){queue.splice(i,1);continue;}
     let team=null;
-    if(blue+size<=TEAM_SIZE) team='blue';
-    else if(red+size<=TEAM_SIZE) team='red';
-    if(team){selected.push({...e,playerIds:liveIds});if(team==='blue')blue+=size;else red+=size;realCount+=size;queue.splice(i,1);}
+    const canBlue=blue+size<=TEAM_SIZE,canRed=red+size<=TEAM_SIZE;
+    if(canBlue&&canRed)team=blue<=red?'blue':'red';
+    else if(canBlue)team='blue';
+    else if(canRed)team='red';
+    if(team){selected.push({...e,playerIds:liveIds,team});if(team==='blue')blue+=size;else red+=size;realCount+=size;queue.splice(i,1);}
     else i++;
   }
   if(!selected.length)return;
