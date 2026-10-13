@@ -289,7 +289,6 @@ try {
   const cinematicSource = await readFile(resolve(root, 'js/cinematics.js'), 'utf8');
   const cinematicCss = await readFile(resolve(root, 'css/game.css'), 'utf8');
   if (!htmlSource.includes('js/cinematics.js?v=')) throw new Error('Cinematic controller is not loaded by the game shell');
-  for (const kind of ['battle','defeat','victory']) if (!cinematicSource.includes(kind + ": './assets/cinematics/")) throw new Error('Missing optional cinematic source mapping: ' + kind);
   if (!cinematicSource.includes("if (kind === 'intro')") || !cinematicSource.includes('cinematic-scene') || !cinematicSource.includes("play('intro')")) throw new Error('Custom loading animation must use the CSS scene and auto-play at launch');
   if (!cinematicSource.includes('skipButton.addEventListener') || !cinematicSource.includes('prefers-reduced-motion')) throw new Error('Cinematics must support skip and respect reduced motion');
   if (cinematicSource.includes('assets/cinematics/') || cinematicSource.includes('<video')) throw new Error('Cinematics must not depend on external video files');
