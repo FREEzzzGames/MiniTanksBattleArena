@@ -268,6 +268,14 @@ try {
   const engineState = await page.evaluate(() => window.MTBARenderEngine?.version || null);
   if (engineState !== '1.0.0') throw new Error('MTBA Render Engine failed to initialize: ' + engineState);
 
+  // Cinematic controller: optional media must fail safely and never replace the Canvas game.
+  const cinematicSource = await readFile(resolve(root, 'js/cinematics.js'), 'utf8');
+  if (!htmlSource.includes('js/cinematics.js?v=')) throw new Error('Cinematic controller is not loaded by the game shell');
+  for (const kind of ['intro','battle','defeat','victory']) if (!cinematicSource.includes(kind + ": './assets/cinematics/")) throw new Error('Missing optional cinematic source mapping: ' + kind);
+  if (!cinematicSource.includes('video.addEventListener(\'error\'') || !cinematicSource.includes('video.addEventListener(\'ended\'') || !cinematicSource.includes('skipButton.addEventListener')) throw new Error('Cinematics must recover from missing media, finish normally and support skip');
+  if (!cinematicSource.includes('prefers-reduced-motion') || !cinematicSource.includes('video.removeAttribute(\'src\')')) throw new Error('Cinematics must respect reduced motion and release video resources');
+  if (!gameSource.includes("window.MTBACinematics.playOutcome('defeat'")) throw new Error('Defeat cinematic is not connected to the game-over path');
+
   // Online party/matchmaking shell: verify real controls exist without breaking solo play.
   for (const id of ['multiplayerPanel','quickMatchBtn','createPartyBtn','partyCodeInput','joinPartyBtn','partyStatus','partyMembers','sharePartyBtn','leavePartyBtn','cancelQueueBtn']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing online matchmaking control: ' + id);
