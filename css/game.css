@@ -427,3 +427,33 @@ header small,.stat label,.eyebrow{color:#84979e}
 #modal .tank-card b{font-size:clamp(8px,1.25vh,10px);line-height:1.05;}
 #modal .tank-card small{font-size:clamp(7px,1vh,8px);line-height:1.05;}
 @media (orientation:landscape) and (max-height:420px){#modal .tank-select{height:clamp(126px,31vh,145px);max-height:31vh;}#modal .tank-render{max-height:clamp(32px,6.5vh,48px);}}
+
+/* Cinematic 02 — battle deployment; Cinematic 03 — battle result. */
+.cinematic-battle .cinematic-scene,.cinematic-defeat .cinematic-scene,.cinematic-victory .cinematic-scene{opacity:1}
+.cinematic-battle .cinematic-video,.cinematic-defeat .cinematic-video,.cinematic-victory .cinematic-video{display:none}
+.cinematic-battle .cinematic-tank{animation:mtbaBattleTank 1.25s cubic-bezier(.16,.75,.22,1) both}
+.cinematic-battle .cinematic-reticle{animation:mtbaTargetLock 1.8s ease-out .45s both}
+.cinematic-battle .cinematic-muzzle-flash{animation:mtbaBattleFire .8s ease-out 1.75s both}
+.cinematic-battle .cinematic-copy{animation:mtbaBattleText .55s ease-out .3s both}
+.cinematic-battle .cinematic-title{color:#ffcf77;text-shadow:0 0 22px #ff9d3c55}
+.cinematic-battle .cinematic-status{opacity:1;animation:mtbaBrandReveal .45s ease-out .25s both}
+.cinematic-battle .cinematic-status b:first-of-type{color:#ffbf63}
+.cinematic-defeat .cinematic-scene{background:radial-gradient(ellipse at 70% 55%,#482624 0,#1b1115 42%,#050609 80%);filter:saturate(.8)}
+.cinematic-defeat .cinematic-tank{filter:grayscale(.8) sepia(.3) drop-shadow(0 0 28px #ff493a44);animation:mtbaDefeatTank 1s ease-out both}
+.cinematic-defeat .cinematic-status i{background:#ff554a;box-shadow:0 0 12px #ff554a;animation:none}
+.cinematic-defeat .cinematic-status b{color:#ff776e}
+.cinematic-defeat .cinematic-title{color:#ff776e;text-shadow:0 0 24px #ff342b44}
+.cinematic-defeat .cinematic-copy{animation:mtbaBattleText .55s ease-out .2s both}
+.cinematic-victory .cinematic-scene{background:radial-gradient(ellipse at 70% 55%,#24483e 0,#101d20 38%,#04090c 80%)}
+.cinematic-victory .cinematic-tank{filter:drop-shadow(0 0 30px #72ffc766);animation:mtbaVictoryTank 1s cubic-bezier(.16,.8,.2,1) both}
+.cinematic-victory .cinematic-status i{background:#7effa8;box-shadow:0 0 14px #7effa8;animation:mtbaStatusPulse .8s ease-in-out infinite}
+.cinematic-victory .cinematic-status b{color:#7effa8}
+.cinematic-victory .cinematic-title{color:#a6ffc4;text-shadow:0 0 24px #55ff9d44}
+.cinematic-victory .cinematic-copy{animation:mtbaBattleText .55s ease-out .2s both}
+@keyframes mtbaBattleTank{0%{opacity:0;transform:translate(120px,-43%) scale(.68)}65%{opacity:1;transform:translate(-10px,-43%) scale(1.04)}100%{opacity:1;transform:translate(0,-43%) scale(1)}}
+@keyframes mtbaTargetLock{0%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}25%{opacity:1}70%{opacity:1;transform:translate(-50%,-50%) scale(.86)}100%{opacity:.7;transform:translate(-50%,-50%) scale(1)}}
+@keyframes mtbaBattleFire{0%,45%,100%{opacity:0;transform:scale(.2)}10%,30%{opacity:1;transform:scale(2.3)}}
+@keyframes mtbaBattleText{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mtbaDefeatTank{0%{opacity:0;transform:translate(0,-43%) scale(1.05)}100%{opacity:.68;transform:translate(-14px,-40%) rotate(-2deg) scale(.94)}}
+@keyframes mtbaVictoryTank{0%{opacity:0;transform:translate(0,-36%) scale(.82)}70%{opacity:1;transform:translate(0,-46%) scale(1.04)}100%{opacity:1;transform:translate(0,-43%) scale(1)}}
+@media(prefers-reduced-motion:reduce){.cinematic-battle .cinematic-tank,.cinematic-battle .cinematic-reticle,.cinematic-battle .cinematic-muzzle-flash,.cinematic-battle .cinematic-copy,.cinematic-defeat .cinematic-tank,.cinematic-defeat .cinematic-copy,.cinematic-victory .cinematic-tank,.cinematic-victory .cinematic-copy{animation:none!important;opacity:1!important;transform:none!important}}
