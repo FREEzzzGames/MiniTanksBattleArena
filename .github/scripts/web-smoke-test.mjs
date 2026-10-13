@@ -48,6 +48,7 @@ try {
   const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) throw new Error('Duplicate live DOM IDs: ' + [...new Set(duplicateIds)].join(', '));
+  if (!gameSource.includes('Canopies are visual only') || !gameSource.includes('const fadeRadius=t.r*1.48') || !gameSource.includes('underCanopy?.28:1')) throw new Error('Trees must block tank movement at the trunk and fade when a tank passes beneath the canopy');
   if (!gameSource.includes('Recessed hub ring and two broad spokes') || !gameSource.includes('Role-specific field wear: broad chipped edges and dust streaks') || !gameSource.includes('Z-order: ground shadow -> tracks -> hull -> turret -> barrel -> gun mantlet -> highlights')) throw new Error('Tank model material detail or accepted render layer order regressed');
   if (!fogSource.includes('function segmentIntersectsRect(x1,y1,x2,y2,r){let t0=0,t1=1;const dx=x2-x1,dy=y2-y1;let p=-dx,q=x1-r.x')) throw new Error('Segment/obstacle collision test must not allocate temporary arrays inside combat loops');
   if (!fogSource.includes('function drawFog()') || !fogSource.includes('function canSpot(') || !/ctx\.restore\(\);drawFog\(\);drawRadar\(\)/.test(gameSource)) throw new Error('Fog-of-war must render after restoring the world camera and before the fixed radar');
