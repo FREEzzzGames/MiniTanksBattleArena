@@ -6,7 +6,7 @@
     defeat: './assets/cinematics/defeat.mp4',
     victory: './assets/cinematics/victory.mp4'
   };
-  let overlay, video, skipButton, title, subtitle, active = false, timer = 0;
+  let overlay, video, skipButton, title, subtitle, active = false, timer = 0, fallbackTimer = 0;
   const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   function build() {
     if (overlay) return;
@@ -23,18 +23,28 @@
     skipButton = overlay.querySelector('button');
     skipButton.addEventListener('click', () => finish(true));
     video.addEventListener('ended', () => finish(false));
-    video.addEventListener('error', () => finish(true));
-    video.addEventListener('abort', () => finish(true));
+    video.addEventListener('error', () => showFallback());
+    video.addEventListener('abort', () => showFallback());
+  }
+  function showFallback() {
+    if (!active) return;
+    video.pause();
+    video.hidden = true;
+    overlay.classList.add('cinematic-fallback');
+    clearTimeout(timer);
+    fallbackTimer = window.setTimeout(() => finish(true), 1500);
   }
   function finish(skipped) {
     if (!active) return;
     active = false;
     clearTimeout(timer);
+    clearTimeout(fallbackTimer);
     video.pause();
     video.removeAttribute('src');
     video.load();
     overlay.hidden = true;
-    overlay.classList.remove('is-playing');
+    overlay.classList.remove('is-playing', 'cinematic-fallback');
+    video.hidden = false;
     const done = overlay._done;
     overlay._done = null;
     if (done) done({ skipped });
@@ -54,9 +64,10 @@
     subtitle.textContent = ({intro:'Проверка систем · подготовка экипажа',battle:'Сектор подтверждён · начинаем бой',defeat:'Машина выведена из строя',victory:'Задача выполнена'})[kind] || 'BATTLE ARENA';
     skipButton.hidden = false;
     overlay._done = options.onEnd || null;
+    video.hidden = false;
     video.src = src;
     video.currentTime = 0;
-    video.play().catch(() => finish(true));
+    video.play().catch(() => showFallback());
     timer = window.setTimeout(() => finish(true), 12000);
     return true;
   }
