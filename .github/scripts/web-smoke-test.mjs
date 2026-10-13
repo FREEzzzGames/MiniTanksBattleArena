@@ -287,12 +287,16 @@ try {
 
   // Cinematic controller: optional media must fail safely and never replace the Canvas game.
   const cinematicSource = await readFile(resolve(root, 'js/cinematics.js'), 'utf8');
+  const cinematicCss = await readFile(resolve(root, 'css/game.css'), 'utf8');
   if (!htmlSource.includes('js/cinematics.js?v=')) throw new Error('Cinematic controller is not loaded by the game shell');
   for (const kind of ['battle','defeat','victory']) if (!cinematicSource.includes(kind + ": './assets/cinematics/")) throw new Error('Missing optional cinematic source mapping: ' + kind);
   if (!cinematicSource.includes("if (kind === 'intro')") || !cinematicSource.includes('cinematic-scene') || !cinematicSource.includes("play('intro')")) throw new Error('Custom loading animation must use the CSS scene and auto-play at launch');
   if (!cinematicSource.includes('video.addEventListener(\'error\'') || !cinematicSource.includes('video.addEventListener(\'ended\'') || !cinematicSource.includes('skipButton.addEventListener')) throw new Error('Cinematics must recover from missing media, finish normally and support skip');
   if (!cinematicSource.includes('prefers-reduced-motion') || !cinematicSource.includes("video.removeAttribute('src')") || !cinematicSource.includes('function showFallback()') || !cinematicSource.includes('cinematic-fallback')) throw new Error('Cinematics must respect reduced motion, release resources and provide a missing-video fallback');
   if (!gameSource.includes("window.MTBACinematics.playOutcome('defeat'")) throw new Error('Defeat cinematic is not connected to the game-over path');
+  for (const scene of ['cinematic-intro','cinematic-battle','cinematic-defeat','cinematic-victory']) if (!cinematicCss.includes('.' + scene + ' .cinematic-scene')) throw new Error('Missing authored cinematic CSS scene: ' + scene);
+  if (!cinematicSource.includes('const duration = kind === \'intro\' ? 6200 : kind === \'battle\' ? 4200 : 3600')) throw new Error('Cinematic scene durations are not configured');
+  if (!cinematicSource.includes('All three cinematic beats are authored CSS scenes')) throw new Error('Cinematics must not depend on external video footage');
 
   // Online party/matchmaking shell: verify real controls exist without breaking solo play.
   for (const id of ['multiplayerPanel','quickMatchBtn','createPartyBtn','partyCodeInput','joinPartyBtn','partyStatus','partyMembers','sharePartyBtn','leavePartyBtn','cancelQueueBtn']) {
