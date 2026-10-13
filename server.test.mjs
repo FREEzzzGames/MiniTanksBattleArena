@@ -87,6 +87,7 @@ test('live websocket match fills 3v3 after five seconds and relays battle state'
   assert.equal(found[0].match.players.length,6);
   assert.equal(found[1].match.players.filter(p=>p.bot).length,4);
   assert.equal(found[0].match.status,'active');
+  assert.notEqual(found[0].match.team,found[1].match.team,'two solo players should be split across teams');
   a.ws.send(JSON.stringify({type:'battle_state',payload:{players:[{id:connected[0].playerId,x:321,y:654,team:found[0].match.team,hp:100}]}}));
   const relayed=await b.wait('battle_state',3000);
   assert.equal(relayed.payload.players[0].x,321);
