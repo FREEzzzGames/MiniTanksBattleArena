@@ -295,7 +295,7 @@ try {
   if (!gameSource.includes("window.MTBACinematics.playOutcome('defeat'")) throw new Error('Defeat cinematic is not connected to the game-over path');
   for (const scene of ['cinematic-intro','cinematic-battle','cinematic-defeat','cinematic-victory']) if (!cinematicCss.includes('.' + scene + ' .cinematic-scene')) throw new Error('Missing authored cinematic CSS scene: ' + scene);
   if (!cinematicSource.includes('const duration = kind === \'intro\' ? 6200 : kind === \'battle\' ? 4200 : 3600')) throw new Error('Cinematic scene durations are not configured');
-  if (!cinematicSource.includes('All three cinematic beats are authored CSS scenes')) throw new Error('Cinematics must not depend on external video footage');
+  if (!cinematicSource.includes('All cinematic beats are authored CSS scenes')) throw new Error('Cinematics must not depend on external video footage');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   for (const kind of ['intro','battle','defeat','victory']) {
     const started = await page.evaluate(kind => window.MTBACinematics.play(kind), kind);
