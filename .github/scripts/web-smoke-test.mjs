@@ -183,6 +183,8 @@ try {
   if (stats.armor !== '155' || stats.speed !== '104' || stats.damage !== '34') throw new Error('Tank selection stats incorrect: ' + JSON.stringify(stats));
   const balanceSource = gameSource;
   if (!balanceSource.includes("scout:{name:'SHADE',hp:74,speed:176,damage:18,reload:.84") || !balanceSource.includes("sniper:{name:'JÄGER',hp:82,speed:112,damage:38,reload:1.72") || !balanceSource.includes("ironclad:{name:'IRONCLAD'") || !balanceSource.includes("demolisher:{name:'DEMOLISHER'") || !balanceSource.includes("viper:{name:'VIPER'") || !balanceSource.includes("wraith:{name:'WRAITH'") || !balanceSource.includes("thunder:{name:'THUNDER'")) throw new Error('Tank balance profile changes missing');
+  // Gameplay smoke tests must not wait for optional cinematic media; exercise the reduced-motion path.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.locator('#startBtn').click();
   await page.waitForTimeout(300);
   const state = await page.evaluate(() => ({
