@@ -139,27 +139,28 @@ try {
   if (portraitGate.gate !== 'flex' || portraitGate.app !== 'hidden') throw new Error('Portrait orientation must be gated with a rotate-device prompt: ' + JSON.stringify(portraitGate));
   await page.setViewportSize({ width: 844, height: 390 });
   await page.evaluate(() => window.scrollTo(0, 0));
-  // Real touch swipe over a tank preview must scroll the selector, not the page.
-  await page.locator('#tankSelect').evaluate(el => { el.scrollTop = 0; });
-  const selectorBox = await page.locator('#tankSelect .tank-preview').first().boundingBox();
-  if (!selectorBox) throw new Error('Tank preview canvas is not visible for scroll test');
-  const swipeX = selectorBox.x + selectorBox.width / 2;
-  const swipeY = selectorBox.y + selectorBox.height * .78;
-  const selectorScroll = await page.locator('#tankSelect').evaluate(el => {
-    const preview = el.querySelector('.tank-preview');
-    const rect = preview.getBoundingClientRect();
-    const touchAt = (type, y) => {
-      const touch = new Touch({identifier:17,target:preview,clientX:rect.left+rect.width/2,clientY:y});
-      preview.dispatchEvent(new TouchEvent(type,{bubbles:true,cancelable:type==='touchmove',touches:type==='touchend'?[]:[touch],targetTouches:type==='touchend'?[]:[touch],changedTouches:[touch]}));
+  // The nine-card catalog must fit as a fixed 3x3 grid on the landscape screen.
+  const selectorLayout = await page.locator('#tankSelect').evaluate(el => {
+    const cards = [...el.querySelectorAll('[data-tank]')];
+    const rects = cards.map(card => card.getBoundingClientRect());
+    const uniqueRows = new Set(rects.map(r => Math.round(r.top)));
+    const uniqueCols = new Set(rects.map(r => Math.round(r.left)));
+    const selector = el.getBoundingClientRect();
+    const modal = document.querySelector('#modal').getBoundingClientRect();
+    return {
+      count: cards.length,
+      rows: uniqueRows.size,
+      cols: uniqueCols.size,
+      overflow: el.scrollHeight - el.clientHeight,
+      selectorBottom: selector.bottom,
+      modalBottom: modal.bottom,
+      viewportHeight: innerHeight,
+      allCardsVisible: rects.every(r => r.top >= selector.top && r.bottom <= selector.bottom && r.left >= selector.left && r.right <= selector.right)
     };
-    el.scrollTop = 0;
-    touchAt('touchstart',rect.top+rect.height*.78);
-    touchAt('touchmove',rect.top+rect.height*.78-105);
-    const top = el.scrollTop;
-    touchAt('touchend',rect.top+rect.height*.78-105);
-    return {top,finalTop:el.scrollTop,max:el.scrollHeight-el.clientHeight,touchAction:getComputedStyle(preview).touchAction,pointerEvents:getComputedStyle(preview).pointerEvents};
   });
-  if (selectorScroll.max <= 0 || selectorScroll.top <= 0) throw new Error('Tank selector touch-drag handler failed: '+JSON.stringify(selectorScroll));
+  if (selectorLayout.count !== 9 || selectorLayout.rows !== 3 || selectorLayout.cols !== 3 || selectorLayout.overflow > 1 || !selectorLayout.allCardsVisible || selectorLayout.modalBottom > selectorLayout.viewportHeight + 1) {
+    throw new Error('Tank catalog must show all nine cards in a visible 3x3 grid on one screen: ' + JSON.stringify(selectorLayout));
+  }
   // The real UI deliberately suppresses the synthetic click immediately after a drag.
   // Wait for that short suppression window before testing an intentional tank selection.
   await page.waitForTimeout(100);
