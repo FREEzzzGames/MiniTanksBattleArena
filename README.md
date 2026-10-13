@@ -2,6 +2,12 @@
 
 Standalone Canvas 2D tank battle arena for modern browsers and touch screens. The game is deployed as a static site; this repository workflow does not build an Android APK.
 
+## Licensing and third-party assets
+
+- Third-party media sources, license notes, and restrictions: [`ASSET_LICENSES.md`](ASSET_LICENSES.md).
+- Cinematic files and their source notes: [`assets/cinematics/README.md`](assets/cinematics/README.md).
+- These notices do not grant a blanket license to the game code or original artwork. Each third-party asset remains subject to its own license and restrictions.
+
 ## Architecture
 
 - `index.html`: semantic UI shell and orientation handling.
