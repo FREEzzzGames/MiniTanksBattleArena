@@ -377,3 +377,13 @@ header small,.stat label,.eyebrow{color:#84979e}
   #modal .tank-select{height:clamp(126px,37vh,150px);max-height:37vh;min-height:126px}
   #modal .tank-stats{grid-template-columns:repeat(6,minmax(0,1fr))}
 }
+
+
+/* Tank selection render fix: show the complete SVG composition without cropping. */
+#modal .tank-select{grid-template-columns:repeat(3,minmax(0,1fr));height:42vh;max-height:42vh;min-height:180px;overflow-y:auto;overflow-x:hidden;align-content:start;grid-auto-rows:max-content;}
+#modal .tank-card{height:auto;min-height:0;overflow:visible;padding:4px;gap:3px;}
+#modal .tank-art{width:100%;max-width:none;min-width:0;overflow:visible;}
+#modal .tank-render{display:block;width:100%;height:clamp(58px,10vh,86px);object-fit:contain;object-position:center;border:1px solid #2b4c58;border-radius:4px;background:transparent;}
+#modal .tank-card.selected .tank-render{border-color:#65e8ff;box-shadow:0 0 12px #1d8da566;}
+#modal .tank-art .preview-label{display:block;font-size:7px;letter-spacing:.04em;opacity:.8;line-height:1.1;}
+@media (orientation:landscape) and (max-height:500px){#modal .tank-select{height:34vh;max-height:34vh;min-height:132px;}#modal .tank-render{height:clamp(48px,8.5vh,70px);}#modal .tank-card b{font-size:10px;}#modal .tank-card small{font-size:8px;}}
