@@ -68,6 +68,20 @@
     };
     next(0);
   }
+  let firstLaunch = true, replayingStart = false;
+  document.addEventListener('click', event => {
+    const button = event.target.closest && event.target.closest('#startBtn');
+    if (!button || replayingStart) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const sequence = firstLaunch ? ['intro', 'battle'] : ['battle'];
+    firstLaunch = false;
+    playSequence(sequence, () => {
+      replayingStart = true;
+      button.click();
+      replayingStart = false;
+    });
+  }, true);
   window.MTBACinematics = {
     version: '1.0.0',
     play,
