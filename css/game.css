@@ -222,3 +222,17 @@ header small,.stat label,.eyebrow{color:#84979e}
   #controls .smoke-control{right:clamp(295px,25vw,380px)}
   #controls .cover-control{right:clamp(210px,17vw,260px)}
 }
+\n
+/* MTBA online party / matchmaking UI */
+#multiplayerPanel{border:1px solid #2e4952;background:linear-gradient(135deg,#101e27ee,#0b141bee);border-radius:8px;padding:10px;margin:0 0 12px;display:grid;gap:8px}
+.online-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.online-actions button{font-size:10px;letter-spacing:.04em;min-height:38px}
+#partyJoinRow{display:grid;grid-template-columns:1fr auto;gap:6px}
+#partyCodeInput{min-width:0;background:#071017;border:1px solid #304954;border-radius:6px;color:#eaf5f7;padding:8px;font:inherit;letter-spacing:.12em}
+#partyStatus{color:#8fa5af;font-size:10px;line-height:1.4;padding:4px 2px}
+#partyStatus[data-state="error"]{color:#ff858b}#partyStatus[data-state="ok"]{color:#7effa8}#partyStatus[data-state="busy"]{color:#ffc66d}
+#partyMembers{display:grid;gap:5px}
+.party-member{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border:1px solid #263e48;border-radius:5px;background:#0a151c;font-size:10px}
+#partyControls{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#cancelQueueBtn{width:100%}
+@media(max-height:540px){#multiplayerPanel{padding:7px;gap:5px;margin-bottom:7px}.online-actions button{min-height:32px}#partyStatus{padding:2px}}
