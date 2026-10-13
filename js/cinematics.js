@@ -1,11 +1,6 @@
 (() => {
   'use strict';
-  const SOURCES = {
-    battle: './assets/cinematics/battle-start.mp4',
-    defeat: './assets/cinematics/defeat.mp4',
-    victory: './assets/cinematics/victory.mp4'
-  };
-  let overlay, video, skipButton, title, subtitle, active = false, timer = 0, fallbackTimer = 0;
+  let overlay, skipButton, title, subtitle, active = false, timer = 0;
   const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const copy = {
     intro: ['СИСТЕМЫ АКТИВИРОВАНЫ', 'БРОНЕМАШИНА · ГОТОВНОСТЬ 100%'],
@@ -20,36 +15,19 @@
     overlay.className = 'cinematic-overlay';
     overlay.hidden = true;
     overlay.setAttribute('aria-label', 'Кинематографическая заставка');
-    overlay.innerHTML = '<video class="cinematic-video" playsinline webkit-playsinline preload="none" muted></video><div class="cinematic-scene" aria-hidden="true"><div class="cinematic-stars"></div><div class="cinematic-scan"></div><div class="cinematic-grid"></div><div class="cinematic-reticle"></div><div class="cinematic-tank"><img src="./assets/tanks/bastion.svg?v=1" alt=""></div><div class="cinematic-muzzle-flash"></div><div class="cinematic-brand">MTBA <span>TACTICAL SYSTEMS</span></div><div class="cinematic-status"><i></i> POWER ON <b>ARMOR 100%</b><b>GUN READY</b></div></div><div class="cinematic-vignette"></div><div class="cinematic-copy"><span class="cinematic-kicker">FREEzzzGAMES / MTBA</span><strong class="cinematic-title"></strong><span class="cinematic-subtitle"></span></div><button type="button" class="cinematic-skip">ПРОПУСТИТЬ　›</button>';
+    overlay.innerHTML = '<div class="cinematic-scene" aria-hidden="true"><div class="cinematic-stars"></div><div class="cinematic-scan"></div><div class="cinematic-grid"></div><div class="cinematic-reticle"></div><div class="cinematic-tank"><img src="./assets/tanks/bastion.svg?v=1" alt=""></div><div class="cinematic-muzzle-flash"></div><div class="cinematic-brand">MTBA <span>TACTICAL SYSTEMS</span></div><div class="cinematic-status"><i></i> POWER ON <b>ARMOR 100%</b><b>GUN READY</b></div></div><div class="cinematic-vignette"></div><div class="cinematic-copy"><span class="cinematic-kicker">FREEzzzGAMES / MTBA</span><strong class="cinematic-title"></strong><span class="cinematic-subtitle"></span></div><button type="button" class="cinematic-skip">ПРОПУСТИТЬ　›</button>';
     document.body.appendChild(overlay);
-    video = overlay.querySelector('video');
     title = overlay.querySelector('.cinematic-title');
     subtitle = overlay.querySelector('.cinematic-subtitle');
     skipButton = overlay.querySelector('button');
     skipButton.addEventListener('click', () => finish(true));
-    video.addEventListener('ended', () => finish(false));
-    video.addEventListener('error', () => showFallback());
-    video.addEventListener('abort', () => showFallback());
-  }
-  function showFallback() {
-    if (!active) return;
-    video.pause();
-    video.hidden = true;
-    overlay.classList.add('cinematic-fallback');
-    clearTimeout(timer);
-    fallbackTimer = window.setTimeout(() => finish(true), 1500);
   }
   function finish(skipped) {
     if (!active) return;
     active = false;
     clearTimeout(timer);
-    clearTimeout(fallbackTimer);
-    video.pause();
-    video.removeAttribute('src');
-    video.load();
     overlay.hidden = true;
     overlay.classList.remove('is-playing', 'cinematic-fallback', 'cinematic-intro', 'cinematic-battle', 'cinematic-defeat', 'cinematic-victory');
-    video.hidden = false;
     const done = overlay._done;
     overlay._done = null;
     if (done) done({ skipped });
@@ -70,11 +48,8 @@
     subtitle.textContent = labels[1];
     skipButton.hidden = false;
     overlay._done = options.onEnd || null;
-    // All three cinematic beats are authored CSS scenes. No external footage,
+    // All cinematic beats are authored CSS scenes: no external footage,
     // network request, watermark risk, or media-decoding failure can block play.
-    video.pause();
-    video.removeAttribute('src');
-    video.hidden = true;
     const duration = kind === 'intro' ? 6200 : kind === 'battle' ? 4200 : 3600;
     timer = window.setTimeout(() => finish(false), duration);
     return true;
