@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 250" role="img" aria-label="WRAITH tank render">
+ <defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1b2937"/><stop offset=".52" stop-color="#17375a"/><stop offset="1" stop-color="#090e14"/></linearGradient>
+ <linearGradient id="armor" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#9ca7ae"/><stop offset=".2" stop-color="#263d52"/><stop offset=".62" stop-color="#222c33"/><stop offset="1" stop-color="#10161c"/></linearGradient>
+ <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d8e0e3"/><stop offset=".25" stop-color="#52616b"/><stop offset=".55" stop-color="#202a31"/><stop offset="1" stop-color="#0c1116"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#49aaff" stop-opacity=".5"/><stop offset="1" stop-color="#49aaff" stop-opacity="0"/></radialGradient>
+ <filter id="shadow"><feGaussianBlur stdDeviation="7"/></filter>
+ </defs>
+ <rect width="480" height="250" rx="15" fill="url(#bg)"/>
+ <path d="M0 175L70 126 118 157 178 110 235 161 294 122 350 163 420 111 480 151V250H0Z" fill="#080d12" opacity=".7"/>
+ <g stroke="#49aaff" stroke-opacity=".18" stroke-width="1"><path d="M0 0V250"/><path d="M48 0V250"/><path d="M96 0V250"/><path d="M144 0V250"/><path d="M192 0V250"/><path d="M240 0V250"/><path d="M288 0V250"/><path d="M336 0V250"/><path d="M384 0V250"/><path d="M432 0V250"/><path d="M480 0V250"/><path d="M0 0H480"/><path d="M0 50H480"/><path d="M0 100H480"/><path d="M0 150H480"/><path d="M0 200H480"/><path d="M0 250H480"/></g>
+ <ellipse cx="244" cy="207" rx="171" ry="23" fill="#49aaff" opacity=".28" filter="url(#shadow)"/>
+ <ellipse cx="244" cy="206" rx="165" ry="20" fill="#070a0d" stroke="#49aaff" stroke-opacity=".65" stroke-width="2"/>
+ <g transform="translate(0 4)">
+  <path d="M94 125Q95 105 121 101L353 101Q380 107 388 130L400 180Q394 197 370 200H115Q88 194 84 175Z" fill="#080c10" stroke="#65727a" stroke-width="3"/>
+  <path d="M102 127L119 111 357 111 381 134 387 174 367 190 115 190 96 171Z" fill="url(#steel)" stroke="#49aaff" stroke-width="2"/>
+  <g><circle cx="119" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="119" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="148" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="148" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="177" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="177" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="206" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="206" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="235" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="235" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="264" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="264" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="293" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="293" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="322" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="322" cy="169" r="5" fill="#49aaff" opacity=".7"/></g><g><circle cx="351" cy="169" r="13" fill="#11181e" stroke="#6d7b84" stroke-width="3"/><circle cx="351" cy="169" r="5" fill="#49aaff" opacity=".7"/></g>
+  <path d="M124 120L151 101 329 101 360 122 348 158 135 158Z" fill="url(#armor)" stroke="#a6b1b6" stroke-opacity=".7" stroke-width="2"/>
+  <path d="M142 124L174 108 208 112 193 142 143 145Z" fill="#49aaff" opacity=".24"/>
+  <path d="M218 109L252 105 282 119 270 146 219 147Z" fill="#49aaff" opacity=".19"/>
+  <path d="M145 147L338 147 322 161 160 161Z" fill="#10171c" stroke="#75838b" stroke-width="2"/>
+  <path d="M203.5 59H276.5L283.5 66H203.5Z" fill="url(#steel)" stroke="#8c9aa2" stroke-width="2"/>
+  <path d="M215.5 58H276.5L282.5 67H215.5Z" fill="#49aaff" opacity=".5"/>
+  <path d="M211.5 55H273.5V62H211.5Z" fill="#cbd5d9"/>
+  <path d="M207.5 53L215.5 46H270.5L276.5 54Z" fill="#26323a" stroke="#49aaff" stroke-width="2"/>
+  <path d="M185 46L200 40 274 40 296 46 285 75 198 75Z" fill="url(#armor)" stroke="#b5c1c7" stroke-width="2"/>
+  <path d="M203 47L220 39H269L286 49 278 67H208Z" fill="#49aaff" opacity=".24"/>
+  <path d="M215 49H265L275 61H205Z" fill="#10171d" stroke="#7b8990" stroke-width="2"/>
+  <rect x="225" y="48" width="30" height="7" rx="2" fill="#49aaff"/>
+  <circle cx="240" cy="58" r="7" fill="#0a0f13" stroke="#49aaff" stroke-width="2"/>
+  
+  <path d="M111 135L129 127 145 134 141 151 119 153Z" fill="#49aaff" opacity=".85"/>
+  <path d="M337 135L355 127 370 134 366 151 345 153Z" fill="#49aaff" opacity=".85"/>
+  <path d="M128 185H350" stroke="#49aaff" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+ </g>
+ <circle cx="408" cy="43" r="47" fill="url(#glow)"/>
+ <path d="M398 23L417 43 398 63M408 23L427 43 408 63" fill="none" stroke="#49aaff" stroke-width="3" opacity=".85"/>
+ <text x="18" y="28" fill="#e9f2f5" font-family="monospace" font-size="14" font-weight="700" letter-spacing="2">WRAITH</text>
+ <text x="18" y="46" fill="#49aaff" font-family="monospace" font-size="9" letter-spacing="1.5">MOBILE SUPPORT</text>
+ <rect x="17" y="222" width="446" height="2" fill="#49aaff" opacity=".65"/>
+ <text x="18" y="240" fill="#8ca0aa" font-family="monospace" font-size="9">MTBA / VEHICLE RENDER  ·  CLASS 06</text>
+ </svg>
