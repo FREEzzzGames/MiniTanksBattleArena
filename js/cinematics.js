@@ -74,6 +74,7 @@
     if (!button || replayingStart) return;
     event.preventDefault();
     event.stopImmediatePropagation();
+    window.__mtbaOutcomeShown = false;
     const sequence = firstLaunch ? ['intro', 'battle'] : ['battle'];
     firstLaunch = false;
     playSequence(sequence, () => {
