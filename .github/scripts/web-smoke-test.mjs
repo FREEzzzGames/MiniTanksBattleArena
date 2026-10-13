@@ -80,6 +80,11 @@ try {
   if (!fogSource.includes('crit:critical') || !fogSource.includes('b.damage*(b.crit?1.5:1)') || !fogSource.includes('КРИТИЧЕСКОЕ ПОПАДАНИЕ')) throw new Error('Critical-hit damage / feedback mechanic missing');
   if (!fogSource.includes('function drawDynamicLights()') || !fogSource.includes('function drawIntelBoxes()') || !fogSource.includes('function drawImpactLights()') || !fogSource.includes('function drawSmokeClouds()')) throw new Error('Combat lighting or pickup rendering missing');
   if ((htmlSource.match(/class=["'][^"']*tank-render/g) || []).length !== 9 || !htmlSource.includes('./assets/tanks/sentinel.svg') || !htmlSource.includes('./assets/tanks/bastion.svg')) throw new Error('All nine standalone tank render assets must be wired into the selection catalog');
+  const tankAssetNames = ['bastion','ironclad','demolisher','shade','viper','wraith','jager','thunder','sentinel'];
+  for (const name of tankAssetNames) {
+    const asset = await readFile(resolve(root, 'assets/tanks/' + name + '.svg'), 'utf8');
+    if (!asset.includes('<svg') || !asset.includes('aria-label=') || !asset.includes('MTBA / VEHICLE RENDER')) throw new Error('Invalid standalone tank render asset: ' + name);
+  }
   if (!fogSource.includes('function drawTankModel(ctx,t,scale=1,rotation=0)') || !fogSource.includes('function renderTankPreviews()') || !fogSource.includes('setInterval(renderTankPreviews,120)') || !fogSource.includes('Fixed top-down preview angle makes silhouette differences directly comparable') || !fogSource.includes('drawTankModel(c,preview,1,0)') || fogSource.includes('setInterval(renderTankPreviews,33)')) throw new Error('Shared renderer / throttled Canvas tank previews missing');
   if (/PSEUDO-3D|3D TURNTABLE/.test(htmlSource)) throw new Error('2D Canvas tank preview labels must not imply 3D models');
   if (!stylesheetSource.includes('MTBA visual reference pass') || !stylesheetSource.includes('.tank-preview')) throw new Error('Minimal military UI styling missing');
