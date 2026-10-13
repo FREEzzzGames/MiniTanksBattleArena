@@ -293,7 +293,7 @@ try {
   if (!onlineSource.includes('wss://mtba-matchmaking.onrender.com/ws') && !onlineSource.includes('https://mtba-matchmaking.onrender.com')) throw new Error('Online client endpoint is missing');
   if (!onlineSource.includes("send('quick_match')") || !onlineSource.includes("send('create_party')") || !onlineSource.includes("send('join_party'")) throw new Error('Quick match / friend party client actions missing');
   if (!matchmakingSource.includes('MAX_PLAYERS = 6') || !matchmakingSource.includes('TEAM_SIZE = 3') || !matchmakingSource.includes('p.members.length>=TEAM_SIZE') || !matchmakingSource.includes('QUEUE_WAIT_MS = 5000') || !matchmakingSource.includes('waited>=QUEUE_WAIT_MS') || !matchmakingSource.includes("msg.type==='battle_state'")) throw new Error('3v3 matchmaking, five-second bot-fill timeout or battle transport missing');
-  if (!onlineSource.includes('СЕТЕВОЕ УПРАВЛЕНИЕ ТАНКАМИ ЕЩЁ НЕ ПОДКЛЮЧЕНО')) throw new Error('Online UI must be honest while authoritative gameplay sync is incomplete');
+  if (!onlineSource.includes('ОНЛАЙН-БОЙ АКТИВЕН') || !onlineSource.includes('startOnline(match)') || !onlineSource.includes('sendBattleEvent')) throw new Error('Online match must start the game and synchronize player state/events');
 
   console.log('MTBA browser smoke tests passed: procedural pixel terrain render engine, shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
