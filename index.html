@@ -44,7 +44,15 @@
       <div class="eyebrow">FREEzzzGAMES / MTBA · BATTLE ARENA</div>
       <h1> BATTLE<br>ARENA </h1>
       <p>Выберите боевую машину, займите позицию на арене и переживите волны вражеских танков. Используйте укрытия, командуйте отрядом и улучшайте тактику боя.</p>
-      <div class="eyebrow">ВЫБЕРИТЕ АРЕНУ</div><select id="arenaSelect" aria-label="Выбрать арену" class="arena-select"><option value="iron-yard">IRON YARD · промышленная зона</option><option value="dust-front">DUST FRONT · пустынный полигон</option><option value="blackwood">BLACKWOOD · лесная база</option></select><div class="eyebrow">ВЫБЕРИТЕ ТАНК</div>
+      <section id="multiplayerPanel" aria-label="Онлайн-режим">
+  <div class="eyebrow">КОМАНДНЫЙ БОЙ · 3 НА 3</div>
+  <div class="online-actions"><button id="quickMatchBtn" class="primary">БЫСТРЫЙ БОЙ</button><button id="createPartyBtn" class="secondary">ГРУППА С ДРУЗЬЯМИ</button></div>
+  <div id="partyJoinRow"><input id="partyCodeInput" maxlength="8" autocomplete="off" placeholder="КОД ПРИГЛАШЕНИЯ" aria-label="Код приглашения"><button id="joinPartyBtn" class="secondary">ВСТУПИТЬ</button></div>
+  <div id="partyStatus" role="status" aria-live="polite">ОНЛАЙН · ПОДКЛЮЧЕНИЕ ПО ЗАПРОСУ</div>
+  <div id="partyMembers" hidden></div>
+  <div id="partyControls" hidden><button id="sharePartyBtn" class="secondary">ПРИГЛАСИТЬ ДРУЗЕЙ</button><button id="leavePartyBtn" class="secondary">ВЫЙТИ ИЗ ГРУППЫ</button></div>
+  <button id="cancelQueueBtn" class="secondary" hidden>ОТМЕНИТЬ ПОИСК</button>
+</section>\n      <div class="eyebrow">ОДИНОЧНАЯ АРЕНА · ВЫБЕРИТЕ АРЕНУ</div><select id="arenaSelect" aria-label="Выбрать арену" class="arena-select"><option value="iron-yard">IRON YARD · промышленная зона</option><option value="dust-front">DUST FRONT · пустынный полигон</option><option value="blackwood">BLACKWOOD · лесная база</option></select><div class="eyebrow">ВЫБЕРИТЕ ТАНК</div>
       <div class="tank-select" id="tankSelect">
         <button class="tank-card selected" data-tank="heavy" aria-label="BASTION · ТЯЖЁЛЫЙ ШТУРМ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="heavy" width="220" height="132" aria-label="BASTION"></canvas><span class="preview-label">FIELD MODEL / BASTION</span></span><b>BASTION</b><small>ТЯЖЁЛЫЙ ШТУРМ</small></button>
         <button class="tank-card" data-tank="ironclad" aria-label="IRONCLAD · ТЯЖЁЛАЯ БРОНЯ"><span class="tank-art"><canvas class="tank-preview" data-preview-tank="ironclad" width="220" height="132" aria-label="IRONCLAD"></canvas><span class="preview-label">FIELD MODEL / IRONCLAD</span></span><b>IRONCLAD</b><small>ТЯЖЁЛАЯ БРОНЯ</small></button>
@@ -123,4 +131,4 @@
   }, true);
 })();
 </script>
-<script src="./js/game.js?v=mtba-20261013-r40" defer></script>
+<script src="./js/game.js?v=mtba-20261013-r40" defer></script>\n<script src="./js/multiplayer.js?v=mtba-online-r1" defer></script>
