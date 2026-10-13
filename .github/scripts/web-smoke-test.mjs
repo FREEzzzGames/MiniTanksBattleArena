@@ -291,12 +291,21 @@ try {
   if (!htmlSource.includes('js/cinematics.js?v=')) throw new Error('Cinematic controller is not loaded by the game shell');
   for (const kind of ['battle','defeat','victory']) if (!cinematicSource.includes(kind + ": './assets/cinematics/")) throw new Error('Missing optional cinematic source mapping: ' + kind);
   if (!cinematicSource.includes("if (kind === 'intro')") || !cinematicSource.includes('cinematic-scene') || !cinematicSource.includes("play('intro')")) throw new Error('Custom loading animation must use the CSS scene and auto-play at launch');
-  if (!cinematicSource.includes('video.addEventListener(\'error\'') || !cinematicSource.includes('video.addEventListener(\'ended\'') || !cinematicSource.includes('skipButton.addEventListener')) throw new Error('Cinematics must recover from missing media, finish normally and support skip');
-  if (!cinematicSource.includes('prefers-reduced-motion') || !cinematicSource.includes("video.removeAttribute('src')") || !cinematicSource.includes('function showFallback()') || !cinematicSource.includes('cinematic-fallback')) throw new Error('Cinematics must respect reduced motion, release resources and provide a missing-video fallback');
+  if (!cinematicSource.includes('skipButton.addEventListener') || !cinematicSource.includes('prefers-reduced-motion')) throw new Error('Cinematics must support skip and respect reduced motion');
+  if (cinematicSource.includes('assets/cinematics/') || cinematicSource.includes('<video')) throw new Error('Cinematics must not depend on external video files');
   if (!gameSource.includes("window.MTBACinematics.playOutcome('defeat'")) throw new Error('Defeat cinematic is not connected to the game-over path');
   for (const scene of ['cinematic-intro','cinematic-battle','cinematic-defeat','cinematic-victory']) if (!cinematicCss.includes('.' + scene + ' .cinematic-scene')) throw new Error('Missing authored cinematic CSS scene: ' + scene);
   if (!cinematicSource.includes('const duration = kind === \'intro\' ? 6200 : kind === \'battle\' ? 4200 : 3600')) throw new Error('Cinematic scene durations are not configured');
   if (!cinematicSource.includes('All three cinematic beats are authored CSS scenes')) throw new Error('Cinematics must not depend on external video footage');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  for (const kind of ['intro','battle','defeat','victory']) {
+    const started = await page.evaluate(kind => window.MTBACinematics.play(kind), kind);
+    if (!started) throw new Error('Cinematic did not start: ' + kind);
+    const sceneState = await page.locator('#cinematicOverlay').evaluate(el => ({hidden:el.hidden,sceneOpacity:getComputedStyle(el.querySelector('.cinematic-scene')).opacity,classes:el.className}));
+    if (sceneState.hidden || sceneState.sceneOpacity !== '1' || !sceneState.classes.includes('cinematic-' + kind)) throw new Error('Cinematic scene did not render: ' + kind + ' ' + JSON.stringify(sceneState));
+    await page.locator('.cinematic-skip').click();
+    if (!(await page.locator('#cinematicOverlay').evaluate(el => el.hidden))) throw new Error('Cinematic skip did not close overlay: ' + kind);
+  }
 
   // Online party/matchmaking shell: verify real controls exist without breaking solo play.
   for (const id of ['multiplayerPanel','quickMatchBtn','createPartyBtn','partyCodeInput','joinPartyBtn','partyStatus','partyMembers','sharePartyBtn','leavePartyBtn','cancelQueueBtn']) {
