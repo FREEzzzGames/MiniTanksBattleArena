@@ -341,3 +341,39 @@ header small,.stat label,.eyebrow{color:#84979e}
  #modal .tank-card b{font-size:9px;letter-spacing:.04em}
  #modal .tank-card small{font-size:7px}
 }
+
+
+/* r43: compact the complete selection screen so the 3x3 tank grid is visible without page scrolling. */
+@media (orientation:landscape) and (max-height:500px){
+  #overlay{padding:4px;overflow:hidden;align-items:center}
+  #modal{width:min(900px,100%);max-height:100%;overflow:hidden;padding:7px 10px;border-radius:8px}
+  #modal h1,#modal>p,#modal>ul{display:none!important}
+  #modal .eyebrow{font-size:8px;line-height:1.15;margin:0 0 3px;letter-spacing:.09em}
+  #multiplayerPanel{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:3px 8px;margin:0 0 4px}
+  #multiplayerPanel>.eyebrow{margin:0;white-space:nowrap}
+  #multiplayerPanel .online-actions{display:flex;gap:5px}
+  #multiplayerPanel .online-actions button{min-height:26px;margin:0;padding:3px 7px;font-size:8px;flex:1}
+  #partyJoinRow,#partyStatus,#partyMembers,#partyControls,#cancelQueueBtn{display:none!important}
+  #modal .arena-select{margin:2px 0 4px;padding:5px 8px;min-height:28px;font-size:9px}
+  #modal .tank-select{height:clamp(150px,40vh,200px);max-height:40vh;min-height:150px;gap:4px;margin:3px 0 4px}
+  #modal .tank-card{min-height:0;padding:3px;gap:2px}
+  #modal .tank-art{aspect-ratio:2.5/1}
+  #modal .preview-label{display:none}
+  #modal .tank-card b{font-size:10px}
+  #modal .tank-card small{font-size:7px;min-height:1.3em}
+  #modal .tank-card::after{top:2px;right:2px;font-size:5px;padding:1px 2px}
+  .tank-detail-head{margin:3px 0 2px;font-size:7px}
+  .tank-detail-head b{font-size:9px}
+  #modal .tank-stats{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin:0 0 3px}
+  #modal .tank-stat{padding:3px;gap:2px}
+  #modal .tank-stat span{font-size:6px;min-height:1.4em}
+  #modal .tank-stat b{font-size:10px}
+  .stat-meter{height:2px}
+  #modal button.primary,#modal button.secondary{min-height:30px;padding:4px;margin-top:2px;font-size:9px}
+}
+@media (orientation:landscape) and (max-height:360px){
+  #modal{padding:4px 7px}
+  #multiplayerPanel{margin-bottom:2px}
+  #modal .tank-select{height:clamp(126px,37vh,150px);max-height:37vh;min-height:126px}
+  #modal .tank-stats{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
