@@ -19,7 +19,7 @@ test('party invitations are capped at three and use invite codes',async()=>{
 test('queue preserves a party as a unit and supports bot fill after wait',async()=>{
  const source=await readFile(new URL('./server.mjs',import.meta.url),'utf8');
  assert.match(source,/party\.members\.map\(m=>m\.id\)/);
- assert.match(source,/waiting long enough/);
+ assert.match(source,/waited>=QUEUE_WAIT_MS/);
  assert.match(source,/while\(players\.length<MAX_PLAYERS\)/);
  assert.match(source,/player_disconnected/);
 });
