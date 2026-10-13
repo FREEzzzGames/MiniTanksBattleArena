@@ -267,7 +267,18 @@ try {
   if (assetFailures.length) throw new Error('Runtime assets failed to load: ' + JSON.stringify(assetFailures));
   const engineState = await page.evaluate(() => window.MTBARenderEngine?.version || null);
   if (engineState !== '1.0.0') throw new Error('MTBA Render Engine failed to initialize: ' + engineState);
-  console.log('MTBA browser smoke tests passed: procedural pixel terrain render engine, shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
+
+  // Online party/matchmaking shell: verify real controls exist without breaking solo play.
+  for (const id of ['multiplayerPanel','quickMatchBtn','createPartyBtn','partyCodeInput','joinPartyBtn','partyStatus','partyMembers','sharePartyBtn','leavePartyBtn','cancelQueueBtn']) {
+    if (await page.locator('#' + id).count() !== 1) throw new Error('Missing online matchmaking control: ' + id);
+  }
+  const onlineSource = await readFile(resolve(root, 'js/multiplayer.js'), 'utf8');
+  const matchmakingSource = await readFile(resolve(root, 'server.mjs'), 'utf8');
+  if (!onlineSource.includes('wss://mtba-matchmaking.onrender.com/ws') && !onlineSource.includes('https://mtba-matchmaking.onrender.com')) throw new Error('Online client endpoint is missing');
+  if (!onlineSource.includes("send('quick_match')") || !onlineSource.includes("send('create_party')") || !onlineSource.includes("send('join_party'")) throw new Error('Quick match / friend party client actions missing');
+  if (!matchmakingSource.includes('MAX_PLAYERS = 6') || !matchmakingSource.includes('p.members.length>=3') || !matchmakingSource.includes('waiting long enough')) throw new Error('3v3 matchmaking, three-player party cap or bot-fill timeout missing');
+  if (!onlineSource.includes('СЕТЕВОЕ УПРАВЛЕНИЕ ТАНКАМИ ЕЩЁ НЕ ПОДКЛЮЧЕНО')) throw new Error('Online UI must be honest while authoritative gameplay sync is incomplete');
+\n  console.log('MTBA browser smoke tests passed: procedural pixel terrain render engine, shared detailed tank renderer, slowly rotating card turntables, minimal military UI, external asset loading, canvas rendering/scaling, tank selection, ammo HUD, firing/reload recovery, simultaneous movement + FIRE touch input, scout/medic drone mechanics, reduced enemy pressure, tactical orders, smoke, pause/resume, Russian UI and landscape layout and portrait-orientation gate.');
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
