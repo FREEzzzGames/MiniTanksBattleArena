@@ -20,7 +20,7 @@ test('queue preserves a party as a unit and supports bot fill after wait',async(
  const source=await readFile(new URL('./server.mjs',import.meta.url),'utf8');
  assert.match(source,/party\.members\.map\(m=>m\.id\)/);
  assert.match(source,/waited>=QUEUE_WAIT_MS/);
- assert.match(source,/while\(players\.length<MAX_PLAYERS\)/);
+ assert.match(source,/while\(blueIds\.length<3\)/);\n assert.match(source,/while\(redIds\.length<3\)/);
  assert.match(source,/player_disconnected/);
 });
 test('custom public room browser is not implemented',async()=>{
