@@ -1,27 +1,46 @@
 (() => {
 'use strict';
 const $=id=>document.getElementById(id);
-const endpoint=(()=>{const host='https://mtba-matchmaking.onrender.com';return host.replace(/^http/,'ws')+'/ws'})();
-let socket=null,playerId=null,party=null,queued=false,match=null,connecting=false;
+const endpoint='wss://mtba-matchmaking.onrender.com/ws';
+let socket=null,playerId=null,party=null,queued=false,match=null,connecting=false,snapshotTimer=null;
 const status=$('partyStatus'),members=$('partyMembers'),controls=$('partyControls');
 const setStatus=(text,state='')=>{if(status){status.textContent=text;status.dataset.state=state}};
 const send=(type,data={})=>{if(!socket||socket.readyState!==WebSocket.OPEN){setStatus('ОНЛАЙН-СЕРВЕР ПОДКЛЮЧАЕТСЯ…','busy');connect();return false}socket.send(JSON.stringify({type,...data}));return true};
+function stopSnapshots(){if(snapshotTimer!==null){clearInterval(snapshotTimer);snapshotTimer=null}}
+function startSnapshots(){
+ stopSnapshots();
+ snapshotTimer=setInterval(()=>{
+  if(!match||!window.MTBA_GAME||!socket||socket.readyState!==WebSocket.OPEN)return;
+  const state=window.MTBA_GAME.getSnapshot();if(!state)return;
+  send('battle_state',{payload:{players:[{id:playerId,...state}]}});
+ },100);
+}
 function connect(){
  if(connecting||(socket&&[WebSocket.OPEN,WebSocket.CONNECTING].includes(socket.readyState)))return;
  connecting=true;socket=new WebSocket(endpoint);
  socket.addEventListener('open',()=>{connecting=false;setStatus('ОНЛАЙН-СЕРВЕР ДОСТУПЕН','ok');send('profile',{name:'Tank pilot'})});
- socket.addEventListener('message',e=>{let m;try{m=JSON.parse(e.data)}catch{return}
+ socket.addEventListener('message',e=>{
+  let m;try{m=JSON.parse(e.data)}catch{return}
   if(m.type==='connected'){playerId=m.playerId;setStatus('ПОДКЛЮЧЕНО · ГОТОВО К ПОИСКУ','ok')}
   else if(m.type==='profile_updated'){}
   else if(m.type==='party_created'||m.type==='party_joined'){party={id:m.partyId||m.party?.id};setStatus('ГРУППА СОЗДАНА · КОД '+party.id,'ok');if(m.party)renderParty(m.party);toggleParty(true)}
   else if(m.type==='party_state'){party=m.party;renderParty(m.party);toggleParty(true);setStatus('ГРУППА '+m.party.members.length+'/3 · ЛИДЕР УПРАВЛЯЕТ ПОИСКОМ','ok')}
   else if(m.type==='party_left'){party=null;members.hidden=true;toggleParty(false);setStatus('ВЫ ВЫШЛИ ИЗ ГРУППЫ')}
-  else if(m.type==='queue_state'){queued=!!m.queued;$('cancelQueueBtn').hidden=!queued;setStatus(queued?'ПОИСК СОПЕРНИКОВ · 3 НА 3 · БОТЫ ЗАПОЛНЯТ СВОБОДНЫЕ МЕСТА':'ПОИСК НЕ АКТИВЕН',queued?'busy':'')}
-  else if(m.type==='match_found'){match=m.match;queued=false;$('cancelQueueBtn').hidden=true;setStatus('СОПЕРНИКИ НАЙДЕНЫ · КОМАНДА '+(match.team==='blue'?'A':'B')+' · 6 ТАНКОВ','ok');setStatus('ПОДБОР РАБОТАЕТ. СЕТЕВОЕ УПРАВЛЕНИЕ ТАНКАМИ ЕЩЁ НЕ ПОДКЛЮЧЕНО. ОДИНОЧНЫЙ БОЙ ОСТАЁТСЯ ДОСТУПЕН.','busy')}
+  else if(m.type==='queue_state'){queued=!!m.queued;$('cancelQueueBtn').hidden=!queued;setStatus(queued?'ПОИСК · БОТЫ ПОДКЛЮЧАТСЯ ЧЕРЕЗ 5 СЕКУНД':'ПОИСК НЕ АКТИВЕН',queued?'busy':'')}
+  else if(m.type==='match_found'){
+   match=m.match;queued=false;$('cancelQueueBtn').hidden=true;
+   setStatus('МАТЧ СОЗДАН · КОМАНДА '+(match.team==='blue'?'A':'B')+' · 6 ТАНКОВ','ok');
+   if(window.MTBA_GAME?.startOnline)window.MTBA_GAME.startOnline(match);
+   startSnapshots();
+   setStatus('ОНЛАЙН-БОЙ АКТИВЕН · 3 НА 3 · БОТЫ ЗАПОЛНЯЮТ СВОБОДНЫЕ МЕСТА','ok');
+  }
+  else if(m.type==='battle_state'&&match&&window.MTBA_GAME){window.MTBA_GAME.applyRemoteState(m.payload)}
+  else if(m.type==='battle_event'&&match){document.dispatchEvent(new CustomEvent('mtba:online-event',{detail:m}))}
   else if(m.type==='player_disconnected')setStatus('ИГРОК ОТКЛЮЧИЛСЯ · МЕСТО ПЕРЕДАНО БОТУ','busy');
-  else if(m.type==='error'){const labels={party_not_found:'КОД ГРУППЫ НЕ НАЙДЕН',party_full:'В ГРУППЕ УЖЕ 3 ИГРОКА',leader_only:'ПОИСК МОЖЕТ ЗАПУСТИТЬ ЛИДЕР',already_in_match:'ВЫ УЖЕ В МАТЧЕ',invalid_json:'ОШИБКА СООБЩЕНИЯ'};setStatus(labels[m.code]||('ОШИБКА: '+m.code),'error')}
+  else if(m.type==='match_left'){match=null;stopSnapshots();window.MTBA_GAME?.clearOnline?.();setStatus('ВЫ ВЫШЛИ ИЗ МАТЧА')}
+  else if(m.type==='error'){const labels={party_not_found:'КОД ГРУППЫ НЕ НАЙДЕН',party_full:'В ГРУППЕ УЖЕ 3 ИГРОКА',leader_only:'ПОИСК МОЖЕТ ЗАПУСТИТЬ ЛИДЕР',already_in_match:'ВЫ УЖЕ В МАТЧЕ',invalid_json:'ОШИБКА СООБЩЕНИЯ',not_in_active_match:'МАТЧ НЕ АКТИВЕН'};setStatus(labels[m.code]||('ОШИБКА: '+m.code),'error')}
  });
- socket.addEventListener('close',()=>{connecting=false;setStatus('ОНЛАЙН-СЕРВЕР НЕДОСТУПЕН · ПОВТОРИТЕ ПОЗЖЕ','error')});
+ socket.addEventListener('close',()=>{connecting=false;stopSnapshots();setStatus('ОНЛАЙН-СЕРВЕР НЕДОСТУПЕН · ПОВТОРИТЕ ПОЗЖЕ','error')});
  socket.addEventListener('error',()=>{connecting=false;setStatus('НЕ УДАЛОСЬ ПОДКЛЮЧИТЬСЯ К ОНЛАЙН-СЕРВЕРУ','error')});
 }
 function toggleParty(show){controls.hidden=!show;$('partyJoinRow').hidden=show;$('createPartyBtn').hidden=show}
