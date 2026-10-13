@@ -300,3 +300,44 @@ header small,.stat label,.eyebrow{color:#84979e}
  #modal .tank-card::after{font-size:5px}
  #modal .tank-art{aspect-ratio:1.65/1}
 }
+
+
+/* r42: keep all nine tank cards visible as a fixed 3x3 grid without inner scrolling. */
+#modal .tank-select{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(3,minmax(0,1fr));
+  grid-auto-rows:minmax(0,1fr);
+  height:clamp(210px,39vh,330px);
+  max-height:39vh;
+  min-height:210px;
+  overflow-y:hidden;
+  overflow-x:hidden;
+  gap:6px;
+  align-content:stretch;
+  padding:2px 4px 2px 1px;
+}
+#modal .tank-card{
+  min-height:0;
+  height:100%;
+  padding:4px 4px 5px;
+  gap:3px;
+}
+#modal .tank-art{aspect-ratio:2.2/1;min-height:0;flex:1 1 auto}
+#modal .preview-label{font-size:6px;line-height:1.1}
+#modal .tank-card b{font-size:clamp(9px,1.1vw,12px);line-height:1.15}
+#modal .tank-card small{font-size:clamp(7px,.8vw,9px);min-height:1.8em;line-height:1.1}
+#modal .tank-card::after{top:3px;right:3px;font-size:5px;padding:1px 3px}
+@media(max-height:520px) and (orientation:landscape){
+ #modal .tank-select{height:clamp(165px,35vh,225px);max-height:35vh;min-height:165px;gap:4px}
+ #modal .tank-card{padding:3px;gap:2px}
+ #modal .tank-art{aspect-ratio:2.6/1}
+ #modal .preview-label{display:none}
+ #modal .tank-card small{font-size:7px;min-height:1.5em}
+}
+@media(max-width:650px){
+ #modal .tank-select{height:clamp(210px,38vh,300px);max-height:38vh;min-height:210px;gap:4px}
+ #modal .tank-card{padding:3px 2px;gap:2px}
+ #modal .tank-art{aspect-ratio:1.8/1}
+ #modal .tank-card b{font-size:9px;letter-spacing:.04em}
+ #modal .tank-card small{font-size:7px}
+}
