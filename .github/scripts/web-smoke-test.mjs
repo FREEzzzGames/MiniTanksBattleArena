@@ -33,6 +33,11 @@ try {
   const joystickSource = await readFile('js/game.js', 'utf8');
   if (!joystickSource.includes('function beginJoystick(e)') || !joystickSource.includes('joystickVector={x,y}') || !joystickSource.includes('let x=joystickVector.x,y=joystickVector.y')) throw new Error('Fixed joystick pointer input is not connected to player movement');
   if (await page.locator('[data-tank]').count() !== 9) throw new Error('Expected nine tank selection cards');
+  if (await page.locator('#selTankName').count() !== 1 || await page.locator('#selRange').count() !== 1 || await page.locator('#selReload').count() !== 1 || await page.locator('#selAmmo').count() !== 1) throw new Error('Tank comparison panel is missing selected vehicle details');
+  await page.locator('[data-tank="scout"]').click();
+  if ((await page.locator('#selTankName').textContent()).trim() !== 'SHADE' || (await page.locator('#selArmor').textContent()).trim() !== '74' || (await page.locator('#selAmmo').textContent()).trim() !== '6') throw new Error('Selecting a tank did not update the vehicle comparison panel');
+  await page.locator('[data-tank="heavy"]').click();
+  if ((await page.locator('#selTankName').textContent()).trim() !== 'BASTION' || (await page.locator('#selArmor').textContent()).trim() !== '155') throw new Error('Returning to the default tank did not update selection details');
   const [htmlSource, gameSource] = await Promise.all([readFile('index.html', 'utf8'), readFile('js/game.js', 'utf8')]);
   const fogSource = gameSource;
   const stylesheetSource = await readFile('css/game.css', 'utf8');
