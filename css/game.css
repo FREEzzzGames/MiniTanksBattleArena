@@ -259,3 +259,44 @@ header small,.stat label,.eyebrow{color:#84979e}
 @keyframes mtbaTurretIntro{from{transform:rotate(-8deg)}to{transform:rotate(0)}}
 @keyframes mtbaTitleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.cinematic-overlay.cinematic-fallback:before,.cinematic-overlay.cinematic-fallback:after,.cinematic-overlay.cinematic-fallback .cinematic-title{animation:none!important}}
+
+
+/* Tank selection refresh r41: readable vehicle cards and an at-a-glance comparison panel. */
+#modal .tank-select{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;height:clamp(180px,36vh,310px);max-height:36vh;min-height:180px;padding:3px 5px 5px 1px;scroll-padding:8px}
+#modal .tank-card{min-height:112px;padding:6px 5px 8px;gap:5px;border-radius:6px;text-align:center;overflow:hidden}
+#modal .tank-card::after{content:'ОСМОТР';position:absolute;top:5px;right:5px;padding:2px 4px;border:1px solid #49616a;border-radius:2px;color:#80959c;font-size:6px;letter-spacing:.08em;opacity:.72}
+#modal .tank-card.selected::after{content:'ВЫБРАН';color:#071411;background:var(--cyan);border-color:var(--cyan);opacity:1}
+#modal .tank-art{width:100%;max-width:none;aspect-ratio:5/2;position:relative;overflow:hidden;border-radius:3px;background:#0a1319;border:1px solid #263d45}
+#modal .tank-preview{display:block;width:100%;height:100%;object-fit:contain}
+#modal .preview-label{font-size:7px;letter-spacing:.05em;opacity:.8}
+#modal .tank-card b{font-size:clamp(10px,1.25vw,13px);letter-spacing:.09em}
+#modal .tank-card small{font-size:clamp(8px,.9vw,10px);min-height:2.2em;display:flex;align-items:center;justify-content:center}
+#modal .tank-card.selected{border-color:var(--cyan);background:linear-gradient(155deg,#1c3b40,#0b1a20);box-shadow:inset 0 0 0 1px #67f2ed55,0 0 14px #67f2ed20}
+#modal .tank-card:focus-visible{outline:2px solid #ffc66d;outline-offset:2px}
+.tank-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 5px;padding:0 2px;color:#8fa5af;font-size:9px;letter-spacing:.08em}
+.tank-detail-head b{color:var(--cyan);font-size:11px;letter-spacing:.12em}
+#modal .tank-stats{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:0 0 9px}
+#modal .tank-stat{min-width:0;gap:4px;padding:7px 6px 6px;border-radius:4px;background:linear-gradient(180deg,#111e25,#0a1319)}
+#modal .tank-stat span{font-size:8px;line-height:1.2;min-height:2.2em}
+#modal .tank-stat b{font-size:13px;white-space:nowrap}
+.stat-meter{display:block;height:3px;width:100%;margin-top:1px;background:#26363c;border-radius:3px;overflow:hidden}
+.stat-meter i{display:block;width:50%;height:100%;background:var(--cyan);border-radius:3px;transition:width .18s ease}
+#modal .tank-stat:nth-child(1) .stat-meter i{background:#ffbd69}
+#modal .tank-stat:nth-child(2) .stat-meter i{background:#7effa8}
+#modal .tank-stat:nth-child(3) .stat-meter i{background:#ff6b68}
+@media(max-height:520px) and (orientation:landscape){
+ #modal .tank-select{height:clamp(145px,32vh,210px);max-height:32vh;min-height:145px}
+ #modal .tank-card{min-height:92px;padding:4px}
+ #modal .tank-art{aspect-ratio:2.4/1}
+ #modal .tank-stats{gap:4px}
+ #modal .tank-stat{padding:5px 4px}
+ #modal .tank-stat span{font-size:7px}
+ #modal .tank-stat b{font-size:11px}
+}
+@media(max-width:650px){
+ #modal .tank-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #modal .tank-select{gap:5px;padding-right:3px}
+ #modal .tank-card{min-height:98px;padding:4px 3px}
+ #modal .tank-card::after{font-size:5px}
+ #modal .tank-art{aspect-ratio:1.65/1}
+}
