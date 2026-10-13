@@ -35,7 +35,7 @@ function connect(){
    setStatus('ОНЛАЙН-БОЙ АКТИВЕН · 3 НА 3 · БОТЫ ЗАПОЛНЯЮТ СВОБОДНЫЕ МЕСТА','ok');
   }
   else if(m.type==='battle_state'&&match&&window.MTBA_GAME){window.MTBA_GAME.applyRemoteState(m.payload)}
-  else if(m.type==='battle_event'&&match){document.dispatchEvent(new CustomEvent('mtba:online-event',{detail:m}))}
+  else if(m.type==='battle_event'&&match){window.MTBA_GAME?.applyRemoteEvent?.(m.payload)}
   else if(m.type==='player_disconnected')setStatus('ИГРОК ОТКЛЮЧИЛСЯ · МЕСТО ПЕРЕДАНО БОТУ','busy');
   else if(m.type==='match_left'){match=null;stopSnapshots();window.MTBA_GAME?.clearOnline?.();setStatus('ВЫ ВЫШЛИ ИЗ МАТЧА')}
   else if(m.type==='error'){const labels={party_not_found:'КОД ГРУППЫ НЕ НАЙДЕН',party_full:'В ГРУППЕ УЖЕ 3 ИГРОКА',leader_only:'ПОИСК МОЖЕТ ЗАПУСТИТЬ ЛИДЕР',already_in_match:'ВЫ УЖЕ В МАТЧЕ',invalid_json:'ОШИБКА СООБЩЕНИЯ',not_in_active_match:'МАТЧ НЕ АКТИВЕН'};setStatus(labels[m.code]||('ОШИБКА: '+m.code),'error')}
@@ -52,5 +52,5 @@ $('leavePartyBtn')?.addEventListener('click',()=>send('leave_party'));
 $('cancelQueueBtn')?.addEventListener('click',()=>send('cancel_matchmaking'));
 $('sharePartyBtn')?.addEventListener('click',async()=>{if(!party)return;const text='Присоединяйся к моей команде в MiniTanksBattleArena. Код группы: '+party.id;try{if(navigator.share)await navigator.share({title:'MTBA · группа друзей',text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);setStatus('КОД ПРИГЛАШЕНИЯ СКОПИРОВАН: '+party.id,'ok')}else setStatus(text,'ok')}catch{}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&(!socket||socket.readyState===WebSocket.CLOSED))connect()});
-window.MTBA_MULTIPLAYER={connect,get state(){return {connected:!!socket&&socket.readyState===WebSocket.OPEN,playerId,party,queued,match}}};
+window.MTBA_MULTIPLAYER={connect,sendBattleEvent(payload){return send('battle_event',{payload})},get state(){return {connected:!!socket&&socket.readyState===WebSocket.OPEN,playerId,party,queued,match}}};
 })();
