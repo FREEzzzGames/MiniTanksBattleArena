@@ -8,7 +8,10 @@ on:
       - 'js/**'
       - '.github/workflows/pages.yml'
       - '.github/scripts/**'
-      - 'README.md'\n      - 'server.mjs'\n      - 'server.test.mjs'\n      - 'package.json'
+      - 'README.md'
+      - 'server.mjs'
+      - 'server.test.mjs'
+      - 'package.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -34,7 +37,9 @@ jobs:
         run: npm install --no-save playwright
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run matchmaking server tests\n        run: node --test server.test.mjs\n      - name: Run web gameplay smoke tests
+      - name: Run matchmaking server tests
+        run: node --test server.test.mjs
+      - name: Run web gameplay smoke tests
         run: node .github/scripts/web-smoke-test.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
