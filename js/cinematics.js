@@ -48,7 +48,7 @@
     video.removeAttribute('src');
     video.load();
     overlay.hidden = true;
-    overlay.classList.remove('is-playing', 'cinematic-fallback', 'cinematic-intro');
+    overlay.classList.remove('is-playing', 'cinematic-fallback', 'cinematic-intro', 'cinematic-battle', 'cinematic-defeat', 'cinematic-victory');
     video.hidden = false;
     const done = overlay._done;
     overlay._done = null;
@@ -63,26 +63,20 @@
     }
     active = true;
     overlay.hidden = false;
-    overlay.classList.add('is-playing');
-    overlay.classList.toggle('cinematic-intro', kind === 'intro');
+    overlay.classList.add('is-playing', 'cinematic-' + kind);
+    overlay.classList.remove('cinematic-fallback');
     const labels = copy[kind] || copy.battle;
     title.textContent = labels[0];
     subtitle.textContent = labels[1];
     skipButton.hidden = false;
     overlay._done = options.onEnd || null;
-    if (kind === 'intro') {
-      video.pause();
-      video.removeAttribute('src');
-      video.hidden = true;
-      overlay.classList.remove('cinematic-fallback');
-      timer = window.setTimeout(() => finish(false), 6200);
-      return true;
-    }
-    video.hidden = false;
-    video.src = SOURCES[kind];
-    video.currentTime = 0;
-    video.play().catch(() => showFallback());
-    timer = window.setTimeout(() => finish(true), 12000);
+    // All three cinematic beats are authored CSS scenes. No external footage,
+    // network request, watermark risk, or media-decoding failure can block play.
+    video.pause();
+    video.removeAttribute('src');
+    video.hidden = true;
+    const duration = kind === 'intro' ? 6200 : kind === 'battle' ? 4200 : 3600;
+    timer = window.setTimeout(() => finish(false), duration);
     return true;
   }
   function playSequence(kinds, done) {
