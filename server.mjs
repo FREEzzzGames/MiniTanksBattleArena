@@ -3,7 +3,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { randomBytes, randomUUID } from 'node:crypto';
 
 const PORT = Number(process.env.PORT || 10000);
-const QUEUE_WAIT_MS = Math.max(5000, Number(process.env.QUEUE_WAIT_MS || 5000));
+const QUEUE_WAIT_MS = 5000;
 const MAX_PLAYERS = 6;
 const TEAM_SIZE = 3;
 const clients = new Map();
