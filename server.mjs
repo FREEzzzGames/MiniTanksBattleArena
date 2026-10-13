@@ -42,45 +42,38 @@ function makeParty(client) {
   parties.set(id,p); broadcastParty(p); return p;
 }
 function makeMatch(entries) {
-  const real=entries.flatMap(e=>e.playerIds.map(id=>clients.get(id))).filter(Boolean);
-  const players=real.map((c,i)=>({id:c.id,name:c.name,team:i<3?'blue':'red',bot:false,ready:true}));
-  while(players.length<MAX_PLAYERS) {
-    const i=players.length;
-    players.push({id:'bot-'+randomUUID(),name:'BOT '+String(i+1).padStart(2,'0'),team:i<3?'blue':'red',bot:true,ready:true});
-  }
-  // Preserve each pre-formed party as a team. Solo players fill the remaining slots.
-  let blue=0,red=0;
+  const blueIds=[],redIds=[];
   for(const e of entries) {
-    const ids=e.playerIds;
-    const team=(blue+ids.length<=3)?'blue':(red+ids.length<=3?'red':null);
-    if(!team) continue;
-    for(const p of players) if(ids.includes(p.id)) p.team=team;
-    if(team==='blue') blue+=ids.length; else red+=ids.length;
+    const ids=e.playerIds.filter(id=>clients.has(id));
+    if(!ids.length) continue;
+    if(blueIds.length+ids.length<=3) blueIds.push(...ids);
+    else if(redIds.length+ids.length<=3) redIds.push(...ids);
   }
-  // Rebalance solo players into any remaining slots, never splitting a party.
-  const partyIds=new Set(entries.filter(e=>e.partyId).flatMap(e=>e.playerIds));
-  for(const p of players) {
-    if(p.bot||partyIds.has(p.id)) continue;
-    if(blue<3){p.team='blue';blue++;} else {p.team='red';red++;}
-  }
+  const realIds=[...blueIds,...redIds];
+  const players=realIds.map(id=>{const c=clients.get(id);return {id,name:c.name,team:blueIds.includes(id)?'blue':'red',bot:false,ready:true};});
+  while(blueIds.length<3){const id='bot-'+randomUUID();blueIds.push(id);players.push({id,name:'BOT '+String(players.length+1).padStart(2,'0'),team:'blue',bot:true,ready:true});}
+  while(redIds.length<3){const id='bot-'+randomUUID();redIds.push(id);players.push({id,name:'BOT '+String(players.length+1).padStart(2,'0'),team:'red',bot:true,ready:true});}
   const match={id:randomUUID(),players,createdAt:Date.now()};
   matches.set(match.id,match);
   for(const p of players) if(!p.bot){const c=clients.get(p.id);if(c){c.matchId=match.id;send(c.ws,'match_found',{match:{id:match.id,team:p.team,players:players.map(publicPlayer),status:'waiting_for_gameplay_transport'}});}}
 }
 function tryMatch() {
   if(!queue.length) return;
-  const entries=[];
-  let count=0;
+  const selected=[];
+  let blue=0,red=0,realCount=0;
   for(let i=0;i<queue.length;) {
-    const e=queue[i];
-    if(count+e.playerIds.length<=MAX_PLAYERS){entries.push(e);count+=e.playerIds.length;queue.splice(i,1);}
+    const e=queue[i],liveIds=e.playerIds.filter(id=>clients.has(id)),size=liveIds.length;
+    if(!size){queue.splice(i,1);continue;}
+    let team=null;
+    if(blue+size<=3) team='blue';
+    else if(red+size<=3) team='red';
+    if(team){selected.push({...e,playerIds:liveIds});if(team==='blue')blue+=size;else red+=size;realCount+=size;queue.splice(i,1);}
     else i++;
-    if(count===MAX_PLAYERS) break;
   }
-  if(count===MAX_PLAYERS) {makeMatch(entries);return;}
-  // Only auto-fill after oldest queue entry has waited long enough.
-  if(entries.length && Date.now()-Math.min(...entries.map(e=>e.queuedAt))>=QUEUE_WAIT_MS) makeMatch(entries);
-  else queue.unshift(...entries);
+  if(!selected.length)return;
+  const waited=Date.now()-Math.min(...selected.map(e=>e.queuedAt));
+  if(realCount===MAX_PLAYERS||(waited>=QUEUE_WAIT_MS&&realCount>0)){makeMatch(selected);return;}
+  queue.unshift(...selected);
 }
 const server=http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');
