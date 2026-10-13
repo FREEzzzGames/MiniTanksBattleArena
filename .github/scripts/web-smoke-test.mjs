@@ -18,6 +18,8 @@ await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const baseUrl = 'http://127.0.0.1:' + server.address().port;
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 1, hasTouch: true });
+// Keep cinematic overlays out of interaction smoke tests; cinematics are tested separately.
+await page.emulateMedia({ reducedMotion: 'reduce' });
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 try {
