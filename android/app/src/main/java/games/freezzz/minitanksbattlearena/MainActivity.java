@@ -38,7 +38,7 @@ public final class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setMediaPlaybackRequiresUserGesture(true);
         settings.setSupportZoom(false);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -55,14 +55,14 @@ public final class MainActivity extends Activity {
             }
             @Override public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                if (LIVE_URL.equals(url) || url.startsWith(LIVE_URL + "?")) triedLocalFallback = false;
+                if (url.startsWith(LIVE_URL)) triedLocalFallback = false;
             }
         });
         setContentView(webView);
         if (savedInstanceState != null && webView.restoreState(savedInstanceState) != null) {
             // Restore the last page when Android recreates the activity.
         } else {
-            webView.loadUrl(LIVE_URL);
+            webView.loadUrl(LIVE_URL + "?launch=" + System.currentTimeMillis());
         }
     }
 
