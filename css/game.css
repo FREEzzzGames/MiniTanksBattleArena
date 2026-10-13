@@ -250,3 +250,12 @@ header small,.stat label,.eyebrow{color:#84979e}
 .cinematic-skip{position:absolute;right:clamp(12px,3vw,28px);bottom:clamp(12px,3vh,25px);z-index:2;border:1px solid #91aeb488;border-radius:4px;background:#08131bd9;color:#e7f3f3;padding:10px 15px;font:700 11px inherit;letter-spacing:.1em;min-height:40px}
 .cinematic-skip:focus-visible{outline:2px solid #75d8cf;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.cinematic-overlay *{animation:none!important;transition:none!important}}
+
+.cinematic-overlay.cinematic-fallback{background:radial-gradient(ellipse at 70% 60%,#33463d 0,#18251f 32%,#060a0c 75%)}
+.cinematic-overlay.cinematic-fallback:before{content:"";position:absolute;width:min(44vw,340px);height:min(15vw,112px);min-height:70px;right:12%;bottom:24%;border:2px solid #a4b5a1;background:linear-gradient(#536654 0 30%,#26362c 31% 100%);clip-path:polygon(14% 8%,82% 0,100% 25%,92% 90%,12% 100%,0 70%);filter:drop-shadow(0 0 24px #8ca58b55);animation:mtbaTankIntro 1.5s ease-out both}
+.cinematic-overlay.cinematic-fallback:after{content:"";position:absolute;width:min(25vw,190px);height:min(7vw,52px);min-height:35px;right:20%;bottom:39%;border:2px solid #9eae98;background:linear-gradient(#6c8068,#314432);clip-path:polygon(12% 35%,62% 0,100% 25%,87% 100%,0 100%);transform-origin:78% 75%;animation:mtbaTurretIntro 1.5s ease-out both}
+.cinematic-overlay.cinematic-fallback .cinematic-title{animation:mtbaTitleIn .5s ease-out both}
+@keyframes mtbaTankIntro{from{transform:translateX(55px);opacity:.2}to{transform:translateX(0);opacity:1}}
+@keyframes mtbaTurretIntro{from{transform:rotate(-8deg)}to{transform:rotate(0)}}
+@keyframes mtbaTitleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.cinematic-overlay.cinematic-fallback:before,.cinematic-overlay.cinematic-fallback:after,.cinematic-overlay.cinematic-fallback .cinematic-title{animation:none!important}}
