@@ -229,6 +229,10 @@ for(const side of [-1,1]){
   const wheelTone=(i===0||i===4)?'#737c6c':'#89917d';
   ctx.fillStyle=wheelTone;ctx.beginPath();ctx.arc(x,y,s*.078,0,TAU);ctx.fill();
   ctx.fillStyle='#303a35';ctx.beginPath();ctx.arc(x,y,s*.035,0,TAU);ctx.fill();
+  /* Recessed hub ring and two broad spokes give each roller a machined, readable face. */
+  ctx.strokeStyle='#c0c7ad';ctx.globalAlpha=.42;ctx.lineWidth=Math.max(.45,s*.012);ctx.beginPath();ctx.arc(x,y,s*.058,0,TAU);ctx.stroke();
+  ctx.strokeStyle='#d3d8c3';ctx.globalAlpha=.48;ctx.lineWidth=Math.max(.45,s*.012);
+  ctx.beginPath();ctx.moveTo(x-s*.035,y);ctx.lineTo(x+s*.035,y);ctx.moveTo(x,y-s*.035);ctx.lineTo(x,y+s*.035);ctx.stroke();
   ctx.fillStyle='#c0c7ad';ctx.globalAlpha=.55;ctx.beginPath();ctx.arc(x-s*.018,y-s*.018,s*.018,0,TAU);ctx.fill();ctx.globalAlpha=1;
  }
  /* Recessed tread blocks: broad alternating shoes give the belts a real segmented profile. */
@@ -343,6 +347,13 @@ ctx.fillStyle='#9da68e';ctx.fillRect(-s*.53,-s*hullH*.25,s*.07,s*hullH*.5);
 /* Role-specific upper hull: heavy gets broad shoulder armor; scout stays compact; sniper is long and low. */
 if(heavy){ctx.fillStyle='#303a31';ctx.beginPath();ctx.moveTo(-s*.45,-s*.44);ctx.lineTo(-s*.25,-s*.62);ctx.lineTo(s*.48,-s*.58);ctx.lineTo(s*.62,-s*.35);ctx.lineTo(s*.58,s*.35);ctx.lineTo(s*.4,s*.56);ctx.lineTo(-s*.3,s*.56);ctx.lineTo(-s*.48,s*.34);ctx.closePath();ctx.fill();ctx.strokeStyle='#a7ad91';ctx.lineWidth=Math.max(.8,s*.025);ctx.stroke()}
 if(laser){ctx.fillStyle='#172329';ctx.beginPath();ctx.moveTo(-s*.61,-s*.35);ctx.lineTo(s*.35,-s*.4);ctx.lineTo(s*.58,-s*.23);ctx.lineTo(s*.56,s*.23);ctx.lineTo(s*.32,s*.4);ctx.lineTo(-s*.61,s*.35);ctx.closePath();ctx.fill();ctx.fillStyle='#84969a';ctx.beginPath();ctx.moveTo(-s*.42,-s*.3);ctx.lineTo(s*.32,-s*.33);ctx.lineTo(s*.46,-s*.16);ctx.lineTo(s*.42,s*.16);ctx.lineTo(s*.28,s*.3);ctx.lineTo(-s*.42,s*.27);ctx.closePath();ctx.fill();ctx.strokeStyle='#d5e0d8';ctx.lineWidth=Math.max(.7,s*.022);ctx.stroke()}
+/* Role-specific field wear: broad chipped edges and dust streaks, kept deterministic and allocation-free. */
+ctx.save();ctx.lineCap='round';
+ctx.strokeStyle=selectedArena==='dust-front'?'#d8c49a':'#c6c8a7';ctx.globalAlpha=.22;ctx.lineWidth=Math.max(.8,s*.026);
+ctx.beginPath();ctx.moveTo(-s*.55,-s*hullH*.48);ctx.lineTo(-s*.34,-s*hullH*.43);ctx.moveTo(-s*.48,s*hullH*.46);ctx.lineTo(-s*.29,s*hullH*.42);ctx.stroke();
+ctx.strokeStyle='#080e0d';ctx.globalAlpha=.2;ctx.lineWidth=Math.max(1,s*.04);
+ctx.beginPath();ctx.moveTo(-s*.18,-s*hullH*.48);ctx.lineTo(-s*.1,-s*hullH*.34);ctx.moveTo(-s*.13,s*hullH*.47);ctx.lineTo(-s*.05,s*hullH*.35);ctx.stroke();
+ctx.restore();
 /* Hull fittings: recessed front lamps, tow points and large fasteners on the side plates. */
 ctx.save();
 ctx.fillStyle='#11191a';
