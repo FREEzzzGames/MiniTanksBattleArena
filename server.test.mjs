@@ -47,3 +47,52 @@ test('online client starts a match and exchanges snapshots and events',async()=>
  assert.match(source,/sendBattleEvent/);
  assert.match(source,/applyRemoteState/);
 });
+
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import WebSocket from 'ws';
+
+test('live websocket match fills 3v3 after five seconds and relays battle state', { timeout: 20000 }, async()=>{
+ const port=22000+Math.floor(Math.random()*12000);
+ const child=spawn(process.execPath,['server.mjs'],{env:{...process.env,PORT:String(port)},stdio:'ignore'});
+ const clients=[];
+ const makeClient=()=>{
+  const ws=new WebSocket('ws://127.0.0.1:'+port+'/ws');
+  const messages=[],waiters=[];
+  ws.on('message',raw=>{
+   let msg;try{msg=JSON.parse(raw.toString())}catch{return}
+   const i=waiters.findIndex(w=>w.type===msg.type);
+   if(i>=0){const w=waiters.splice(i,1)[0];clearTimeout(w.timer);w.resolve(msg)}else messages.push(msg);
+  });
+  const client={ws,wait(type,timeout=12000){
+   const at=messages.findIndex(m=>m.type===type);
+   if(at>=0)return Promise.resolve(messages.splice(at,1)[0]);
+   return new Promise((resolve,reject)=>{const waiter={type,resolve,timer:setTimeout(()=>{const i=waiters.indexOf(waiter);if(i>=0)waiters.splice(i,1);reject(new Error('Timed out waiting for '+type))},timeout)};waiters.push(waiter)});
+  }};
+  clients.push(client);return client;
+ };
+ try{
+  let ready=false;
+  for(let i=0;i<80&&!ready;i++){
+   try{const response=await fetch('http://127.0.0.1:'+port+'/health');ready=response.ok}catch{}
+   if(!ready)await new Promise(resolve=>setTimeout(resolve,100));
+  }
+  assert.equal(ready,true,'matchmaking server should start');
+  const a=makeClient(),b=makeClient();
+  await Promise.all([once(a.ws,'open'),once(b.ws,'open')]);
+  const connected=await Promise.all([a.wait('connected'),b.wait('connected')]);
+  a.ws.send(JSON.stringify({type:'quick_match'}));
+  b.ws.send(JSON.stringify({type:'quick_match'}));
+  const found=await Promise.all([a.wait('match_found'),b.wait('match_found')]);
+  assert.equal(found[0].match.players.length,6);
+  assert.equal(found[1].match.players.filter(p=>p.bot).length,4);
+  assert.equal(found[0].match.status,'active');
+  a.ws.send(JSON.stringify({type:'battle_state',payload:{players:[{id:connected[0].playerId,x:321,y:654,team:found[0].match.team,hp:100}]}}));
+  const relayed=await b.wait('battle_state',3000);
+  assert.equal(relayed.payload.players[0].x,321);
+  assert.equal(relayed.payload.players[0].y,654);
+ }finally{
+  for(const c of clients)try{c.ws.close()}catch{}
+  child.kill('SIGTERM');
+ }
+});
