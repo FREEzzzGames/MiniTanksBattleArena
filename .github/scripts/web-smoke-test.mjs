@@ -318,7 +318,7 @@ try {
     if (!gameSource.includes(asset)) throw new Error('Imported model asset is not wired into the game: ' + asset);
   }
   if (!gameSource.includes('drawImportedModelSetDressing()')) throw new Error('Imported model set dressing is not rendered');
-  if (!importedManifest.note.includes('not converted polygon meshes')) throw new Error('Model format limitation must be documented');
+  if (!importedManifest.note.includes('not hand-drawn placeholders') && !importedManifest.note.includes('not hand-drawn')) throw new Error('Source-mesh conversion status must be documented');
   const onlineSource = await readFile(resolve(root, 'js/multiplayer.js'), 'utf8');
   const matchmakingSource = await readFile(resolve(root, 'server.mjs'), 'utf8');
   if (!onlineSource.includes('wss://mtba-matchmaking.onrender.com/ws') && !onlineSource.includes('https://mtba-matchmaking.onrender.com')) throw new Error('Online client endpoint is missing');
