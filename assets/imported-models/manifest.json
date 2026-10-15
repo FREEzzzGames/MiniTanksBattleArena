@@ -1,0 +1,117 @@
+{
+  "title": "MTBA Imported Model Integration",
+  "renderer": "Canvas 2D",
+  "status": "visual-proxy-integration",
+  "note": "Uploaded source archives include several legacy formats (3DS, FBX, MAX, MS3D, X, Torque DTS/DSQ, Unity packages). The current web build does not load those formats directly. The SVG assets in this directory are lightweight in-game visual proxies for those categories, not converted polygon meshes. To ship original geometry, convert supported source files to optimized sprite atlases or a supported runtime format after checking the included license agreement.",
+  "sourceArchives": [
+    {
+      "archive": "3DRT-F22-fighter-ver_1_1-CLKw038.zip",
+      "sourceFiles": [
+        "f-22-3ds.3DS",
+        "f-22-hi-max-3.max",
+        "f-22-hi-max-5.max"
+      ],
+      "usage": "aircraft decoration",
+      "runtimeAsset": "f22-silhouette.svg"
+    },
+    {
+      "archive": "3DRT-Hover-Truck-ver_1_1-kQI928Hz.zip",
+      "sourceFiles": [
+        "truck-hover.3DS",
+        "Truck-hover.max",
+        "truck.jpg"
+      ],
+      "usage": "arena transport decoration",
+      "runtimeAsset": "hover-truck.svg"
+    },
+    {
+      "archive": "3DRT-character-monster-Yeti-ver_1_3-aNSz028.zip",
+      "sourceFiles": [
+        "yeti-monster.FBX",
+        "yeti-monster-animated-X.X",
+        "yeti1.jpg"
+      ],
+      "usage": "Blackwood arena creature set dressing",
+      "runtimeAsset": "yeti.svg"
+    },
+    {
+      "archive": "3DRT-character-monster-felguard-ver_1_3-eMXjdo4.zip",
+      "sourceFiles": [
+        "fellguard_m.FBX.fbx",
+        "fellguard.W3D",
+        "fguard.jpg"
+      ],
+      "usage": "Blackwood arena creature set dressing",
+      "runtimeAsset": "felguard.svg"
+    },
+    {
+      "archive": "3DRT-character-goblin-sapper-ver_1_3-mxPw927.zip",
+      "sourceFiles": [
+        "goblin-sapper.FBX",
+        "goblin-sapper_animations-list.txt",
+        "goblin.jpg"
+      ],
+      "usage": "Blackwood arena creature set dressing",
+      "runtimeAsset": "goblin-sapper.svg"
+    },
+    {
+      "archive": "3DRT.com-33-skyscrapers-buildingz.zip",
+      "sourceFiles": [
+        "bld-01.3DS",
+        "b02-small-03.3DS",
+        "bld-001.jpg"
+      ],
+      "usage": "urban structure decoration",
+      "runtimeAsset": "urban-tower.svg"
+    },
+    {
+      "archive": "3DRT-uderground_passage-ver_1_1-hg87XM1.zip",
+      "sourceFiles": [
+        "uderground-passage-max6.max",
+        "uderground-passage-max3.max",
+        "Underground_passage_level_Unity3D.unitypackage"
+      ],
+      "usage": "Blackwood arena passage feature",
+      "runtimeAsset": "underground-entrance.svg"
+    },
+    {
+      "archive": "3drt.com-free-monster-animated-character-ver.1.3.zip",
+      "sourceFiles": [
+        "monster-animated-character.FBX",
+        "monster.blend",
+        "monster.jpg"
+      ],
+      "usage": "additional creature source inventory",
+      "runtimeAsset": null
+    },
+    {
+      "archive": "3DRT-characters-Dark-Knights-PROMO-jwRNX9J.zip",
+      "sourceFiles": [
+        "knight_low_UNITY.FBX",
+        "knight_low_collada.DAE",
+        "Knight-animations-list.txt"
+      ],
+      "usage": "additional character source inventory",
+      "runtimeAsset": null
+    },
+    {
+      "archive": "Free-game-models-collection.zip",
+      "sourceFiles": [
+        "spaceships/SpaceFighter01.zip",
+        "spaceships/Shuttle01.zip",
+        "spacestation/space-station.3DS"
+      ],
+      "usage": "future optional sci-fi scene assets",
+      "runtimeAsset": null
+    }
+  ],
+  "runtimeAssets": [
+    "hover-truck.svg",
+    "f22-silhouette.svg",
+    "yeti.svg",
+    "felguard.svg",
+    "goblin-sapper.svg",
+    "urban-tower.svg",
+    "underground-entrance.svg"
+  ]
+}
