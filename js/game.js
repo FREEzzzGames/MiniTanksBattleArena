@@ -9,7 +9,7 @@ const renderEngine=window.MTBARenderEngine?window.MTBARenderEngine.create(WORLD)
 let selectedTankRole='heavy';let selectedArena='iron-yard';let mainMenuMarkup='';
 const spriteAssets={};
 function loadSprite(name,url){const im=new Image();im.onload=()=>{spriteAssets[name]=im};im.src=url}
-loadSprite('treeConifer','./assets/environment/tree-conifer.svg?v=2');loadSprite('treeAutumn','./assets/environment/tree-autumn.svg?v=2');loadSprite('bush','./assets/environment/bush.svg?v=2');loadSprite('ruin','./assets/environment/ruin.svg');loadSprite('infantry','./assets/units/infantry.svg');loadSprite('explosion','./assets/effects/explosion.svg?v=2');loadSprite('smoke','./assets/effects/smoke.svg?v=2');
+loadSprite('treeConifer','./assets/environment/tree-conifer.svg?v=2');loadSprite('treeAutumn','./assets/environment/tree-autumn.svg?v=2');loadSprite('bush','./assets/environment/bush.svg?v=2');loadSprite('ruin','./assets/environment/ruin.svg');loadSprite('infantry','./assets/units/infantry.svg');loadSprite('explosion','./assets/effects/explosion.svg?v=2');loadSprite('smoke','./assets/effects/smoke.svg?v=2');loadSprite('modelTruck','./assets/imported-models/hover-truck.svg?v=1');loadSprite('modelF22','./assets/imported-models/f22-silhouette.svg?v=1');loadSprite('modelYeti','./assets/imported-models/yeti.svg?v=1');loadSprite('modelFelguard','./assets/imported-models/felguard.svg?v=1');loadSprite('modelGoblin','./assets/imported-models/goblin-sapper.svg?v=1');loadSprite('modelTower','./assets/imported-models/urban-tower.svg?v=1');loadSprite('modelPassage','./assets/imported-models/underground-entrance.svg?v=1');
 const tankProfiles={player:{name:'STRIKER',hp:100,speed:148,damage:26,reload:.98,range:560,turn:2.55,size:23,ammo:5,archetype:'medium'},heavy:{name:'BASTION',hp:155,speed:104,damage:34,reload:1.42,range:510,turn:1.75,size:28,ammo:4,archetype:'heavy'},scout:{name:'SHADE',hp:74,speed:176,damage:18,reload:.84,range:440,turn:3.05,size:17,ammo:6,archetype:'scout'},sniper:{name:'JÄGER',hp:82,speed:112,damage:38,reload:1.72,range:680,turn:2.0,size:20,ammo:4,archetype:'sniper'},support:{name:'SENTINEL',hp:120,speed:122,damage:22,reload:1.1,range:470,turn:2.1,size:24,ammo:5,archetype:'support'},ironclad:{name:'IRONCLAD',hp:170,speed:94,damage:36,reload:1.62,range:535,turn:1.65,size:30,ammo:4,archetype:'heavy'},demolisher:{name:'DEMOLISHER',hp:180,speed:85,damage:42,reload:2,range:450,turn:1.5,size:32,ammo:3,archetype:'heavy'},viper:{name:'VIPER',hp:86,speed:185,damage:20,reload:.72,range:390,turn:3.2,size:16,ammo:7,archetype:'scout'},wraith:{name:'WRAITH',hp:95,speed:158,damage:17,reload:.9,range:460,turn:3, size:18,ammo:5,archetype:'scout'},thunder:{name:'THUNDER',hp:112,speed:128,damage:25,reload:.82,range:490,turn:2.3,size:23,ammo:6,archetype:'support'}};
 let vw=800,vh=600,dpr=1,lastTime=0,running=false,paused=true,gameOver=false,wave=1,kills=0,order='push',autoAim=true,mouse={x:0,y:0,active:false,down:false},toastTimer=0,shotId=0,touchMoveTarget=null,touchMovePointer=null,selectedTargetId=null,joystickPointer=null,joystickVector={x:0,y:0};
 const bullets=[],infantryShots=[],mgTracers=[],soldiers=[],particles=[],smokes=[],obstacles=[],trees=[],grassPatches=[],civilians=[],medkits=[],intelBoxes=[],tanks=[],drones=[],wallMarks=[],trackMarks=[],muzzleFlashes=[],impactLights=[],shockwaves=[],wrecks=[],bloodPools=[];let soldierId=0;
@@ -683,6 +683,30 @@ function drawArenaSetDressing(){
   /* Fallen logs and root fans tie the cover to the forest floor. */
   for(let i=0;i<20;i++){const x=(i*271+130)%WORLD.w,y=(i*191+80)%WORLD.h;ctx.save();ctx.translate(x,y);ctx.rotate((i%8)*.38);ctx.fillStyle='#070e0b99';ctx.fillRect(-28,-5,58,12);ctx.fillStyle='#4b4932';ctx.fillRect(-26,-3,53,6);ctx.strokeStyle='#8b8b5a55';ctx.lineWidth=1;for(let k=-18;k<22;k+=13){ctx.beginPath();ctx.moveTo(k,-3);ctx.lineTo(k+4,3);ctx.stroke()}ctx.restore()}
  }
+}
+function drawImportedModelSetDressing(){
+ /* Lightweight Canvas sprites based on the supplied model pack categories.
+    Decorative only: they do not alter collision, targeting, or battle balance. */
+ const blit=(key,x,y,w,h,alpha=1)=>{const im=spriteAssets[key];if(!im||!im.complete||!im.naturalWidth)return;ctx.save();ctx.globalAlpha=alpha;ctx.drawImage(im,x-w/2,y-h/2,w,h);ctx.restore()};
+ const W=WORLD.w,H=WORLD.h;
+ if(selectedArena==='iron-yard'){
+  blit('modelTruck',W*.19,H*.27,164,100,.94);
+  blit('modelTruck',W*.79,H*.69,148,91,.76);
+  blit('modelF22',W*.76,H*.19,96,96,.62);
+  blit('modelTower',W*.91,H*.13,80,112,.66);
+  blit('modelTower',W*.11,H*.82,70,98,.48);
+ }else if(selectedArena==='dust-front'){
+  blit('modelTruck',W*.18,H*.75,158,96,.82);
+  blit('modelF22',W*.74,H*.2,110,110,.74);
+  blit('modelTower',W*.9,H*.84,72,92,.42);
+ }else{
+  blit('modelPassage',W*.5,H*.16,180,110,.92);
+  blit('modelTruck',W*.82,H*.78,145,88,.72);
+  blit('modelYeti',W*.15,H*.18,42,52,.76);
+  blit('modelFelguard',W*.85,H*.22,42,52,.7);
+  blit('modelGoblin',W*.17,H*.81,38,49,.7);
+ }
+ drawImportedModelSetDressing();
 }
 function drawStaticTerrain(camera){if(!staticTerrainCanvas)return;const sx=clamp(camera.x,0,WORLD.w),sy=clamp(camera.y,0,WORLD.h),sw=Math.max(0,Math.min(vw,WORLD.w-sx)),sh=Math.max(0,Math.min(vh,WORLD.h-sy));if(sw>0&&sh>0)ctx.drawImage(staticTerrainCanvas,sx,sy,sw,sh,sx,sy,sw,sh)}
 function drawTerrainZones(){
