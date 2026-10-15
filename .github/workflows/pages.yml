@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'css/**'
       - 'js/**'
+      - 'assets/**'
       - '.github/workflows/pages.yml'
       - '.github/scripts/**'
       - 'README.md'
