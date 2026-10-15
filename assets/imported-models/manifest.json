@@ -1,8 +1,8 @@
 {
   "title": "MTBA Imported Model Integration",
   "renderer": "Canvas 2D",
-  "status": "visual-proxy-integration",
-  "note": "Uploaded source archives include several legacy formats (3DS, FBX, MAX, MS3D, X, Torque DTS/DSQ, Unity packages). The current web build does not load those formats directly. The SVG assets in this directory are lightweight in-game visual proxies for those categories, not converted polygon meshes. To ship original geometry, convert supported source files to optimized sprite atlases or a supported runtime format after checking the included license agreement.",
+  "status": "source-mesh-silhouette-integration",
+  "note": "Four runtime SVG sprites were generated from projected triangle geometry extracted from the original 3DS meshes in the uploaded archives (F-22, hover truck, skyscraper and underground passage). They preserve the source mesh silhouettes but are not full animated 3D runtime models and the source textures are not yet mapped. The character packs contain FBX/MAX/MS3D formats not currently supported by the Canvas 2D game pipeline; their placeholder art is not used in-game. Next conversion stage should render textured multi-angle atlases and convert character animation clips to sprite sheets.",
   "sourceArchives": [
     {
       "archive": "3DRT-F22-fighter-ver_1_1-CLKw038.zip",
@@ -32,7 +32,7 @@
         "yeti1.jpg"
       ],
       "usage": "Blackwood arena creature set dressing",
-      "runtimeAsset": "yeti.svg"
+      "runtimeAsset": null
     },
     {
       "archive": "3DRT-character-monster-felguard-ver_1_3-eMXjdo4.zip",
@@ -42,7 +42,7 @@
         "fguard.jpg"
       ],
       "usage": "Blackwood arena creature set dressing",
-      "runtimeAsset": "felguard.svg"
+      "runtimeAsset": null
     },
     {
       "archive": "3DRT-character-goblin-sapper-ver_1_3-mxPw927.zip",
@@ -52,7 +52,7 @@
         "goblin.jpg"
       ],
       "usage": "Blackwood arena creature set dressing",
-      "runtimeAsset": "goblin-sapper.svg"
+      "runtimeAsset": null
     },
     {
       "archive": "3DRT.com-33-skyscrapers-buildingz.zip",
@@ -106,11 +106,8 @@
     }
   ],
   "runtimeAssets": [
-    "hover-truck.svg",
     "f22-silhouette.svg",
-    "yeti.svg",
-    "felguard.svg",
-    "goblin-sapper.svg",
+    "hover-truck.svg",
     "urban-tower.svg",
     "underground-entrance.svg"
   ]
