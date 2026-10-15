@@ -706,7 +706,6 @@ function drawImportedModelSetDressing(){
   blit('modelFelguard',W*.85,H*.22,42,52,.7);
   blit('modelGoblin',W*.17,H*.81,38,49,.7);
  }
- drawImportedModelSetDressing();
 }
 function drawStaticTerrain(camera){if(!staticTerrainCanvas)return;const sx=clamp(camera.x,0,WORLD.w),sy=clamp(camera.y,0,WORLD.h),sw=Math.max(0,Math.min(vw,WORLD.w-sx)),sh=Math.max(0,Math.min(vh,WORLD.h-sy));if(sw>0&&sh>0)ctx.drawImage(staticTerrainCanvas,sx,sy,sw,sh,sx,sy,sw,sh)}
 function drawTerrainZones(){
@@ -850,7 +849,7 @@ function drawCombatEvents(){
  for(const s of supplyDrops){ctx.save();const pulse=1+Math.sin(s.pulse)*.12;ctx.translate(s.x,s.y);ctx.scale(pulse,pulse);ctx.fillStyle='#163f2a';ctx.strokeStyle='#8affb0';ctx.lineWidth=2;ctx.fillRect(-11,-11,22,22);ctx.strokeRect(-11,-11,22,22);ctx.strokeStyle='#d8ffe5';ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(6,0);ctx.moveTo(0,-6);ctx.lineTo(0,6);ctx.stroke();ctx.restore()}
 }
 function draw(){const frameStart=performance.now();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#111713';ctx.fillRect(0,0,vw,vh);const p=player();if(p){camera.x=clamp(p.x-vw/2,0,WORLD.w-vw);camera.y=clamp(p.y-vh/2,0,WORLD.h-vh)}else{camera.x=0;camera.y=0}const shakeX=screenShake>0?rand(-screenShake,screenShake)*18:0,shakeY=screenShake>0?rand(-screenShake,screenShake)*18:0;ctx.save();ctx.translate(-camera.x+shakeX,-camera.y+shakeY);if(renderEngine)renderEngine.drawGround(ctx,camera,vw,vh);else{ctx.fillStyle='#202b25';ctx.fillRect(0,0,WORLD.w,WORLD.h)}
-drawStaticTerrain(camera);drawGrassBase();drawCombatEvents();drawBloodPools();drawTrees();drawMedkits();drawIntelBoxes();
+drawStaticTerrain(camera);drawGrassBase();drawImportedModelSetDressing();drawCombatEvents();drawBloodPools();drawTrees();drawMedkits();drawIntelBoxes();
 drawObstacles();
 drawCivilians();drawInfantry();drawTrackMarks();drawWallMarks();drawSmokeClouds();drawProjectiles();drawInfantryShots();drawTankMGTracers();
  const visionSources=[player(),...allies()].filter(Boolean);for(const t of tanks){if(!t.alive)continue;if(t.team==='enemy'&&gameClock>=mapRevealUntil&&!visionSources.some(friend=>canSpot(friend,t))&&!scoutDroneSpots(t))continue;drawTank(t)}
