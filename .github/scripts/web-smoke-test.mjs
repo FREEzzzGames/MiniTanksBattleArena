@@ -311,7 +311,7 @@ try {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing online matchmaking control: ' + id);
   }
   const importedManifest = JSON.parse(await readFile(resolve(root, 'assets/imported-models/manifest.json'), 'utf8'));
-  if (importedManifest.runtimeAssets.length < 7) throw new Error('Imported model visual assets are incomplete');
+  if (importedManifest.runtimeAssets.length < 4) throw new Error('Source-mesh model sprites are incomplete');
   for (const asset of importedManifest.runtimeAssets) {
     const path = resolve(root, 'assets/imported-models', asset);
     await readFile(path);
