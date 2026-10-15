@@ -310,6 +310,15 @@ try {
   for (const id of ['multiplayerPanel','quickMatchBtn','createPartyBtn','partyCodeInput','joinPartyBtn','partyStatus','partyMembers','sharePartyBtn','leavePartyBtn','cancelQueueBtn']) {
     if (await page.locator('#' + id).count() !== 1) throw new Error('Missing online matchmaking control: ' + id);
   }
+  const importedManifest = JSON.parse(await readFile(resolve(root, 'assets/imported-models/manifest.json'), 'utf8'));
+  if (importedManifest.runtimeAssets.length < 7) throw new Error('Imported model visual assets are incomplete');
+  for (const asset of importedManifest.runtimeAssets) {
+    const path = resolve(root, 'assets/imported-models', asset);
+    await readFile(path);
+    if (!gameSource.includes(asset)) throw new Error('Imported model asset is not wired into the game: ' + asset);
+  }
+  if (!gameSource.includes('drawImportedModelSetDressing()')) throw new Error('Imported model set dressing is not rendered');
+  if (!importedManifest.note.includes('not converted polygon meshes')) throw new Error('Model format limitation must be documented');
   const onlineSource = await readFile(resolve(root, 'js/multiplayer.js'), 'utf8');
   const matchmakingSource = await readFile(resolve(root, 'server.mjs'), 'utf8');
   if (!onlineSource.includes('wss://mtba-matchmaking.onrender.com/ws') && !onlineSource.includes('https://mtba-matchmaking.onrender.com')) throw new Error('Online client endpoint is missing');
